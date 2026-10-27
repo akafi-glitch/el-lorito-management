@@ -13,9 +13,9 @@ and the production build, and updates these docs.
 | 5 | Waiter number entry, assigned tables, other-section warning | Done (pull request #5) |
 | 6 | Menu from the database (206 items imported), search, categories | Done (pull request #6) |
 | 7 | Tickets saved, editable until printed | Done (pull request #7) |
-| 8 | Tax and ticket totals | **Done, awaiting approval** |
-| 9 | Thermal printing (browser print), reprint | Next |
-| 10 | Live sync across devices, conflict handling | |
+| 8 | Tax and ticket totals | Done (pull request #8) |
+| 9 | Thermal printing (browser print), reprint | **Done, awaiting approval** |
+| 10 | Live sync across devices, conflict handling | Next |
 | 11 | End-to-end tests and fixes | |
 | 12 | Deployment and security review | |
 
@@ -173,3 +173,28 @@ subtotal and rounded to the cent, half a cent up. $7.50 food + $5.25 beer → $0
 
 **Not in this phase:** freezing the totals on the printed ticket (Phase 9). Until a ticket is
 printed, its totals use the current tax rates.
+
+## Phase 9 record
+
+**Objective:** print the customer ticket on the shared thermal printer, and print it again when needed.
+
+**Built:** migration `printing` (frozen totals on printed tickets, `print_attempts`, `print_ticket`,
+`reprint_ticket`, `record_print_outcome`). On the ticket: **Print ticket** (or **Save and print**
+when there are changes) saves, records the print and locks the ticket, then opens the browser's
+print dialog with an 80 mm receipt. Afterwards the waiter is asked **"Did ticket #1001 print?"**:
+**Yes** ends on the home page; **No** offers **Print again**. A printed ticket opens locked with
+**Print again** for more copies. Sample: [receipt-sample.png](receipt-sample.png).
+
+**Decisions applied:** save before printing; printing locks for good; print any number of times;
+waiter's number only on the ticket (Oct 27, 2026); printing never clears the table; no silent printing.
+
+**Choices made where the requirements were silent (easy to change):**
+- Paper width is a setting, `RECEIPT_PAPER_WIDTH_MM` (80 or 58), set to 80 until the printer is known.
+- The browser can't confirm paper came out, so the app asks the waiter and stores the answer as
+  the waiter's report. Closing the question without answering leaves it "unknown".
+- The ticket's date and time are when it was first printed; reprints show the same.
+- A printed ticket can be printed again even after the table is cleared; a never-printed ticket
+  on a cleared table can't be printed.
+
+**Not in this phase:** a specific printer model or direct (silent) printing; that needs the printer
+details.

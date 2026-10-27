@@ -27,6 +27,11 @@ const serverSchema = publicSchema.extend({
     .string()
     .default("America/Chicago")
     .refine(isValidTimeZone, { message: "APP_TIME_ZONE is not a valid time zone" }),
+  /** Receipt paper width for the thermal printer: 80 (common) or 58. Not yet confirmed by the owner. */
+  RECEIPT_PAPER_WIDTH_MM: z
+    .enum(["58", "80"], { message: "RECEIPT_PAPER_WIDTH_MM must be 58 or 80" })
+    .default("80")
+    .transform((value): 58 | 80 => (value === "58" ? 58 : 80)),
 });
 
 export type PublicEnv = z.infer<typeof publicSchema>;

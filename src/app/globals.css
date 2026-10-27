@@ -58,3 +58,54 @@
     animation-duration: 0.01ms !important;
   }
 }
+
+/* Customer ticket for the thermal printer (see features/printing/components/receipt.tsx).
+   On screen it is hidden; when printing, it is the only thing on the page. */
+.receipt-print {
+  display: none;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  body > :not(.receipt-print) {
+    display: none !important;
+  }
+  .receipt-print {
+    display: block;
+    color: #000;
+    font: 12px/1.35 ui-monospace, "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace;
+  }
+  .receipt-print hr {
+    border: 0;
+    border-top: 1px dashed #000;
+    margin: 1.5mm 0;
+  }
+  .receipt-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 2mm;
+  }
+  .receipt-row > span:last-child {
+    white-space: nowrap;
+  }
+  .receipt-center {
+    text-align: center;
+  }
+  .receipt-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .receipt-each {
+    padding-left: 4mm;
+  }
+  .receipt-total {
+    font-size: 15px;
+    font-weight: 700;
+  }
+}

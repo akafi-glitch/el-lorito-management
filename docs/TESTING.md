@@ -195,6 +195,31 @@ walkthroughs re-run and still pass.
 and a read-only printed ticket showing its taxes and total. Phase 3–6 walkthroughs re-run and
 still pass.
 
+## Phase 9 tests (9 new unit tests, 33 new database checks)
+
+- **Unit** (`src/features/printing/printing.test.ts`, `tests/env.test.ts`): the receipt has every
+  required part; waiter number only; frozen totals from the database used as they are; joined
+  tables in floor order; only printed tickets accepted; paper widths 80/58 mm; request rules;
+  plain messages; the paper-width setting.
+- **Database (`printing.test.sql`):** printing an old version refused; reprinting an unprinted
+  ticket refused; "printed" impossible without frozen totals; first print locks, records who and
+  when, freezes $25.91; attempt 1 recorded as unknown; the maker kept; table not cleared; no second
+  first print, no changes, no cancelling after printing; a later tax-rate change leaves the printed
+  total alone while unprinted tickets use the new rate; answers stored once with who and when;
+  reprints numbered 2, 3; unanswered stays unknown; cancelled tickets can't print; cleared tables
+  can't print new tickets but can reprint; turned-off staff can't print; history; browsers refused.
+
+**Browser walkthrough** (the browser's print command replaced by a counter; the receipt also saved
+as an 80 mm PDF): 24 of 24 steps passed. Save and print in one tap; the question after the print
+dialog; the receipt's contents (and no waiter name); locked with frozen totals; attempt recorded as
+unknown; No → Print again → Yes → home page; table not cleared; reprint from the locked ticket;
+closing the question leaves the answer unknown; an out-of-date screen can't print and nothing goes
+to the printer; joined tables print as "X6 + X7 + X8"; history; no page errors. Phase 3–8
+walkthroughs re-run and still pass.
+
+**Still to check on the real printer** (model not chosen yet): the paper width, that the browser's
+print dialog sends one receipt-length strip, and the cut.
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,

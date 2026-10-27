@@ -130,11 +130,19 @@ ticket happen one after the other, never half-and-half.
 
 `tax_groups` now accepts only `food` and `liquor`. Browsers can't read the view.
 
-## Planned (approved design)
+### Printing (Phase 9, `20261027100000_printing.sql`)
 
-| Group | Tables | Phase |
+| Object | Purpose | Key rules |
 | --- | --- | --- |
-| Printing | bills (the printed ticket with its totals), print_attempts | 9 |
+| `tickets` (new columns) | Frozen subtotals, rates, taxes, total, and who printed it | All required once `status = 'printed'`, and total = the four parts |
+| `print_attempts` | Every print request: attempt number, first or reprint, who, when, the waiter's answer | Attempt 1 is the first print; answer `unknown` until given, then fixed |
+| `ticket_totals` (view, updated) | Printed tickets report their frozen totals; others use current rates | |
+
+| Function | Does | Refuses with |
+| --- | --- | --- |
+| `print_ticket(visit, ticket, version, employee, actor)` | Locks an open ticket, freezes its totals, records attempt 1 | `stale_ticket`, `ticket_printed`, `ticket_cancelled`, `visit_closed`, `empty_ticket`, `employee_inactive` |
+| `reprint_ticket(ticket, employee, actor)` | Records the next attempt for a printed ticket | `ticket_not_printed`, `employee_inactive` |
+| `record_print_outcome(attempt, printed?, employee, actor)` | Stores the waiter's answer once | `outcome_already_recorded`, `invalid_outcome` |
 
 ## Testing
 
