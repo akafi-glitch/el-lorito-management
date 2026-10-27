@@ -41,6 +41,13 @@ export function formatTime(iso: string): string {
   }).format(new Date(iso));
 }
 
+/** "4:02 PM" in the restaurant's time zone. */
+export function formatClock(iso: string): string {
+  return new Intl.DateTimeFormat("en-US", { timeZone: serverEnv().APP_TIME_ZONE, hour: "numeric", minute: "2-digit" }).format(
+    new Date(iso),
+  );
+}
+
 export async function loadEmployees(): Promise<EmployeeRef[]> {
   const { data, error } = await createAdminClient()
     .from("employees")

@@ -116,12 +116,23 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Prices:** Management can change a price or turn an item off. New prices apply to new tickets
   only; tickets keep the price they were made with (Phase 7). Items are never deleted.
 
-## Tickets (Planned, Phases 7–9)
+## Tickets (Built, Phase 7; printing in Phase 9)
 
-- Editable until printed. Printing locks the ticket for good; every printed ticket is kept.
-- Any number of tickets per table; changes after printing mean a new ticket.
-- Item name and price copied at order time; menu changes never touch old tickets.
-- Ticket numbers start at 1001 and never reset (proposed).
+- A ticket belongs to the group seated at the table (the visit) and to the waiter who made it.
+  Any number of tickets per group. Numbers start at 1001 and never reset; a refused save uses no
+  number.
+- **Editable until printed:** add items, remove items, change quantities. Printing (Phase 9) locks
+  it for good; changes after printing mean a new ticket.
+- **Prices:** the database copies each item's name, price, and tax group onto the ticket when the
+  item is first saved on it. From 3:00 PM lunch items get $1.00 more at that moment. A line keeps
+  its price when its quantity changes later. Menu changes never touch saved tickets.
+- **Turned-off items** can't be added; one already on the ticket can stay.
+- **Cancel:** an unprinted ticket made by mistake can be cancelled. It stays in the history, read-only.
+- **Two devices:** every save carries the version the screen saw. If someone else saved first,
+  the save is refused ("Someone else just changed this ticket") and the screen shows the newer version.
+- **Table cleared:** its tickets are kept and can no longer be changed. A save that arrives while
+  the table is being cleared waits, then is refused. The next group starts with no tickets.
+- Every save and cancel is recorded in the audit history, with the lines before and after.
 
 ## Tax (Planned, Phase 8; rounding needs approval)
 

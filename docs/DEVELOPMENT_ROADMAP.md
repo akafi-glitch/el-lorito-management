@@ -11,9 +11,9 @@ and the production build, and updates these docs.
 | 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | Done (pull request #3) |
 | 4 | Employees, shifts, section and runner assignments, administrator accounts page | Done (pull request #4) |
 | 5 | Waiter number entry, assigned tables, other-section warning | Done (pull request #5) |
-| 6 | Menu from the database (206 items imported), search, categories | **Done, awaiting approval** |
-| 7 | Tickets saved, editable until printed | Next |
-| 8 | Tax and ticket totals | |
+| 6 | Menu from the database (206 items imported), search, categories | Done (pull request #6) |
+| 7 | Tickets saved, editable until printed | **Done, awaiting approval** |
+| 8 | Tax and ticket totals | Next |
 | 9 | Thermal printing (browser print), reprint | |
 | 10 | Live sync across devices, conflict handling | |
 | 11 | End-to-end tests and fixes | |
@@ -132,3 +132,28 @@ beer and cocktails (wine is on the cocktail page) as liquor.
 **Not in this phase:** the order is not saved yet (Phase 7). If the waiter leaves the page, the
 unsaved order is lost. The lunch price shown follows the device clock in restaurant time; from
 Phase 7 the server sets the price when the ticket is saved.
+
+## Phase 7 record
+
+**Objective:** a waiter's order is saved as a ticket and can be changed until it is printed.
+
+**Built:** migration `tickets` (tickets numbered from 1001, ticket lines with copied name, price,
+and tax group; `save_ticket` and `cancel_ticket`). On a table, the waiter sees **Tickets for this
+table** and can open any of them or start a **New ticket**. **Save ticket** stores it; **Save
+changes** updates it; **Undo changes** goes back to what's saved; **Cancel this ticket** cancels
+an unprinted ticket (kept in the history). Printed and cancelled tickets open read-only.
+
+**Decisions applied:** editable until printed; printing locks for good (Phase 9); any number of
+tickets per group; names and prices copied onto the ticket; lunch is $1.00 more from 3:00 PM.
+
+**Choices made where the requirements were silent (easy to change):**
+- The database sets each price when the item is first saved on the ticket. A line keeps that
+  price when the quantity changes later, even after 3:00 PM or a menu price change.
+- Another waiter may change an open ticket; the ticket keeps the waiter who made it and records
+  who changed it last.
+- An unprinted ticket made by mistake can be cancelled (it stays in the history, marked cancelled).
+- When two devices change the same ticket, the first save wins and the second is told to redo
+  its change on the newer version.
+
+**Not in this phase:** tax and totals (Phase 8); printing and locking (Phase 9). Moving to another
+ticket on the same page discards unsaved changes without asking; leaving or reloading the page asks first.

@@ -150,6 +150,32 @@ audit history); the waiter sees $2.50 greyed out; with the device clock moved to
 changes to $8.99 without reloading and is labelled; phone order bar; no sideways scroll; no page
 errors. Phase 3–5 walkthroughs re-run and still pass.
 
+## Phase 7 tests (15 new unit tests, 48 new database checks, 2 new race tests)
+
+- **Unit** (`src/features/tickets/tickets.test.ts`): saved lines in order with totals in cents;
+  maker and last editor; the after-3 PM part of a price; editing starts from the saved lines;
+  unsaved changes noticed (quantity, added, removed, reordered); only open tickets on an open table
+  can change; ticket links keep the other-section confirmation; input rules (no empty order, no
+  repeated item, quantities 1–99, version required to change a saved ticket); plain messages.
+- **Database (`tickets.test.sql`):** numbers start at 1001 and continue; copied names, prices,
+  tax groups; 3:00 PM lunch price; editing keeps saved prices (after a menu change and after
+  3 PM) and prices new items now; maker kept, editor recorded; stale saves refused; the history
+  keeps lines before and after; empty, repeated, 0, 100, 1.5, missing, and non-list lines
+  refused; unknown items, time zones, employees, visits refused; turned-off items can't be added
+  but can stay; cancelling; printed tickets locked; clearing the table keeps tickets and stops
+  changes; the next group starts fresh; browsers refused.
+- **Race tests** (`scripts/db-race-test.sh`, also in CI): two waiters save the same ticket at once
+  (the first wins, the second is told); a save arriving while the table is cleared waits, then
+  is refused.
+
+**Browser walkthrough** on real PostgREST and the database functions: 26 of 26 steps passed, twice.
+New ticket #1001 saved and listed; database lines checked; change, undo, save changes; saved
+price kept after a menu change, new item priced now; a second device's stale save refused and
+then shown the newer ticket; ticket #1002 saved and cancelled (kept, read-only); a printed ticket
+opens read-only; a just-turned-off item refused by name; saving after the table was cleared refused,
+both tickets kept; the next group starts with no tickets; phone layout; no page errors. Phase 3–6
+walkthroughs re-run and still pass.
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,

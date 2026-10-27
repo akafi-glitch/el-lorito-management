@@ -106,13 +106,26 @@ passwords).
 | --- | --- | --- |
 | `update_menu_item(item, price cents, available, actor)` | Changes the current price and/or on/off; records it; returns the name | `menu_item_not_found` |
 
+### Tickets (Phase 7, `20261027080000_tickets.sql`)
+
+| Table | Purpose | Key rules |
+| --- | --- | --- |
+| `tickets` | One saved order: `ticket_number` (from 1001), visit, waiter who made it, status, version | Status `open`, `printed` (needs `printed_at`), or `cancelled` (needs `cancelled_at`); never deleted |
+| `ticket_lines` | Items on a ticket in the order shown | Name, `unit_price_cents`, `late_surcharge_cents`, tax category and group copied; quantity 1–99; one line per item |
+
+| Function | Does | Refuses with |
+| --- | --- | --- |
+| `save_ticket(visit, ticket or null, version, employee, lines, time zone, actor)` | Creates a ticket or replaces an open ticket's lines; prices new items (with the 3 PM lunch amount); keeps saved lines' prices; records before/after | `empty_ticket`, `invalid_lines`, `employee_inactive`, `visit_closed`, `ticket_printed`, `ticket_cancelled`, `stale_ticket`, `menu_item_not_found`, `item_unavailable` |
+| `cancel_ticket(visit, ticket, version, employee, actor)` | Marks an open ticket cancelled; records it | `visit_closed`, `ticket_printed`, `ticket_cancelled`, `stale_ticket` |
+
+The visit row is locked `for share` while a ticket is saved, so clearing the table and saving a
+ticket happen one after the other, never half-and-half.
+
 ## Planned (approved design)
 
 | Group | Tables | Phase |
 | --- | --- | --- |
-| Tickets | orders (from 1001), order_items (name and price copied), bills, bill_lines, print_attempts | 7–9 |
-
-Still to come: create_order, update_order_items, create_bill, record_print_attempt.
+| Printing | bills (the printed ticket with its totals), print_attempts | 9 |
 
 ## Testing
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Two hosts tap the same table at the same moment: exactly one may win.
+# Two devices change the same thing at the same moment: exactly one may win, and nothing deadlocks.
 # Runs two real database connections at once against a DISPOSABLE local database
 # (the CI database, or `npx supabase start`). It leaves test visits behind, so it refuses
 # to run against anything that isn't on this computer.
@@ -66,6 +66,43 @@ elif [ "$(cat "$work/third.code")" = 0 ] && grep -q "table_occupied" "$work/four
   echo "  PASS: one host seated A5 + B5; the other was told they're taken; no deadlock"
 else
   echo "  FAIL"; cat "$work"/*.out; fail=1
+fi
+
+# A waiter for the ticket races (number 990001, added once).
+EMP=$("${PSQL[@]}" -c "select coalesce((select id from public.employees where number_key = '990001'),
+                                         public.add_employee('990001', 'Race Waiter', 'waiter', null))")
+LINES() { echo "[{\"item_id\": $("${PSQL[@]}" -c "select id from public.menu_items where name = 'Taco'"), \"quantity\": $1}]"; }
+
+echo "Race 3: two waiters save the same ticket at the same moment"
+reset_tables "C6"
+VISIT=$("${PSQL[@]}" -c "select public.seat_party(array['C6'], 2, null)")
+TICKET=$("${PSQL[@]}" -c "select ticket_id from public.save_ticket($VISIT, null, null, $EMP, '$(LINES 1)', 'America/Chicago', null)")
+( "${PSQL[@]}" -c "begin; select * from public.save_ticket($VISIT, $TICKET, 1, $EMP, '$(LINES 2)', 'America/Chicago', null); select pg_sleep(2); commit;" \
+    >"$work/fifth.out" 2>&1; echo $? >"$work/fifth.code" ) &
+sleep 0.5
+( "${PSQL[@]}" -c "select * from public.save_ticket($VISIT, $TICKET, 1, $EMP, '$(LINES 3)', 'America/Chicago', null);" \
+    >"$work/sixth.out" 2>&1; echo $? >"$work/sixth.code" ) &
+wait
+QTY=$("${PSQL[@]}" -c "select quantity from public.ticket_lines where ticket_id = $TICKET")
+if [ "$(cat "$work/fifth.code")" = 0 ] && grep -q "stale_ticket" "$work/sixth.out" && [ "$QTY" = 2 ]; then
+  echo "  PASS: the first save won (2 tacos); the second was told the ticket changed"
+else
+  echo "  FAIL"; cat "$work/fifth.out" "$work/sixth.out"; fail=1
+fi
+
+echo "Race 4: the table is cleared while a waiter saves a ticket"
+( "${PSQL[@]}" -c "begin;
+    select public.clear_visit($VISIT, public.mark_chips_served($VISIT, (select version from public.customer_visits where id = $VISIT), null), null);
+    select pg_sleep(2); commit;" >"$work/seventh.out" 2>&1; echo $? >"$work/seventh.code" ) &
+sleep 0.5
+( "${PSQL[@]}" -c "select * from public.save_ticket($VISIT, null, null, $EMP, '$(LINES 1)', 'America/Chicago', null);" \
+    >"$work/eighth.out" 2>&1; echo $? >"$work/eighth.code" ) &
+wait
+if [ "$(cat "$work/seventh.code")" = 0 ] && grep -q "visit_closed" "$work/eighth.out" \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.tickets where visit_id = $VISIT")" = 1 ]; then
+  echo "  PASS: the save waited for the clearing, then was refused; no ticket was added to the closed visit"
+else
+  echo "  FAIL"; cat "$work/seventh.out" "$work/eighth.out"; fail=1
 fi
 
 exit $fail

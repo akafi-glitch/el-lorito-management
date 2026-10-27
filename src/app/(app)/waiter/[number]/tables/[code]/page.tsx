@@ -5,9 +5,14 @@ import { SectionShell } from "@/components/section-shell";
 import { buttonClasses } from "@/components/ui/button";
 import { allTables } from "@/features/floor/layout";
 import { STATUS_LABEL } from "@/features/floor/status";
-import { MenuScreen } from "@/features/menu/components/menu-screen";
 import { loadMenu } from "@/features/menu/queries";
 import { employeeLabel } from "@/features/staff/rules";
+import { TicketEditor } from "@/features/tickets/components/ticket-editor";
+import { TicketList } from "@/features/tickets/components/ticket-list";
+import { TicketView } from "@/features/tickets/components/ticket-view";
+import { loadVisitTickets } from "@/features/tickets/queries";
+import { withTicket } from "@/features/tickets/rules";
+import { ticketNumberParamSchema } from "@/features/tickets/schema";
 import { WaiterRefused } from "@/features/waiter/components/waiter-refused";
 import { loadWaiterScreen } from "@/features/waiter/queries";
 import { resolveWaiter } from "@/features/waiter/resolve";
@@ -19,7 +24,7 @@ export const metadata: Metadata = { title: "Table" };
 
 type Props = {
   params: Promise<{ number: string; code: string }>;
-  searchParams: Promise<{ continue?: string | string[] }>;
+  searchParams: Promise<{ continue?: string | string[]; ticket?: string | string[] }>;
 };
 
 export default async function WaiterTablePage({ params, searchParams }: Props) {
@@ -71,6 +76,18 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
 
   const visit = table.visit!;
   const guests = visit.guestCount === 1 ? "1 guest" : `${visit.guestCount} guests`;
+  const tableHref = tablePath(back, table, warning !== null);
+  const tickets = await loadVisitTickets(visit.visitId);
+
+  // ?ticket=1001 opens that ticket of this group; no number means a new ticket.
+  const wanted = query.ticket === undefined ? null : ticketNumberParamSchema.safeParse(query.ticket);
+  const selected = wanted?.success ? (tickets.find((t) => t.number === wanted.data) ?? null) : null;
+  if (wanted && !selected) {
+    return shell(
+      table.label,
+      <Problem message="That ticket isn't on this table." action={<Link href={withTicket(tableHref, null)} className={buttonClasses("primary")}>Start a new ticket</Link>} />,
+    );
+  }
 
   return shell(
     `Table ${visit.tableLabels.join(" + ")}`,
@@ -94,7 +111,28 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
           You confirmed opening a table outside your section. Tickets you create here will carry your name.
         </p>
       ) : null}
-      <MenuScreen menu={menu} timeZone={serverEnv().APP_TIME_ZONE} nowIso={new Date().toISOString()} />
+      <TicketList tickets={tickets} selected={selected?.number ?? null} tableHref={tableHref} />
+      {selected && selected.status !== "open" ? (
+        <TicketView
+          ticket={selected}
+          reason={
+            selected.status === "printed"
+              ? "Printed tickets can't be changed. Start a new ticket for anything else."
+              : "This ticket was cancelled."
+          }
+          newTicketHref={withTicket(tableHref, null)}
+        />
+      ) : (
+        <TicketEditor
+          menu={menu}
+          timeZone={serverEnv().APP_TIME_ZONE}
+          nowIso={new Date().toISOString()}
+          employeeNumber={me.number}
+          visitId={visit.visitId}
+          ticket={selected}
+          tableHref={tableHref}
+        />
+      )}
       <div className="flex flex-col gap-3 sm:flex-row">
         {backLink}
         <Link href="/" className={buttonClasses("primary")}>
