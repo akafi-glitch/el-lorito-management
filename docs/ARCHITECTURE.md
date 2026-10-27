@@ -50,10 +50,13 @@ src/
     (app)/                signed-in pages: home, floor, waiter, manage
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth now; floor, seating, staff, menu,
+  features/<module>/      one folder per module (auth and floor now; seating, staff, menu,
                           orders, billing, printing later)
     actions.ts            Server Actions
-    schema.ts             Zod input rules
+    queries.ts            server-only reads (floor: loadFloorMap)
+    layout.ts / status.ts pure rules (floor: build the map, derive table color)
+    components/           screen pieces for this module
+    schema.ts             Zod rules for input and for rows read from the database
     *.test.ts             unit tests next to the rules
   components/             shared UI (Button, TextField, PageHeader, TopBar, Wordmark)
   config/navigation.ts    home-page destinations

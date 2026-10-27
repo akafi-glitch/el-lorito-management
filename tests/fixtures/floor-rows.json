@@ -1,0 +1,759 @@
+{
+    "areas": [
+        {
+            "code": "A",
+            "name": "Section A",
+            "col_span": 1,
+            "row_span": 1,
+            "floor_col": 1,
+            "floor_row": 1,
+            "sort_order": 1
+        },
+        {
+            "code": "B",
+            "name": "Section B",
+            "col_span": 1,
+            "row_span": 1,
+            "floor_col": 2,
+            "floor_row": 1,
+            "sort_order": 2
+        },
+        {
+            "code": "C",
+            "name": "Section C",
+            "col_span": 1,
+            "row_span": 1,
+            "floor_col": 3,
+            "floor_row": 1,
+            "sort_order": 3
+        },
+        {
+            "code": "BAR",
+            "name": "Bar",
+            "col_span": 2,
+            "row_span": 1,
+            "floor_col": 1,
+            "floor_row": 2,
+            "sort_order": 4
+        },
+        {
+            "code": "X",
+            "name": "Section X",
+            "col_span": 2,
+            "row_span": 1,
+            "floor_col": 1,
+            "floor_row": 3,
+            "sort_order": 5
+        },
+        {
+            "code": "P",
+            "name": "Section P and Party",
+            "col_span": 1,
+            "row_span": 2,
+            "floor_col": 3,
+            "floor_row": 2,
+            "sort_order": 6
+        }
+    ],
+    "tables": [
+        {
+            "id": "cd78bc1f-cdcd-4925-b229-cd23fbe843fd",
+            "code": "A1",
+            "label": "A1",
+            "capacity": 4,
+            "area_code": "A",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 3,
+            "sort_order": 1,
+            "section_code": "A"
+        },
+        {
+            "id": "68989183-87e2-4684-b75c-070c4897a033",
+            "code": "A2",
+            "label": "A2",
+            "capacity": 4,
+            "area_code": "A",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 2,
+            "sort_order": 2,
+            "section_code": "A"
+        },
+        {
+            "id": "ae521200-1c96-4b48-8340-5b4b8d99804d",
+            "code": "A3",
+            "label": "A3",
+            "capacity": 4,
+            "area_code": "A",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 1,
+            "sort_order": 3,
+            "section_code": "A"
+        },
+        {
+            "id": "aa24b7f7-e417-41d4-9adb-993d2622147f",
+            "code": "A4",
+            "label": "A4",
+            "capacity": 6,
+            "area_code": "A",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 1,
+            "sort_order": 4,
+            "section_code": "A"
+        },
+        {
+            "id": "659d0ad4-9c1e-49b2-b1ff-746cf028869d",
+            "code": "A5",
+            "label": "A5",
+            "capacity": 4,
+            "area_code": "A",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 2,
+            "sort_order": 5,
+            "section_code": "A"
+        },
+        {
+            "id": "bba861e2-f62e-4820-96ec-b8a551b86bff",
+            "code": "A6",
+            "label": "A6",
+            "capacity": 4,
+            "area_code": "A",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 3,
+            "sort_order": 6,
+            "section_code": "A"
+        },
+        {
+            "id": "2f53fe09-4557-45d3-bf1d-38e053331c6d",
+            "code": "B1",
+            "label": "B1",
+            "capacity": 4,
+            "area_code": "B",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 3,
+            "sort_order": 1,
+            "section_code": "B"
+        },
+        {
+            "id": "8bff4ce8-db92-47fb-af7a-b11df6308fd1",
+            "code": "B2",
+            "label": "B2",
+            "capacity": 4,
+            "area_code": "B",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 2,
+            "sort_order": 2,
+            "section_code": "B"
+        },
+        {
+            "id": "90d38562-495d-484b-ad21-36d271fe4cb7",
+            "code": "B3",
+            "label": "B3",
+            "capacity": 4,
+            "area_code": "B",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 1,
+            "sort_order": 3,
+            "section_code": "B"
+        },
+        {
+            "id": "908825ac-cf58-4bdc-b1ca-e333c7dc6500",
+            "code": "B4",
+            "label": "B4",
+            "capacity": 6,
+            "area_code": "B",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 1,
+            "sort_order": 4,
+            "section_code": "B"
+        },
+        {
+            "id": "da5fb955-3245-48dc-85ee-032ae26ae9ed",
+            "code": "B5",
+            "label": "B5",
+            "capacity": 4,
+            "area_code": "B",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 2,
+            "sort_order": 5,
+            "section_code": "B"
+        },
+        {
+            "id": "d1ccf6a3-429b-4508-a99b-7558e1c0479c",
+            "code": "B6",
+            "label": "B6",
+            "capacity": 4,
+            "area_code": "B",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 3,
+            "sort_order": 6,
+            "section_code": "B"
+        },
+        {
+            "id": "aba9d8c3-84d8-4eb7-b9ab-0e7352347562",
+            "code": "BAR-1",
+            "label": "Bar 1",
+            "capacity": null,
+            "area_code": "BAR",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 1,
+            "sort_order": 1,
+            "section_code": "BAR"
+        },
+        {
+            "id": "b5660821-0ad6-4c26-9eac-fd0c70aa5f46",
+            "code": "BAR-2",
+            "label": "Bar 2",
+            "capacity": null,
+            "area_code": "BAR",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 1,
+            "sort_order": 2,
+            "section_code": "BAR"
+        },
+        {
+            "id": "38a63c87-6b67-4017-ae1d-e5dec9034c46",
+            "code": "BAR-3",
+            "label": "Bar 3",
+            "capacity": null,
+            "area_code": "BAR",
+            "is_active": true,
+            "layout_col": 3,
+            "layout_row": 1,
+            "sort_order": 3,
+            "section_code": "BAR"
+        },
+        {
+            "id": "64bb60a9-f115-4f6f-bfcb-bd867d0b97e8",
+            "code": "BAR-4",
+            "label": "Bar 4",
+            "capacity": null,
+            "area_code": "BAR",
+            "is_active": true,
+            "layout_col": 4,
+            "layout_row": 1,
+            "sort_order": 4,
+            "section_code": "BAR"
+        },
+        {
+            "id": "a554e3cd-2eb4-4383-a527-fbdb25d83705",
+            "code": "C1",
+            "label": "C1",
+            "capacity": 6,
+            "area_code": "C",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 3,
+            "sort_order": 1,
+            "section_code": "C"
+        },
+        {
+            "id": "ce88d50e-9b88-4755-b44c-c9849f6cea93",
+            "code": "C2",
+            "label": "C2",
+            "capacity": 6,
+            "area_code": "C",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 2,
+            "sort_order": 2,
+            "section_code": "C"
+        },
+        {
+            "id": "2e37ab4b-3db9-48ad-8367-83c6d26b7aa1",
+            "code": "C3",
+            "label": "C3",
+            "capacity": 6,
+            "area_code": "C",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 1,
+            "sort_order": 3,
+            "section_code": "C"
+        },
+        {
+            "id": "0b7b09fc-4426-4e8b-86d8-85cc4663ac40",
+            "code": "C4",
+            "label": "C4",
+            "capacity": 4,
+            "area_code": "C",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 1,
+            "sort_order": 4,
+            "section_code": "C"
+        },
+        {
+            "id": "60bbb57a-a08a-401f-ba5b-e5274196bdb9",
+            "code": "C5",
+            "label": "C5",
+            "capacity": 4,
+            "area_code": "C",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 2,
+            "sort_order": 5,
+            "section_code": "C"
+        },
+        {
+            "id": "ea2b770e-d790-4af4-9078-f017414b46fd",
+            "code": "C6",
+            "label": "C6",
+            "capacity": 4,
+            "area_code": "C",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 3,
+            "sort_order": 6,
+            "section_code": "C"
+        },
+        {
+            "id": "b4bf69f1-1cf5-44b9-b07d-fd7ff0093935",
+            "code": "P1",
+            "label": "P1",
+            "capacity": 4,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 2,
+            "sort_order": 1,
+            "section_code": "P"
+        },
+        {
+            "id": "c68c6aad-6cdd-4d4a-8648-ea18627f4afd",
+            "code": "P2",
+            "label": "P2",
+            "capacity": 4,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 3,
+            "sort_order": 2,
+            "section_code": "P"
+        },
+        {
+            "id": "aa3febbe-cd97-4426-ab75-6db305f921a1",
+            "code": "P3",
+            "label": "P3",
+            "capacity": 4,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 4,
+            "sort_order": 3,
+            "section_code": "P"
+        },
+        {
+            "id": "11dbee30-661b-4930-aa87-44f1a346ee1e",
+            "code": "P4",
+            "label": "P4",
+            "capacity": 4,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 5,
+            "sort_order": 4,
+            "section_code": "P"
+        },
+        {
+            "id": "3a789d32-37d0-48a5-933e-34b62a18429e",
+            "code": "P5",
+            "label": "P5",
+            "capacity": 4,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 6,
+            "sort_order": 5,
+            "section_code": "P"
+        },
+        {
+            "id": "d25a046d-814e-4e5a-9a4b-c268da59fcc8",
+            "code": "P10",
+            "label": "P10",
+            "capacity": 4,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 1,
+            "sort_order": 6,
+            "section_code": "P"
+        },
+        {
+            "id": "b9a75d40-86bf-4ffc-be07-2c5c2f2df0db",
+            "code": "PARTY-1",
+            "label": "Party 1",
+            "capacity": null,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 2,
+            "sort_order": 1,
+            "section_code": "PARTY"
+        },
+        {
+            "id": "6b4beea2-0433-41e2-9a25-4df403ca3fb5",
+            "code": "PARTY-2",
+            "label": "Party 2",
+            "capacity": null,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 4,
+            "sort_order": 2,
+            "section_code": "PARTY"
+        },
+        {
+            "id": "351a8c83-bfc9-4586-9960-6f7614650344",
+            "code": "PARTY-3",
+            "label": "Party 3",
+            "capacity": null,
+            "area_code": "P",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 6,
+            "sort_order": 3,
+            "section_code": "PARTY"
+        },
+        {
+            "id": "62e482d4-ad30-489c-9122-89dcbc4595be",
+            "code": "X1",
+            "label": "X1",
+            "capacity": 4,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 3,
+            "layout_row": 1,
+            "sort_order": 1,
+            "section_code": "X-1"
+        },
+        {
+            "id": "c92952c1-d1ff-469a-95df-4ba66769a8ec",
+            "code": "X2",
+            "label": "X2",
+            "capacity": 4,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 3,
+            "layout_row": 2,
+            "sort_order": 2,
+            "section_code": "X-1"
+        },
+        {
+            "id": "89c022ee-da70-4185-93c1-2aa24b450c89",
+            "code": "X3",
+            "label": "X3",
+            "capacity": 4,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 3,
+            "layout_row": 3,
+            "sort_order": 3,
+            "section_code": "X-1"
+        },
+        {
+            "id": "fc8997c8-c6a6-41de-bed6-de46a33f0eea",
+            "code": "X9",
+            "label": "X9",
+            "capacity": 4,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 5,
+            "sort_order": 4,
+            "section_code": "X-1"
+        },
+        {
+            "id": "4b1e9e27-3af3-4c37-8183-149896c98be3",
+            "code": "X10",
+            "label": "X10",
+            "capacity": 6,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 4,
+            "sort_order": 5,
+            "section_code": "X-1"
+        },
+        {
+            "id": "6aef1698-68ab-4bcc-9495-bc2fd865e129",
+            "code": "X11",
+            "label": "X11",
+            "capacity": 6,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 3,
+            "sort_order": 6,
+            "section_code": "X-1"
+        },
+        {
+            "id": "0017584b-7789-4990-8a96-75e7b1b34ae9",
+            "code": "X12",
+            "label": "X12",
+            "capacity": 6,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 1,
+            "layout_row": 2,
+            "sort_order": 7,
+            "section_code": "X-1"
+        },
+        {
+            "id": "18a3e374-31bb-48db-8283-a44c76ba983f",
+            "code": "X4",
+            "label": "X4",
+            "capacity": 4,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 3,
+            "layout_row": 4,
+            "sort_order": 1,
+            "section_code": "X-2"
+        },
+        {
+            "id": "e624cfe4-bf07-4b08-af5a-53b9ce629ce3",
+            "code": "X5",
+            "label": "X5",
+            "capacity": 4,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 3,
+            "layout_row": 5,
+            "sort_order": 2,
+            "section_code": "X-2"
+        },
+        {
+            "id": "3c24029d-fe5a-4ba7-9643-fbede5049a1b",
+            "code": "X6",
+            "label": "X6",
+            "capacity": 6,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 5,
+            "sort_order": 3,
+            "section_code": "X-2"
+        },
+        {
+            "id": "c316a029-b23c-4871-ad76-504760cbf6fc",
+            "code": "X7",
+            "label": "X7",
+            "capacity": 6,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 4,
+            "sort_order": 4,
+            "section_code": "X-2"
+        },
+        {
+            "id": "0fe1e4c4-f78d-4b08-a491-061919c844eb",
+            "code": "X8",
+            "label": "X8",
+            "capacity": 6,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 3,
+            "sort_order": 5,
+            "section_code": "X-2"
+        },
+        {
+            "id": "068432d7-7df6-4bf2-a22c-92380d36d717",
+            "code": "X13",
+            "label": "X13",
+            "capacity": 2,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 2,
+            "sort_order": 6,
+            "section_code": "X-2"
+        },
+        {
+            "id": "fdecc599-5626-44e7-b35a-db52d0296b7d",
+            "code": "X14",
+            "label": "X14",
+            "capacity": 2,
+            "area_code": "X",
+            "is_active": true,
+            "layout_col": 2,
+            "layout_row": 1,
+            "sort_order": 7,
+            "section_code": "X-2"
+        }
+    ],
+    "sections": [
+        {
+            "code": "A",
+            "kind": "dining",
+            "name": "A",
+            "is_open": true,
+            "sort_order": 1,
+            "rotation_order": 1,
+            "open_to_all_waiters": false
+        },
+        {
+            "code": "B",
+            "kind": "dining",
+            "name": "B",
+            "is_open": true,
+            "sort_order": 2,
+            "rotation_order": 3,
+            "open_to_all_waiters": false
+        },
+        {
+            "code": "C",
+            "kind": "dining",
+            "name": "C",
+            "is_open": true,
+            "sort_order": 3,
+            "rotation_order": 2,
+            "open_to_all_waiters": false
+        },
+        {
+            "code": "X-1",
+            "kind": "dining",
+            "name": "X(1)",
+            "is_open": true,
+            "sort_order": 4,
+            "rotation_order": 4,
+            "open_to_all_waiters": false
+        },
+        {
+            "code": "X-2",
+            "kind": "dining",
+            "name": "X(2)",
+            "is_open": true,
+            "sort_order": 5,
+            "rotation_order": 5,
+            "open_to_all_waiters": false
+        },
+        {
+            "code": "P",
+            "kind": "dining",
+            "name": "P",
+            "is_open": true,
+            "sort_order": 6,
+            "rotation_order": 6,
+            "open_to_all_waiters": false
+        },
+        {
+            "code": "PARTY",
+            "kind": "party",
+            "name": "Party",
+            "is_open": true,
+            "sort_order": 7,
+            "rotation_order": null,
+            "open_to_all_waiters": false
+        },
+        {
+            "code": "BAR",
+            "kind": "bar",
+            "name": "Bar",
+            "is_open": true,
+            "sort_order": 8,
+            "rotation_order": null,
+            "open_to_all_waiters": true
+        }
+    ],
+    "combinations": [
+        {
+            "id": "1a4ba7d8-4cc6-4c50-b0c0-5ce900dfa874",
+            "code": "A3+A4",
+            "label": "A3 + A4",
+            "is_active": true,
+            "sort_order": 1,
+            "allows_over_twelve": false,
+            "table_combination_members": [
+                {
+                    "table_id": "ae521200-1c96-4b48-8340-5b4b8d99804d"
+                },
+                {
+                    "table_id": "aa24b7f7-e417-41d4-9adb-993d2622147f"
+                }
+            ]
+        },
+        {
+            "id": "fab5ac1b-f853-4de9-8de0-2791ef74e5a7",
+            "code": "B3+B4",
+            "label": "B3 + B4",
+            "is_active": true,
+            "sort_order": 2,
+            "allows_over_twelve": false,
+            "table_combination_members": [
+                {
+                    "table_id": "90d38562-495d-484b-ad21-36d271fe4cb7"
+                },
+                {
+                    "table_id": "908825ac-cf58-4bdc-b1ca-e333c7dc6500"
+                }
+            ]
+        },
+        {
+            "id": "ad102cf4-212d-4632-8820-49091fd1c84d",
+            "code": "C3+C4",
+            "label": "C3 + C4",
+            "is_active": true,
+            "sort_order": 3,
+            "allows_over_twelve": false,
+            "table_combination_members": [
+                {
+                    "table_id": "2e37ab4b-3db9-48ad-8367-83c6d26b7aa1"
+                },
+                {
+                    "table_id": "0b7b09fc-4426-4e8b-86d8-85cc4663ac40"
+                }
+            ]
+        },
+        {
+            "id": "4cd4658e-b25e-405b-86c9-cf256d6e3b0a",
+            "code": "A4+B4",
+            "label": "A4 + B4",
+            "is_active": true,
+            "sort_order": 4,
+            "allows_over_twelve": false,
+            "table_combination_members": [
+                {
+                    "table_id": "aa24b7f7-e417-41d4-9adb-993d2622147f"
+                },
+                {
+                    "table_id": "908825ac-cf58-4bdc-b1ca-e333c7dc6500"
+                }
+            ]
+        },
+        {
+            "id": "4ddb0b59-7e60-439a-adbf-4660e4460b58",
+            "code": "X6+X7+X8",
+            "label": "X6 + X7 + X8",
+            "is_active": true,
+            "sort_order": 5,
+            "allows_over_twelve": true,
+            "table_combination_members": [
+                {
+                    "table_id": "3c24029d-fe5a-4ba7-9643-fbede5049a1b"
+                },
+                {
+                    "table_id": "c316a029-b23c-4871-ad76-504760cbf6fc"
+                },
+                {
+                    "table_id": "0fe1e4c4-f78d-4b08-a491-061919c844eb"
+                }
+            ]
+        }
+    ]
+}

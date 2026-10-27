@@ -6,14 +6,16 @@ assignments, food tickets, and ticket printing, shared live across the restauran
 Built with Next.js (App Router), TypeScript, Tailwind CSS, and Supabase (PostgreSQL + Auth).
 Hosted on Vercel.
 
-> **Status: Phase 1 of 12.** The app shell and administrator sign-in work. Restaurant features
-> arrive phase by phase. See [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
+> **Status: Phase 2 of 12.** Sign-in and the floor map work. Restaurant features arrive phase by
+> phase. See [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
 
 ## What works now
 
 - Every page requires an administrator username and password. There is no sign-up page.
 - Home page with **Floor Management** and **Waiter Section**, plus a **Management** link.
-- Placeholder pages for Floor, Waiter, and Management that say which phase builds them.
+- **Floor Management** shows all 45 tables placed like the restaurant's floor plan, with chairs,
+  status colors, and the approved table combinations. Seating arrives in Phase 3.
+- Placeholder pages for Waiter and Management that say which phase builds them.
 - `/api/health` reports whether the app is configured (never the settings themselves).
 
 ## Local setup

@@ -27,13 +27,14 @@ service, waiter assignments, food tickets, and printing, on several devices shar
 | X(2) | X4, X5, X6, X7, X8, X13, X14 |
 | P | P1–P5 and P10 (**decided**; P6–P9 do not exist) |
 | Party | Party 1, Party 2, Party 3 (capacities unknown, **decided**) |
-| Bar | Four areas, open seating, never in the rotation |
+| Bar | Bar 1–4. **Decided:** tracked as tables with status colors and chips; never in the rotation; capacities unknown |
 
 - Rotation: A → C → B → X(1) → X(2) → P, advancing after each party is seated.
 - Groups of 7+: Party areas first, then approved combinations. Above 12 guests only X6 + X7 + X8.
-- Approved combinations: A3 + A4, B3 + B4, C3 + C4, A4 + B4, X6 + X7 + X8. Staff may also make
-  their own combination; all its tables show occupied.
-- Capacities are data, never hard-coded. Do not invent capacities.
+- Approved combinations: A3 + A4, B3 + B4, C3 + C4, A4 + B4, X6 + X7 + X8.
+  **Decided:** combined capacity = sum of the chairs. Anyone (manager, host, or other staff) can
+  also make any combination by hand; all its tables show occupied.
+- **Decided:** "4ch" on the drawing means 4 chairs. Capacities are data, never hard-coded.
 
 ## Table status
 
@@ -45,6 +46,9 @@ Occupancy and chips status are stored separately.
 
 Employee number → current assignment → assigned tables → choose table (warning if it belongs to
 another waiter, may continue) → menu → ticket → save → print → back to home.
+
+**Decided:** any waiter can bill a Bar table, and the Bar is always offered in the waiter's table
+list, alongside their assigned tables.
 
 ## Tickets
 
@@ -68,6 +72,5 @@ modifications, special instructions, advanced analytics, multiple printers, sile
 
 ## Open questions
 
-Tracked in the Phase 0 plan: Bar tracking, capacity confirmations, rotation on manual seating,
-role list, runner coverage, menu gaps (cheese-dip add-ons, chile con queso price, lunch hours),
+Tracked in the Phase 0 plan: rotation on manual seating, role list, runner coverage, menu gaps (cheese-dip add-ons, chile con queso price, lunch hours),
 tax rounding approval, waiter name on ticket, printer model.
