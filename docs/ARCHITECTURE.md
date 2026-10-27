@@ -53,7 +53,7 @@ src/
                           waiter/[number]/tables/[code]: a waiter's tables, then one table
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu now;
+  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets now;
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)
@@ -107,3 +107,12 @@ device, so typing in the search box makes no database requests. Money is whole c
 read as text, not as a floating-point number. Lunch's 3:00 PM price comes from data on the Lunch
 category and the restaurant's time zone (`APP_TIME_ZONE`), so a tablet set to another time zone
 still shows the right price. The order being built is kept on the device until Phase 7 saves it.
+
+## Tickets
+
+The table page lists the group's tickets and opens one with `?ticket=1001` (no number means a new
+ticket). The order being built stays on the device until **Save**; the server action checks the
+signed-in account and the waiter's number, then calls `save_ticket`, which sets every price in
+the database (the device's prices are only a preview). Each ticket has a version: a save based
+on an older version is refused and the page reloads the newer one, so two tablets can never
+silently overwrite each other.

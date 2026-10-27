@@ -32,9 +32,14 @@ The app refuses to start pages if a value is missing, if the keys are swapped, o
 | `20261027040000_floor_layout` | Applied Oct 26, 2026, after pull request #2 was merged |
 | `20261027050000_seating` | Applied Oct 26, 2026, after pull request #3 was merged |
 | `20261027060000_staff` | Applied Oct 27, 2026, after pull request #4 was merged |
-| `20261027070000_menu` | Not yet: applied after pull request #6 is approved |
+| `20261027070000_menu` | Applied Oct 27, 2026, when pull request #6 was merged |
+| `20261027080000_tickets` | Not yet: applied when pull request #7 is merged |
 
-Migrations are applied to the live project only after their pull request is approved and merged.
+**Merging applies migrations.** Since the staff migration, Supabase applies a migration to the
+live project by itself as soon as its pull request is merged into `main` (Supabase's GitHub
+integration; the history shows these with no "created by"). So approving and merging a pull
+request with a migration changes the live database. After each merge, the live tables, privileges,
+and Supabase's security advisor are checked.
 
 **Live data added on the owner's request (Oct 27, 2026):** 16 employees, all as waiters: Rene 1,
 Alex 2, Sofia 3, Ali 4, Maria 5, Lalo 6, Elizabeth 7, Cin 8, Abdullah 9, Isa 10, Gabi 11, Liz 12,

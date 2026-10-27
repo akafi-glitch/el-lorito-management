@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import { formatCents } from "../money";
 import { addItem, priceDraft, quantityOf, removeItem, setQuantity, MAX_QUANTITY, type Draft } from "../order-draft";
@@ -13,14 +13,31 @@ type MenuScreenProps = {
   timeZone: string;
   /** Server time when the page was made, so the first render matches on server and device. */
   nowIso: string;
+  /** The order being built; the parent owns it (it may come from a saved ticket). */
+  draft: Draft;
+  onDraftChange: (update: (current: Draft) => Draft) => void;
+  /** Lines already saved on the ticket keep their saved name and price. */
+  savedLines?: ReadonlyMap<number, { name: string; unitCents: number }>;
+  /** Heading of the order panel, e.g. "New ticket" or "Ticket #1001". */
+  orderTitle: string;
+  /** Buttons and status under the order total (save, cancel...). */
+  orderFooter: ReactNode;
 };
 
 /** Pick a category or search, tap items to add them, adjust quantities in the order panel. */
-export function MenuScreen({ menu, timeZone, nowIso }: MenuScreenProps) {
+export function MenuScreen({
+  menu,
+  timeZone,
+  nowIso,
+  draft,
+  onDraftChange: setDraft,
+  savedLines,
+  orderTitle,
+  orderFooter,
+}: MenuScreenProps) {
   const [now, setNow] = useState(() => new Date(nowIso));
   const [categoryId, setCategoryId] = useState<number | null>(menu.categories[0]?.id ?? null);
   const [query, setQuery] = useState("");
-  const [draft, setDraft] = useState<Draft>([]);
 
   // Re-check the clock every 30 seconds so lunch prices change at 3:00 PM without a reload.
   useEffect(() => {
@@ -36,6 +53,8 @@ export function MenuScreen({ menu, timeZone, nowIso }: MenuScreenProps) {
 
   const priceOf = (item: MenuItem, category: MenuCategory) => currentPriceCents(item.priceCents, category.late, now, timeZone);
   const order = priceDraft(draft, (itemId) => {
+    const saved = savedLines?.get(itemId);
+    if (saved) return saved;
     const found = lookup.get(itemId);
     return found ? { name: found.item.name, unitCents: priceOf(found.item, found.category) } : undefined;
   });
@@ -142,7 +161,7 @@ export function MenuScreen({ menu, timeZone, nowIso }: MenuScreenProps) {
         className="rounded-2xl border border-glaze bg-paper p-4 sm:p-5 lg:sticky lg:top-4"
       >
         <h2 id="order-heading" className="text-xl font-bold text-ink">
-          Current order {order.itemCount > 0 ? `(${order.itemCount})` : ""}
+          {orderTitle} {order.itemCount > 0 ? `(${order.itemCount})` : ""}
         </h2>
         {order.lines.length === 0 ? (
           <p className="mt-3 text-base text-muted">Tap menu items to add them.</p>
@@ -196,9 +215,7 @@ export function MenuScreen({ menu, timeZone, nowIso }: MenuScreenProps) {
           <span className="text-base font-semibold text-ink">Items before tax</span>
           <span className="text-xl font-bold tabular-nums text-ink">{formatCents(order.subtotalCents)}</span>
         </div>
-        <p className="mt-3 rounded-lg bg-tile px-3 py-2 text-sm text-muted">
-          Not saved yet. Saving the ticket comes in Phase 7, tax in Phase 8, printing in Phase 9.
-        </p>
+        <div className="mt-4">{orderFooter}</div>
       </section>
 
       {order.itemCount > 0 ? (
