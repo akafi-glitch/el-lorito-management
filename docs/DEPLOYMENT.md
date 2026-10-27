@@ -32,8 +32,13 @@ The app refuses to start pages if a value is missing, if the keys are swapped, o
 | `20261027040000_floor_layout` | Applied Oct 26, 2026, after pull request #2 was merged |
 | `20261027050000_seating` | Applied Oct 26, 2026, after pull request #3 was merged |
 | `20261027060000_staff` | Applied Oct 27, 2026, after pull request #4 was merged |
+| `20261027070000_menu` | Not yet: applied after pull request #6 is approved |
 
 Migrations are applied to the live project only after their pull request is approved and merged.
+
+**Live data added on the owner's request (Oct 27, 2026):** 16 employees, all as waiters: Rene 1,
+Alex 2, Sofia 3, Ali 4, Maria 5, Lalo 6, Elizabeth 7, Cin 8, Abdullah 9, Isa 10, Gabi 11, Liz 12,
+Chuy 13, Ashley 17, Deirha 18, Alvaro 20. Change anyone's role on Management → Employees.
 The live migration history uses the same version numbers as these files, so `supabase db push`
 only sends what's missing. A separate free test project is recommended before opening day.
 

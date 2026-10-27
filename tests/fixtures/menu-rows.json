@@ -1,0 +1,2366 @@
+{
+ "categories": [
+  {
+   "id": 1,
+   "code": "lunch",
+   "name": "Lunch",
+   "note": "Lunch items are served all day. From 3:00 PM each lunch item costs $1.00 more.",
+   "sort_order": 1,
+   "is_active": true,
+   "late_from": "15:00:00",
+   "late_surcharge_cents": 100
+  },
+  {
+   "id": 2,
+   "code": "appetizers",
+   "name": "Appetizers",
+   "note": null,
+   "sort_order": 2,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 3,
+   "code": "nachos",
+   "name": "Nachos",
+   "note": null,
+   "sort_order": 3,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 4,
+   "code": "side-orders",
+   "name": "Side Orders",
+   "note": null,
+   "sort_order": 4,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 5,
+   "code": "a-la-carte",
+   "name": "A La Carte",
+   "note": null,
+   "sort_order": 5,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 6,
+   "code": "childs-plates",
+   "name": "Child's Plates",
+   "note": "For children age 10 and under; drink included.",
+   "sort_order": 6,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 7,
+   "code": "combination-dinners",
+   "name": "Combination Dinners",
+   "note": null,
+   "sort_order": 7,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 8,
+   "code": "chicken-dishes",
+   "name": "Chicken Dishes",
+   "note": null,
+   "sort_order": 8,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 9,
+   "code": "vegetarian-combos",
+   "name": "Vegetarian Combos",
+   "note": null,
+   "sort_order": 9,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 10,
+   "code": "extras",
+   "name": "Extras",
+   "note": null,
+   "sort_order": 10,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 11,
+   "code": "cheese-dip-add-ons",
+   "name": "Cheese dip add-ons",
+   "note": "Cheese dip added on top of an enchilada or burrito, as printed on the menu.",
+   "sort_order": 11,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 12,
+   "code": "enchiladas",
+   "name": "Enchiladas",
+   "note": null,
+   "sort_order": 12,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 13,
+   "code": "burritos",
+   "name": "Burritos",
+   "note": null,
+   "sort_order": 13,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 14,
+   "code": "fajitas",
+   "name": "Fajitas",
+   "note": null,
+   "sort_order": 14,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 15,
+   "code": "steak",
+   "name": "Steak",
+   "note": null,
+   "sort_order": 15,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 16,
+   "code": "seafood",
+   "name": "Seafood",
+   "note": null,
+   "sort_order": 16,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 17,
+   "code": "chicken",
+   "name": "Chicken",
+   "note": null,
+   "sort_order": 17,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 18,
+   "code": "pork",
+   "name": "Pork",
+   "note": null,
+   "sort_order": 18,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 19,
+   "code": "favorites",
+   "name": "Favorites",
+   "note": null,
+   "sort_order": 19,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 20,
+   "code": "dessert",
+   "name": "Dessert",
+   "note": null,
+   "sort_order": 20,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 21,
+   "code": "soft-drinks",
+   "name": "Soft Drinks",
+   "note": "Free refills with meal.",
+   "sort_order": 21,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 22,
+   "code": "other-beverages",
+   "name": "Other Beverages",
+   "note": null,
+   "sort_order": 22,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 23,
+   "code": "aguas-frescas",
+   "name": "Aguas Frescas",
+   "note": "No refills.",
+   "sort_order": 23,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 24,
+   "code": "jarritos-bottled-drinks",
+   "name": "Jarritos & Bottled Drinks",
+   "note": null,
+   "sort_order": 24,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 25,
+   "code": "beer",
+   "name": "Beer",
+   "note": null,
+   "sort_order": 25,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  },
+  {
+   "id": 26,
+   "code": "cocktails",
+   "name": "Cocktails",
+   "note": null,
+   "sort_order": 26,
+   "is_active": true,
+   "late_from": null,
+   "late_surcharge_cents": null
+  }
+ ],
+ "items": [
+  {
+   "id": 1,
+   "category_id": 1,
+   "name": "Lunch #14 (Pollo Flameado)",
+   "description": "Two pieces of chicken topped with chorizo and cheese sauce; served with rice, beans and tortillas",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 14
+  },
+  {
+   "id": 2,
+   "category_id": 1,
+   "name": "Lunch #13",
+   "description": "Mini chicken chimichanga, chicken enchilada and rice",
+   "price_cents": 850,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 13
+  },
+  {
+   "id": 3,
+   "category_id": 1,
+   "name": "Lunch #12 (Pollo Loco)",
+   "description": "Boneless chicken breast marinated and served with rice, avocado salad and tortillas",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 12
+  },
+  {
+   "id": 4,
+   "category_id": 1,
+   "name": "Lunch #11 (Chilaquiles)",
+   "description": "Corn tortilla chips cooked with sauce, chicken and cheese; served with rice and guacamole salad",
+   "price_cents": 925,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 11
+  },
+  {
+   "id": 5,
+   "category_id": 1,
+   "name": "Lunch #10 (Fajitas)",
+   "description": "Strips of beef or chicken cooked with onions, bell peppers and tomatoes; served with rice, beans, guacamole salad, sour cream and flour tortillas",
+   "price_cents": 1050,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 10
+  },
+  {
+   "id": 6,
+   "category_id": 1,
+   "name": "Lunch #9",
+   "description": "One enchilada, rice and chile con queso",
+   "price_cents": 799,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 9
+  },
+  {
+   "id": 7,
+   "category_id": 1,
+   "name": "Lunch #8 (Burrito Supreme)",
+   "description": "One beef burrito with sauce, topped with lettuce, grated cheese, sour cream and tomatoes",
+   "price_cents": 760,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 8,
+   "category_id": 1,
+   "name": "Lunch #7",
+   "description": "Chicken quesadilla, rice and beans",
+   "price_cents": 799,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 9,
+   "category_id": 1,
+   "name": "Lunch #6",
+   "description": "Mini chicken chimichanga, rice and beans",
+   "price_cents": 825,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 10,
+   "category_id": 1,
+   "name": "Lunch #5",
+   "description": "One burrito, one taco and rice",
+   "price_cents": 799,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 11,
+   "category_id": 1,
+   "name": "Lunch #4 (Taco Salad)",
+   "description": "Deep-fried flour tortilla shell filled with beef or chicken, lettuce, tomatoes, grated cheese and sour cream",
+   "price_cents": 749,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 12,
+   "category_id": 1,
+   "name": "Lunch #3",
+   "description": "One taco, one enchilada, choice of rice or beans",
+   "price_cents": 760,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 13,
+   "category_id": 1,
+   "name": "Lunch #2",
+   "description": "One beef burrito, Spanish rice and beans",
+   "price_cents": 799,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 14,
+   "category_id": 1,
+   "name": "Lunch #1",
+   "description": "Chile relleno, one taco, guacamole salad, choice of rice or beans",
+   "price_cents": 825,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 15,
+   "category_id": 2,
+   "name": "Chile con queso",
+   "description": null,
+   "price_cents": 519,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 16,
+   "category_id": 2,
+   "name": "Guacamole salad",
+   "description": null,
+   "price_cents": 519,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 17,
+   "category_id": 2,
+   "name": "Guacamole dip",
+   "description": null,
+   "price_cents": 499,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 18,
+   "category_id": 2,
+   "name": "Cheese and bean dip",
+   "description": null,
+   "price_cents": 499,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 19,
+   "category_id": 2,
+   "name": "Cheese dip (small)",
+   "description": null,
+   "price_cents": 519,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 20,
+   "category_id": 2,
+   "name": "Cheese dip (medium)",
+   "description": null,
+   "price_cents": 899,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 21,
+   "category_id": 2,
+   "name": "Cheese dip (large)",
+   "description": null,
+   "price_cents": 1200,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 22,
+   "category_id": 3,
+   "name": "Nachos fajita",
+   "description": "Corn chips smothered with cheese sauce, topped with guacamole, sour cream and choice of beef or chicken cooked with vegetables",
+   "price_cents": 990,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 23,
+   "category_id": 3,
+   "name": "Nachos supreme",
+   "description": "Cheese nachos with ground beef, chicken and beans, topped with lettuce, tomatoes and sour cream",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 24,
+   "category_id": 3,
+   "name": "Nachos with chicken",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 25,
+   "category_id": 3,
+   "name": "Nachos with beef",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 26,
+   "category_id": 3,
+   "name": "Nachos with beans and beef",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 27,
+   "category_id": 3,
+   "name": "Nachos with beans",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 28,
+   "category_id": 3,
+   "name": "Nachos with cheese",
+   "description": null,
+   "price_cents": 599,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 29,
+   "category_id": 4,
+   "name": "Rice & beans",
+   "description": null,
+   "price_cents": 425,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 22
+  },
+  {
+   "id": 30,
+   "category_id": 4,
+   "name": "Mini chimichanga",
+   "description": null,
+   "price_cents": 525,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 21
+  },
+  {
+   "id": 31,
+   "category_id": 4,
+   "name": "Chimichanga",
+   "description": null,
+   "price_cents": 625,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 20
+  },
+  {
+   "id": 32,
+   "category_id": 4,
+   "name": "Poblano relleno",
+   "description": null,
+   "price_cents": 559,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 19
+  },
+  {
+   "id": 33,
+   "category_id": 4,
+   "name": "Steak quesadilla (chicken or beef)",
+   "description": null,
+   "price_cents": 650,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 18
+  },
+  {
+   "id": 34,
+   "category_id": 4,
+   "name": "Chicken quesadilla (1)",
+   "description": null,
+   "price_cents": 525,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 17
+  },
+  {
+   "id": 35,
+   "category_id": 4,
+   "name": "Cheese quesadilla (1)",
+   "description": null,
+   "price_cents": 425,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 16
+  },
+  {
+   "id": 36,
+   "category_id": 4,
+   "name": "Tostada (corn tortilla)",
+   "description": null,
+   "price_cents": 525,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 15
+  },
+  {
+   "id": 37,
+   "category_id": 4,
+   "name": "Spanish rice",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 14
+  },
+  {
+   "id": 38,
+   "category_id": 4,
+   "name": "Refried beans",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 13
+  },
+  {
+   "id": 39,
+   "category_id": 4,
+   "name": "Chile relleno",
+   "description": null,
+   "price_cents": 399,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 12
+  },
+  {
+   "id": 40,
+   "category_id": 4,
+   "name": "Tamale",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 11
+  },
+  {
+   "id": 41,
+   "category_id": 4,
+   "name": "Fried flour taco",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 10
+  },
+  {
+   "id": 42,
+   "category_id": 4,
+   "name": "Order shrimp ceviche",
+   "description": null,
+   "price_cents": 725,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 9
+  },
+  {
+   "id": 43,
+   "category_id": 4,
+   "name": "Taco al pastor",
+   "description": null,
+   "price_cents": 425,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 44,
+   "category_id": 4,
+   "name": "Taco carne asada",
+   "description": null,
+   "price_cents": 375,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 45,
+   "category_id": 4,
+   "name": "Taco (soft)",
+   "description": null,
+   "price_cents": 275,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 46,
+   "category_id": 4,
+   "name": "Taco",
+   "description": null,
+   "price_cents": 235,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 47,
+   "category_id": 4,
+   "name": "Chalupa (corn tortilla)",
+   "description": null,
+   "price_cents": 525,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 48,
+   "category_id": 4,
+   "name": "Enchilada (flour tortilla)",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 49,
+   "category_id": 4,
+   "name": "Enchilada",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 50,
+   "category_id": 4,
+   "name": "Burrito",
+   "description": null,
+   "price_cents": 475,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 51,
+   "category_id": 5,
+   "name": "Order of fish tacos (3)",
+   "description": null,
+   "price_cents": 900,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 52,
+   "category_id": 5,
+   "name": "Order of tamales (3)",
+   "description": null,
+   "price_cents": 860,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 53,
+   "category_id": 5,
+   "name": "Order of flour enchiladas (3)",
+   "description": null,
+   "price_cents": 860,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 54,
+   "category_id": 5,
+   "name": "Order of enchiladas (3)",
+   "description": null,
+   "price_cents": 850,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 55,
+   "category_id": 5,
+   "name": "Order of burritos (2)",
+   "description": null,
+   "price_cents": 850,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 56,
+   "category_id": 5,
+   "name": "Order of fried flour tacos (3)",
+   "description": null,
+   "price_cents": 850,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 57,
+   "category_id": 5,
+   "name": "Order of soft tacos (3)",
+   "description": null,
+   "price_cents": 750,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 58,
+   "category_id": 5,
+   "name": "Order of tacos (3)",
+   "description": null,
+   "price_cents": 650,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 59,
+   "category_id": 6,
+   "name": "10. Mac and cheese and fries",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 10
+  },
+  {
+   "id": 60,
+   "category_id": 6,
+   "name": "9. Pizza and fries",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 9
+  },
+  {
+   "id": 61,
+   "category_id": 6,
+   "name": "8. Grilled cheese and fries",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 62,
+   "category_id": 6,
+   "name": "7. Hamburger and fries",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 63,
+   "category_id": 6,
+   "name": "6. Corn dog and fries",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 64,
+   "category_id": 6,
+   "name": "5. Chicken tenders with fries",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 65,
+   "category_id": 6,
+   "name": "4. Burrito and taco",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 66,
+   "category_id": 6,
+   "name": "3. Cheese quesadilla and rice",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 67,
+   "category_id": 6,
+   "name": "2. Taco, rice and beans",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 68,
+   "category_id": 6,
+   "name": "1. Enchilada, rice and beans",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 69,
+   "category_id": 7,
+   "name": "Combo #24",
+   "description": "One burrito, one chile relleno and rice",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 24
+  },
+  {
+   "id": 70,
+   "category_id": 7,
+   "name": "Combo #23",
+   "description": "One taco, one burrito, rice and beans",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 23
+  },
+  {
+   "id": 71,
+   "category_id": 7,
+   "name": "Combo #22",
+   "description": "One burrito, one chile relleno and one taco",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 22
+  },
+  {
+   "id": 72,
+   "category_id": 7,
+   "name": "Combo #21",
+   "description": "One taco, one burrito and one chalupa",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 21
+  },
+  {
+   "id": 73,
+   "category_id": 7,
+   "name": "Combo #20",
+   "description": "One mini ground beef chimi, one taco, rice and beans",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 20
+  },
+  {
+   "id": 74,
+   "category_id": 7,
+   "name": "Combo #19",
+   "description": "One chalupa, one burrito and one enchilada",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 19
+  },
+  {
+   "id": 75,
+   "category_id": 7,
+   "name": "Combo #18",
+   "description": "One chalupa, one chile relleno and one enchilada",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 18
+  },
+  {
+   "id": 76,
+   "category_id": 7,
+   "name": "Combo #17",
+   "description": "One burrito, one enchilada, rice and beans",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 17
+  },
+  {
+   "id": 77,
+   "category_id": 7,
+   "name": "Combo #16",
+   "description": "One chalupa, one chile relleno and one burrito",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 16
+  },
+  {
+   "id": 78,
+   "category_id": 7,
+   "name": "Combo #15",
+   "description": "One burrito, one enchilada and one tamale",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 15
+  },
+  {
+   "id": 79,
+   "category_id": 7,
+   "name": "Combo #14",
+   "description": "One burrito, one enchilada and chile con queso",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 14
+  },
+  {
+   "id": 80,
+   "category_id": 7,
+   "name": "Combo #13",
+   "description": "One enchilada, one burrito and one chile relleno",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 13
+  },
+  {
+   "id": 81,
+   "category_id": 7,
+   "name": "Combo #12",
+   "description": "One enchilada, one chicken quesadilla and rice",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 12
+  },
+  {
+   "id": 82,
+   "category_id": 7,
+   "name": "Combo #11",
+   "description": "One burrito, one taco and one enchilada",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 11
+  },
+  {
+   "id": 83,
+   "category_id": 7,
+   "name": "Combo #10",
+   "description": "Two tacos, rice and beans",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 10
+  },
+  {
+   "id": 84,
+   "category_id": 7,
+   "name": "Combo #9",
+   "description": "One taco, one chicken quesadilla and rice",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 9
+  },
+  {
+   "id": 85,
+   "category_id": 7,
+   "name": "Combo #8",
+   "description": "One enchilada, one tamale, rice and beans",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 86,
+   "category_id": 7,
+   "name": "Combo #7",
+   "description": "One enchilada, one chile relleno, rice and beans",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 87,
+   "category_id": 7,
+   "name": "Combo #6",
+   "description": "One enchilada, one taco, rice and beans",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 88,
+   "category_id": 7,
+   "name": "Combo #5",
+   "description": "Two enchiladas, rice and beans",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 89,
+   "category_id": 7,
+   "name": "Combo #4",
+   "description": "Two tacos, one enchilada and chile con queso",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 90,
+   "category_id": 7,
+   "name": "Combo #3",
+   "description": "One enchilada, one chile relleno, one taco and rice",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 91,
+   "category_id": 7,
+   "name": "Combo #2",
+   "description": "One taco, one enchilada and one chalupa",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 92,
+   "category_id": 7,
+   "name": "Combo #1",
+   "description": "One taco, two enchiladas and rice",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 93,
+   "category_id": 8,
+   "name": "Taco salad fajita (beef or chicken)",
+   "description": "Deep-fried flour tortilla shell filled with pieces of fajita meat, lettuce, tomatoes, grated cheese and sour cream",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 94,
+   "category_id": 8,
+   "name": "Guadalajara",
+   "description": "Chicken burrito and chicken enchilada, topped with lettuce, tomatoes, sour cream and grated cheese",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 95,
+   "category_id": 8,
+   "name": "Poblano relleno",
+   "description": "Poblano pepper filled with boneless chicken breast and cheese, served with Spanish rice and guacamole salad",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 96,
+   "category_id": 8,
+   "name": "Grilled chicken salad",
+   "description": "Grilled chicken breast over mixed greens with tomatoes and grated cheese",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 97,
+   "category_id": 8,
+   "name": "Taco salad (chicken or beef)",
+   "description": "Deep-fried flour tortilla shell filled with choice of beef or chicken, lettuce, tomatoes, grated cheese and sour cream",
+   "price_cents": 849,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 98,
+   "category_id": 9,
+   "name": "Vegetarian E (Vegetarian Fajitas)",
+   "description": "Grilled onions, tomatoes, bell peppers, mushrooms, broccoli and cauliflower; served with rice, beans, guacamole salad, sour cream and tortillas",
+   "price_cents": 1150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 99,
+   "category_id": 9,
+   "name": "Vegetarian D (Chile Relleno)",
+   "description": "Poblano pepper filled with Oaxaca cheese, served with rice and guacamole salad",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 100,
+   "category_id": 9,
+   "name": "Vegetarian C",
+   "description": "Flour tortilla grilled, stuffed with cheese, chopped mushrooms, bell peppers, onions and beans inside; served with rice, sour cream and guacamole salad",
+   "price_cents": 925,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 101,
+   "category_id": 9,
+   "name": "Vegetarian B",
+   "description": "One cheese enchilada, one bean burrito and vegetables",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 102,
+   "category_id": 9,
+   "name": "Vegetarian A",
+   "description": "Two cheese enchiladas, rice and beans",
+   "price_cents": 940,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 103,
+   "category_id": 10,
+   "name": "Extras (each)",
+   "description": "Sour cream, grated cheese, tortillas, jalapenos, pico de gallo or hot sauce",
+   "price_cents": 150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 104,
+   "category_id": 11,
+   "name": "Cheese dip on combo burrito",
+   "description": null,
+   "price_cents": 125,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 105,
+   "category_id": 11,
+   "name": "Cheese dip on combo enchilada",
+   "description": null,
+   "price_cents": 100,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 106,
+   "category_id": 11,
+   "name": "Cheese dip on lunch burrito",
+   "description": null,
+   "price_cents": 150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 107,
+   "category_id": 11,
+   "name": "Cheese dip on lunch enchilada",
+   "description": null,
+   "price_cents": 125,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 108,
+   "category_id": 12,
+   "name": "Enchiladas suizas",
+   "description": "Three chicken enchiladas topped with cheese sauce, green salsa and cilantro; served with rice",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 109,
+   "category_id": 12,
+   "name": "Enchiladas supremas",
+   "description": "One cheese, one chicken, one beef and one bean enchilada topped with red sauce, lettuce, sour cream and guacamole",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 110,
+   "category_id": 12,
+   "name": "Enchiladas rancheras",
+   "description": "Two cheese enchiladas topped with shredded beef cooked with tomatoes, onions, bell peppers and enchilada sauce; served with guacamole salad and rice",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 111,
+   "category_id": 12,
+   "name": "Enchilada El Lorito",
+   "description": "One beef, one chicken and one cheese enchilada topped with lettuce, sour cream and tomatoes, with rice on the side",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 112,
+   "category_id": 12,
+   "name": "Enchiladas verdes",
+   "description": "Two pork enchiladas topped with green sauce and sour cream; served with rice and guacamole salad",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 113,
+   "category_id": 12,
+   "name": "Shrimp enchiladas",
+   "description": "Two enchiladas topped with green sauce; served with rice, beans, sour cream and guacamole salad",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 114,
+   "category_id": 13,
+   "name": "Sancho",
+   "description": "One burrito with choice of chicken, steak or ground beef, rice, beans, lettuce, tomato and sour cream, topped with cheese sauce",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 115,
+   "category_id": 13,
+   "name": "Burrito Verde",
+   "description": "Pork meat cooked and wrapped in a flour tortilla, topped with green sauce and sour cream; served with rice and beans",
+   "price_cents": 1050,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 116,
+   "category_id": 13,
+   "name": "Burrito California",
+   "description": "Choice of ground beef, steak or chicken with avocado, rice, beans and lettuce in a 10-inch tortilla topped with cheese sauce",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 117,
+   "category_id": 13,
+   "name": "Burrito Mexicano",
+   "description": "One burrito with shredded beef cooked with onions and bell peppers; topped with cheese sauce, lettuce, tomatoes and guacamole",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 118,
+   "category_id": 13,
+   "name": "Burrito Supreme",
+   "description": "One burrito with red sauce topped with grated cheese, lettuce and sour cream",
+   "price_cents": 850,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 119,
+   "category_id": 14,
+   "name": "Molcajete",
+   "description": "Thin ribeye steak, boneless chicken breast, 4 shrimp, chorizo, queso fresco, grilled jalapeno, cambray onions and a piece of cactus nopal on a hot rock mortar; served with rice, beans, guacamole salad, sour cream and flour tortillas",
+   "price_cents": 2499,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 120,
+   "category_id": 14,
+   "name": "Fajitas El Lorito",
+   "description": "Strips of beef and chicken, 4 shrimp, pork tips and chorizo, cooked with tomatoes, onions, bell peppers and 2 grilled jalapenos; served with rice, beans, guacamole salad, sour cream and flour tortillas",
+   "price_cents": 2399,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 121,
+   "category_id": 14,
+   "name": "Fajitas Tapatias",
+   "description": "Strips of beef cooked with onions and red bell peppers; served with beans, pico de gallo, sour cream, grated cheese and flour tortillas",
+   "price_cents": 1399,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 122,
+   "category_id": 14,
+   "name": "Fajitas Texanas",
+   "description": "Strips of beef, chicken and 4 shrimp cooked with tomatoes, onions and bell peppers; served with rice, beans, flour tortillas, guacamole salad and sour cream",
+   "price_cents": 1499,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 123,
+   "category_id": 14,
+   "name": "Shrimp fajitas",
+   "description": "Marinated shrimp cooked with tomatoes, onions and bell peppers; served with rice, beans, guacamole salad, flour tortillas and sour cream",
+   "price_cents": 1599,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 124,
+   "category_id": 14,
+   "name": "Beef or chicken fajitas",
+   "description": "Strips of beef or chicken cooked with tomatoes, onions and bell peppers; served with rice, beans, flour tortillas, guacamole salad and sour cream",
+   "price_cents": 1399,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 125,
+   "category_id": 15,
+   "name": "Chile Colorado",
+   "description": "Chunks of beef cooked in red sauce; served with rice, beans and flour tortillas",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 126,
+   "category_id": 15,
+   "name": "Carne asada",
+   "description": "Thin ribeye steak served with grilled onions, rice, beans, guacamole salad and tortillas",
+   "price_cents": 1499,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 127,
+   "category_id": 15,
+   "name": "Tacos al pastor",
+   "description": "Three soft tacos with chunks of beef and pork, cilantro and onions marinated with red sauce; served with rice and beans",
+   "price_cents": 1199,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 128,
+   "category_id": 15,
+   "name": "Tacos de carne asada",
+   "description": "Three soft tacos with chunks of beef served with pico de gallo and beans",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 129,
+   "category_id": 15,
+   "name": "Beef Steak Ranchero",
+   "description": "Ribeye steak topped with ranch-style sauce; served with rice, beans and flour tortillas",
+   "price_cents": 1499,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 130,
+   "category_id": 15,
+   "name": "Especial El Lorito",
+   "description": "Ribeye steak topped with cooked onions, bell peppers and tomatoes; served with rice, beans and flour tortillas",
+   "price_cents": 1499,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 131,
+   "category_id": 16,
+   "name": "Arroz con camarones",
+   "description": "Grilled shrimp over a bed of Mexican rice topped with roasted red bell peppers, melted cheese and guacamole salad",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 10
+  },
+  {
+   "id": 132,
+   "category_id": 16,
+   "name": "Caldo 7 mares",
+   "description": "Broiled tilapia fish, shrimp, crab legs, vegetables and seafood medley mix",
+   "price_cents": 1899,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 9
+  },
+  {
+   "id": 133,
+   "category_id": 16,
+   "name": "Caldo tres mares (sea soup)",
+   "description": "Broiled tilapia fish, shrimp, crab legs and vegetables; served with flour tortillas",
+   "price_cents": 1599,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 134,
+   "category_id": 16,
+   "name": "Camarones a la Diabla",
+   "description": "Shrimp tossed with spicy red sauce; served with rice, avocado salad and tortillas",
+   "price_cents": 1449,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 135,
+   "category_id": 16,
+   "name": "Grilled tilapia fish",
+   "description": "Served with rice, avocado salad and tortillas",
+   "price_cents": 1249,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 136,
+   "category_id": 16,
+   "name": "El Lorito seafood",
+   "description": "Grilled tilapia fish topped with four shrimp and pico de gallo; served with vegetables, cheese sauce, rice and tortillas",
+   "price_cents": 1599,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 137,
+   "category_id": 16,
+   "name": "Shrimp salad",
+   "description": "Shrimp, mixed greens, cucumbers and croutons served with choice of dressing",
+   "price_cents": 925,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 138,
+   "category_id": 16,
+   "name": "Shrimp cocktail",
+   "description": "Broiled shrimp mixed with pico de gallo, avocado and special cocktail sauce; served with saltine crackers",
+   "price_cents": 1199,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 139,
+   "category_id": 16,
+   "name": "Shrimp chimichanga",
+   "description": "Grilled shrimp with onions, tomatoes and bell peppers wrapped in a fried flour tortilla; served with rice, beans and guacamole salad",
+   "price_cents": 1149,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 140,
+   "category_id": 16,
+   "name": "Shrimp quesadilla",
+   "description": "Grilled flour tortilla stuffed with shrimp and cheese; served with sour cream, guacamole salad and rice",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 141,
+   "category_id": 17,
+   "name": "Arroz con pollo",
+   "description": "Grilled chicken over a bed of Mexican rice topped with cheese sauce and served with a cheese quesadilla",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 142,
+   "category_id": 17,
+   "name": "Pollo Monterrey",
+   "description": "Three pieces of boneless chicken breast topped with grilled red bell peppers, onions, mushrooms and grated cheese; served with vegetables, rice and tortillas",
+   "price_cents": 1399,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 143,
+   "category_id": 17,
+   "name": "Pollo Flameado",
+   "description": "Three pieces of chicken topped with chorizo and cheese sauce; served with rice, beans and tortillas",
+   "price_cents": 1299,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 144,
+   "category_id": 17,
+   "name": "Pollo Ranchero",
+   "description": "Boneless chicken breast marinated and topped with grilled onions, tomatoes and bell peppers; served with rice, vegetables and tortillas",
+   "price_cents": 1249,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 145,
+   "category_id": 17,
+   "name": "Pollo Loco",
+   "description": "Dinner serving of marinated boneless chicken breast with rice, avocado salad and tortillas",
+   "price_cents": 1199,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 146,
+   "category_id": 18,
+   "name": "Chile Verde",
+   "description": "Chunks of pork cooked in green sauce; served with rice, beans and flour tortillas",
+   "price_cents": 1199,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 147,
+   "category_id": 18,
+   "name": "Carnitas",
+   "description": "Pork tips, rice, beans and guacamole salad served with tortillas",
+   "price_cents": 1225,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 148,
+   "category_id": 19,
+   "name": "Torta",
+   "description": "Mexican sandwich with choice of chicken, steak or pork, mayo, lettuce, tomatoes, onion, avocado and jalapenos; served with french fries",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 10
+  },
+  {
+   "id": 149,
+   "category_id": 19,
+   "name": "Huevos con Chorizo",
+   "description": "Three eggs with chorizo, served with rice, beans and tortillas",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 9
+  },
+  {
+   "id": 150,
+   "category_id": 19,
+   "name": "Huevos Rancheros",
+   "description": "Three eggs, red or green salsa, rice, beans and tortillas (served anytime)",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 151,
+   "category_id": 19,
+   "name": "Flautas",
+   "description": "Two rolled deep-fried flour tortillas, one chicken and one beef; served with rice, guacamole salad, sour cream and cheese dip on top",
+   "price_cents": 1025,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 152,
+   "category_id": 19,
+   "name": "Taquitos Mexicanos",
+   "description": "Three rolled and fried corn tortillas stuffed with beef or chicken; served with lettuce, guacamole, sour cream and rice",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 153,
+   "category_id": 19,
+   "name": "Quesadilla Grande",
+   "description": "Flour tortilla grilled and stuffed with cheese, chopped beef and beans; served with guacamole, lettuce, sour cream and rice",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 154,
+   "category_id": 19,
+   "name": "Chimichanga",
+   "description": "Chunks of beef or chicken and refried beans wrapped in a flour tortilla and fried; topped with cheese and served with guacamole salad",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 155,
+   "category_id": 19,
+   "name": "Monterrey",
+   "description": "Fried flat flour tortilla topped with beans, choice of chicken or ground beef, lettuce, sour cream, pico de gallo, tomatoes and guacamole",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 156,
+   "category_id": 19,
+   "name": "Mar y Tierra",
+   "description": "Thin ribeye steak, tilapia fish filet topped with pico de gallo and four shrimp; served with vegetables, rice and tortillas",
+   "price_cents": 2099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 157,
+   "category_id": 19,
+   "name": "Special Dinner",
+   "description": "Chalupa, one chile relleno, one taco, one enchilada and one burrito served with Spanish rice and refried beans",
+   "price_cents": 1399,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 158,
+   "category_id": 20,
+   "name": "Flan (Mexican custard) (1)",
+   "description": null,
+   "price_cents": 375,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 159,
+   "category_id": 20,
+   "name": "Sopapilla (4)",
+   "description": null,
+   "price_cents": 375,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 160,
+   "category_id": 20,
+   "name": "Fried ice cream",
+   "description": null,
+   "price_cents": 425,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 161,
+   "category_id": 21,
+   "name": "Soft drink",
+   "description": "Coke, Coke Zero, Diet Coke, Pibb, Fanta (Orange), Sprite, Root Beer, Cream Soda, Minute Maid Lemonade or Raspberry Tea",
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 162,
+   "category_id": 22,
+   "name": "Hot chocolate",
+   "description": "No refills",
+   "price_cents": 250,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 163,
+   "category_id": 22,
+   "name": "Hot tea",
+   "description": "No refills",
+   "price_cents": 250,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 164,
+   "category_id": 22,
+   "name": "Milk",
+   "description": "No refills",
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 165,
+   "category_id": 22,
+   "name": "Coffee",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 166,
+   "category_id": 22,
+   "name": "Unsweet tea",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 167,
+   "category_id": 22,
+   "name": "Sweet tea",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 168,
+   "category_id": 23,
+   "name": "Tamarindo",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 169,
+   "category_id": 23,
+   "name": "Jamaica",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 170,
+   "category_id": 23,
+   "name": "Horchata",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 171,
+   "category_id": 24,
+   "name": "Coca-Cola bottle",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 11
+  },
+  {
+   "id": 172,
+   "category_id": 24,
+   "name": "Squirt",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 10
+  },
+  {
+   "id": 173,
+   "category_id": 24,
+   "name": "Mineragua",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 9
+  },
+  {
+   "id": 174,
+   "category_id": 24,
+   "name": "Sangria Senorial",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 175,
+   "category_id": 24,
+   "name": "Sidral Mundet",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 176,
+   "category_id": 24,
+   "name": "Jarritos mango",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 177,
+   "category_id": 24,
+   "name": "Jarritos lime",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 178,
+   "category_id": 24,
+   "name": "Jarritos pineapple",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 179,
+   "category_id": 24,
+   "name": "Jarritos fruit punch",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 180,
+   "category_id": 24,
+   "name": "Jarritos mandarin",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 181,
+   "category_id": 24,
+   "name": "Jarritos tamarind",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 182,
+   "category_id": 25,
+   "name": "Import draft beer - 32 oz",
+   "description": "XX Amber, XX Lager, Negra Modelo, Pacifico or Modelo Especial",
+   "price_cents": 799,
+   "tax_category_code": "beer",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 183,
+   "category_id": 25,
+   "name": "Import draft beer - 12 oz",
+   "description": "XX Amber, XX Lager, Negra Modelo, Pacifico or Modelo Especial",
+   "price_cents": 399,
+   "tax_category_code": "beer",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 184,
+   "category_id": 25,
+   "name": "Draft beer - 32 oz",
+   "description": "Bud Light, Budweiser, Michelob Ultra, Coors Light or Miller Light",
+   "price_cents": 575,
+   "tax_category_code": "beer",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 185,
+   "category_id": 25,
+   "name": "Draft beer - 12 oz",
+   "description": "Bud Light, Budweiser, Michelob Ultra, Coors Light or Miller Light",
+   "price_cents": 325,
+   "tax_category_code": "beer",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 186,
+   "category_id": 25,
+   "name": "Micheladas",
+   "description": "Listed separately in imported beer selection",
+   "price_cents": 650,
+   "tax_category_code": "beer",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 187,
+   "category_id": 25,
+   "name": "Import beer",
+   "description": "Blue Moon, Corona, Modelo Especial, Negra Modelo, Sol, Pacifico, XX Lager, Tecate, XX Amber or Carta Blanca",
+   "price_cents": 525,
+   "tax_category_code": "beer",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 188,
+   "category_id": 25,
+   "name": "Domestic beer",
+   "description": "Bud Light, Budweiser, Miller Light, Coors Light or Michelob Ultra",
+   "price_cents": 499,
+   "tax_category_code": "beer",
+   "is_available": true,
+   "sort_order": 1
+  },
+  {
+   "id": 189,
+   "category_id": 26,
+   "name": "Tequila Sunrise",
+   "description": null,
+   "price_cents": 525,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 22
+  },
+  {
+   "id": 190,
+   "category_id": 26,
+   "name": "Paloma",
+   "description": null,
+   "price_cents": 575,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 21
+  },
+  {
+   "id": 191,
+   "category_id": 26,
+   "name": "Corona Rita",
+   "description": null,
+   "price_cents": 875,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 20
+  },
+  {
+   "id": 192,
+   "category_id": 26,
+   "name": "Bloody Mary",
+   "description": null,
+   "price_cents": 625,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 19
+  },
+  {
+   "id": 193,
+   "category_id": 26,
+   "name": "Vampiro",
+   "description": null,
+   "price_cents": 575,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 18
+  },
+  {
+   "id": 194,
+   "category_id": 26,
+   "name": "Cantarito",
+   "description": null,
+   "price_cents": 625,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 17
+  },
+  {
+   "id": 195,
+   "category_id": 26,
+   "name": "Amaretto cherry sour",
+   "description": null,
+   "price_cents": 525,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 16
+  },
+  {
+   "id": 196,
+   "category_id": 26,
+   "name": "White Russian",
+   "description": null,
+   "price_cents": 575,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 15
+  },
+  {
+   "id": 197,
+   "category_id": 26,
+   "name": "Blue Hawaiian",
+   "description": null,
+   "price_cents": 575,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 14
+  },
+  {
+   "id": 198,
+   "category_id": 26,
+   "name": "Miami Vice",
+   "description": null,
+   "price_cents": 875,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 13
+  },
+  {
+   "id": 199,
+   "category_id": 26,
+   "name": "Long Island ice tea",
+   "description": null,
+   "price_cents": 625,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 12
+  },
+  {
+   "id": 200,
+   "category_id": 26,
+   "name": "Bahamama",
+   "description": null,
+   "price_cents": 625,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 11
+  },
+  {
+   "id": 201,
+   "category_id": 26,
+   "name": "Mojito",
+   "description": null,
+   "price_cents": 575,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 10
+  },
+  {
+   "id": 202,
+   "category_id": 26,
+   "name": "Strawberry daiquiri",
+   "description": null,
+   "price_cents": 875,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 9
+  },
+  {
+   "id": 203,
+   "category_id": 26,
+   "name": "Mangoneada",
+   "description": null,
+   "price_cents": 875,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 8
+  },
+  {
+   "id": 204,
+   "category_id": 26,
+   "name": "Pina colada",
+   "description": null,
+   "price_cents": 875,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 7
+  },
+  {
+   "id": 205,
+   "category_id": 26,
+   "name": "Blue margarita",
+   "description": null,
+   "price_cents": 699,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 6
+  },
+  {
+   "id": 206,
+   "category_id": 26,
+   "name": "Raspberry margarita",
+   "description": null,
+   "price_cents": 775,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 5
+  },
+  {
+   "id": 207,
+   "category_id": 26,
+   "name": "Lime margarita (small)",
+   "description": "On the rocks",
+   "price_cents": 275,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 4
+  },
+  {
+   "id": 208,
+   "category_id": 26,
+   "name": "Lime margarita (large)",
+   "description": "Frozen or on the rocks",
+   "price_cents": 699,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 3
+  },
+  {
+   "id": 209,
+   "category_id": 26,
+   "name": "Flavored margarita (large)",
+   "description": "Peach, strawberry or mango",
+   "price_cents": 775,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 2
+  },
+  {
+   "id": 210,
+   "category_id": 26,
+   "name": "Glass wine",
+   "description": "Merlot, Sangria, White Zinfandel, Cabernet Sauvignon or Chardonnay",
+   "price_cents": 425,
+   "tax_category_code": "cocktail",
+   "is_available": true,
+   "sort_order": 1
+  }
+ ]
+}

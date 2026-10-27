@@ -100,6 +100,22 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - Every seating, chips, clearing, and section open/close is recorded in the audit history, which
   can't be edited or deleted.
 
+## Menu (Built, Phase 6)
+
+- **Source:** the owner's menu file: 206 items in 25 categories, each with a price, a tax category,
+  and on/off availability. Chile con queso is $5.19.
+- **Lunch:** served all day. From 3:00 PM restaurant time, each lunch item costs $1.00 more. The
+  time and amount are stored on the Lunch category, so they can change without new code.
+- **Cheese dip add-ons:** four items at the menu's prices (lunch enchilada $1.25, lunch burrito
+  $1.50, combo enchilada $1.00, combo burrito $1.25). They have no 3:00 PM extra.
+- **Tax categories:** food and nonalcoholic drinks → food tax (8.5%); beer and cocktails → liquor
+  tax (10.5%). Wine is on the cocktail page, so it is taxed as liquor.
+- **Search** matches the start of words in an item's name, description, or category, ignoring case,
+  accents, and punctuation: "combo 5" finds Combo #5, not Combo #15. Name matches come first.
+- **Order on screen:** tap to add; quantities 1 to 99; remove a line with Remove.
+- **Prices:** Management can change a price or turn an item off. New prices apply to new tickets
+  only; tickets keep the price they were made with (Phase 7). Items are never deleted.
+
 ## Tickets (Planned, Phases 7–9)
 
 - Editable until printed. Printing locks the ticket for good; every printed ticket is kept.

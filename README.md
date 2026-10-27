@@ -6,8 +6,8 @@ assignments, food tickets, and ticket printing, shared live across the restauran
 Built with Next.js (App Router), TypeScript, Tailwind CSS, and Supabase (PostgreSQL + Auth).
 Hosted on Vercel.
 
-> **Status: Phase 5 of 12.** Sign-in, floor management, staff management, and the Waiter Section
-> (number entry and table choice) work. The rest
+> **Status: Phase 6 of 12.** Sign-in, floor management, staff management, the Waiter Section, and
+> the menu work. Saving tickets comes next. The rest
 > arrives phase by phase. See [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
 
 ## What works now
@@ -21,7 +21,10 @@ Hosted on Vercel.
   sign-in accounts. The floor shows who works each section.
 - **Waiter Section**: a waiter types their employee number on a big number pad and sees their
   sections' tables plus the Bar. Other sections can be opened after a warning that names the
-  assigned waiter. Choosing a table shows the table and waiter; the menu and tickets come in Phases 6–9.
+  assigned waiter. Choosing a table opens the menu.
+- **Menu**: all 206 items from the restaurant's menu (plus 4 cheese-dip add-ons) in 26 categories,
+  with search, quantities, and a running order. Lunch items cost $1.00 more from 3:00 PM. Management
+  can change prices and turn items off. Saving tickets, tax, and printing come in Phases 7–9.
 - `/api/health` reports whether the app is configured (never the settings themselves).
 
 ## Local setup
