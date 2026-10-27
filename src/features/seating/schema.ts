@@ -32,4 +32,4 @@ export type SeatPartyInput = z.input<typeof seatPartySchema>;
 export type VisitChangeInput = z.input<typeof visitChangeSchema>;
 export type SectionOpenInput = z.input<typeof sectionOpenSchema>;
 
-export type ActionResult = { ok: true; message: string } | { ok: false; message: string };
+export type { ActionResult } from "@/lib/action-result";

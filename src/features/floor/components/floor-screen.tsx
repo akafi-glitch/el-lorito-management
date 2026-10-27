@@ -164,6 +164,7 @@ export function FloorScreen({ map }: { map: FloorMap }) {
             <FloorAreaCard
               key={area.code}
               area={area}
+              staff={map.staff}
               selectedCodes={new Set(selection)}
               busy={busy}
               onTablePress={onTablePress}

@@ -74,5 +74,8 @@ modifications, special instructions, advanced analytics, multiple printers, sile
 
 ## Open questions
 
-Tracked in the Phase 0 plan: role list, runner coverage, menu gaps (cheese-dip add-ons, chile con queso price, lunch hours),
+Decided Oct 26: roles are waiter, chips runner, manager (no separate host role); Runner 2 covers
+X(1), X(2), P, and Party.
+
+Tracked in the Phase 0 plan: menu gaps (cheese-dip add-ons, chile con queso price, lunch hours),
 tax rounding approval, waiter name on ticket, printer model.

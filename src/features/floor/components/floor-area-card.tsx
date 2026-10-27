@@ -2,12 +2,13 @@
 
 import type { CSSProperties } from "react";
 
-import type { FloorArea, FloorTable, SectionInfo } from "../layout";
+import type { FloorArea, FloorTable, SectionInfo, SectionStaff } from "../layout";
 
 import { TableTile } from "./table-tile";
 
 type FloorAreaCardProps = {
   area: FloorArea;
+  staff: Readonly<Record<string, SectionStaff>>;
   selectedCodes: ReadonlySet<string>;
   busy: boolean;
   onTablePress: (table: FloorTable) => void;
@@ -15,7 +16,7 @@ type FloorAreaCardProps = {
 };
 
 /** One block of the floor (Section A, Bar, Section X…), with its tables placed as drawn. */
-export function FloorAreaCard({ area, selectedCodes, busy, onTablePress, onSectionToggle }: FloorAreaCardProps) {
+export function FloorAreaCard({ area, staff, selectedCodes, busy, onTablePress, onSectionToggle }: FloorAreaCardProps) {
   const mixedSections = area.sections.length > 1;
   // More than three tables across (the Bar) wraps to two per row on phones.
   const wrapOnPhone = area.grid.cols > 3;
@@ -61,6 +62,22 @@ export function FloorAreaCard({ area, selectedCodes, busy, onTablePress, onSecti
           ))}
         </div>
       </header>
+      <div className="-mt-1 mb-3 flex flex-col gap-0.5 text-sm">
+        {area.sections.map((section) => {
+          const people = staff[section.code];
+          const waiter = section.kind === "bar" ? "any waiter" : (people?.waiter ?? "not assigned");
+          const runner = people?.runner ?? "not assigned";
+          return (
+            <p key={section.code} className="flex flex-wrap gap-x-1">
+              {area.sections.length > 1 ? <span className="font-semibold text-ink">{section.name}:</span> : null}
+              <span className="text-muted">
+                Waiter <span className={people?.waiter || section.kind === "bar" ? "font-semibold text-ink" : ""}>{waiter}</span>
+                , chips <span className={people?.runner ? "font-semibold text-ink" : ""}>{runner}</span>
+              </span>
+            </p>
+          );
+        })}
+      </div>
       <div
         className={`grid gap-2 ${
           wrapOnPhone

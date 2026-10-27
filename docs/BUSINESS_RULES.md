@@ -48,6 +48,26 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 8. **Closed sections (decided):** can't be seated at all, by suggestion or by tapping. Tapping a table
    there offers "Open section …". Tables already seated keep their color when a section closes.
 
+## Staff (Built, Phase 4)
+
+- **Roles (decided):** waiter, chips runner, manager. Waiter duty: waiters and managers. Chips-runner
+  duty: chips runners and managers.
+- **Employee numbers** are unique digits (1–6). "01" and "1" count as the same number, so either can
+  be typed. A number never changes; a mistake means turning that employee off and adding a new one.
+- **Shifts:** one is open at a time. "Start new shift" ends the current shift and every assignment
+  in it. Seated tables are not affected.
+- **Assignments:** each section has at most one waiter and one chips runner at a time (database
+  rule). One person can cover several sections. Moving someone ends the old assignment and starts a
+  new one, so history is kept and the latest assignment is always the current one.
+- **Chips runners (decided):** for example, Runner 1 covers A, B, C; Runner 2 covers X(1), X(2), P,
+  and Party. Coverage is set per section, so it can change at any time.
+- **The Bar:** no waiter is assigned (any waiter can bill it); a chips runner can be.
+- **Turning someone off** ends their current assignments and keeps all history. Changing a role
+  ends any duty the new role can't hold.
+- **Sign-in accounts:** any signed-in administrator can add accounts, set a new password, and turn
+  accounts off or on. Nobody can turn off their own account, and at least one account stays on.
+  Passwords are never shown or stored by the app.
+
 ## Waiter section (Planned, Phase 5)
 
 - **Any waiter can bill a Bar table**, with no "assigned to someone else" warning. The Bar is always

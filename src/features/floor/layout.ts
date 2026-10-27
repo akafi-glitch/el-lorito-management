@@ -54,12 +54,19 @@ export type FloorMap = {
   tableCount: number;
   /** Section the rotation will suggest next. */
   nextSectionCode: string | null;
+  /** Current shift's waiter and chips runner per section code. */
+  staff: Record<string, SectionStaff>;
 };
+
+/** Who works a section this shift, as shown on the floor ("Kafi (01)"). */
+export type SectionStaff = { waiter: string | null; runner: string | null };
 
 export type FloorState = {
   /** Open visits, keyed by table id. */
   visits?: ReadonlyMap<string, VisitSnapshot>;
   nextSectionCode?: string | null;
+  /** Current shift's assignments, keyed by section code. */
+  staff?: Readonly<Record<string, SectionStaff>>;
 };
 
 export class FloorLayoutError extends Error {
@@ -176,6 +183,7 @@ export function buildFloorMap(rows: FloorRows, state: FloorState = {}): FloorMap
     counts,
     tableCount: activeTables.length,
     nextSectionCode: state.nextSectionCode ?? null,
+    staff: { ...(state.staff ?? {}) },
   };
 }
 

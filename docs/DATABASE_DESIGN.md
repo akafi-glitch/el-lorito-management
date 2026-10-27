@@ -72,16 +72,35 @@ IDs for these tables are `bigint` identity numbers (they grow every shift), per 
 
 The app turns each refusal into plain words (`src/features/seating/errors.ts`).
 
+### Staff (Phase 4, `20261027060000_staff.sql`)
+
+| Table | Purpose | Key rules |
+| --- | --- | --- |
+| `employee_roles` | waiter, chips_runner, manager | Fixed list |
+| `employees` | Staff and their numbers | `employee_number` 1–6 digits, unique; `number_key` (number without leading zeros) also unique, so 01 and 1 can't both exist; turned off, never deleted |
+| `shifts` | One shift at a time | Unique index allows only one open shift |
+| `shift_assignments` | Who works which section, as waiter or chips runner | One active waiter and one active runner per section per shift (unique index); rows are ended, never deleted |
+| `current_assignments` (view) | Open shift's current assignments with names | Used by the floor screen and the Waiter Section |
+
+| Function | Does | Refuses with |
+| --- | --- | --- |
+| `start_shift(actor)` | Ends the open shift and its assignments, opens a new one | — |
+| `assign_duty(section, duty, employee or null, actor)` | Sets or clears a section's waiter or runner; keeps history | `no_open_shift`, `bar_open_to_all`, `employee_inactive`, `role_mismatch`, `employee_not_found` |
+| `add_employee(number, name, role, actor)` | Adds an employee | `employee_number_taken` |
+| `update_employee(id, name, role, active, actor)` | Renames, changes role, turns on/off; ends duties that no longer fit | `employee_not_found` |
+
+Sign-in accounts use Supabase Auth's admin API from the server, then `app_users`. Audit history
+now also records shift starts, assignment changes, employee changes, and account changes (never
+passwords).
+
 ## Planned (approved design)
 
 | Group | Tables | Phase |
 | --- | --- | --- |
-| Staff | employee_roles, employees (`employee_number` text, unique), shifts (one open at a time), shift_assignments (history kept) | 4 |
 | Menu & tax | menu_categories, tax_groups (FOOD 850, LIQUOR 1050), tax_categories, menu_items (never deleted) | 6 |
 | Tickets | orders (from 1001), order_items (name and price copied), bills, bill_lines, print_attempts | 7–9 |
 
-Still to come: start_shift, assign_section, create_order, update_order_items, create_bill,
-record_print_attempt.
+Still to come: create_order, update_order_items, create_bill, record_print_attempt.
 
 ## Testing
 

@@ -1,10 +1,9 @@
 "use client";
 
 import { buttonClasses } from "@/components/ui/button";
+import { Modal } from "@/components/ui/modal";
 
 import type { FloorTable } from "../layout";
-
-import { Modal } from "./modal";
 
 type TableDialogProps = {
   table: FloorTable;

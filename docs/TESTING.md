@@ -90,6 +90,27 @@ device takes A2 first → clear message and refresh, one visit only; another dev
 → refused, not overwritten; phone has no sideways scroll; no page errors. Phase 1 and 2 browser
 checks re-run against the same database and still pass.
 
+## Phase 4 tests (24 new unit tests, 32 new database checks)
+
+- **Unit** (`src/features/staff/staff.test.ts`): 01 and 1 are the same number; who can take which
+  duty; eligible lists exclude turned-off staff; the board shows the latest assignment; the Bar
+  never gets a waiter; you can't turn off your own account and one account always stays on; input
+  rules for employees, assignments, and passwords; plain-language messages.
+- **Database (`staff.test.sql`):** roles; adding employees; "1" refused when "01" exists; digits
+  only; assigning needs an open shift; the Kafi example (X(1) → B: latest is B, history keeps
+  X(1)); one waiter per section; runners can't wait and managers can do both; the Bar takes no
+  waiter; Runner 2 covers X(1), X(2), P, Party; turning someone off ends their duty and blocks new
+  ones; a role change ends duties that no longer fit; a new shift starts empty; browsers refused.
+
+**Browser walkthrough** on real PostgREST and the database functions, with a stand-in for
+Supabase Auth's sign-in and admin API: 23 of 23 steps passed. Start shift; add five employees;
+duplicate number refused; waiter lists show only waiters and managers; assign, move, and keep
+history; runners on their sections; the floor shows each section's waiter and runner and "any
+waiter" for the Bar; turning Jesus off ends his duty; add a sign-in account, set its password, turn
+it off (can't sign in), turn it on (old password refused, new one works); you can't turn yourself off;
+new shift asks first and clears assignments; history recorded; no page errors. Phase 1–3 walkthroughs
+re-run and still pass.
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,

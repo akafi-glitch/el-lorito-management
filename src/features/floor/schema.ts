@@ -26,7 +26,7 @@ export const sectionRowSchema = z.object({
 });
 
 export const tableRowSchema = z.object({
-  id: z.uuid(),
+  id: z.guid(),
   code: z.string(),
   label: z.string(),
   section_code: z.string(),
@@ -39,17 +39,17 @@ export const tableRowSchema = z.object({
 });
 
 export const combinationRowSchema = z.object({
-  id: z.uuid(),
+  id: z.guid(),
   code: z.string(),
   label: z.string(),
   allows_over_twelve: z.boolean(),
   is_active: z.boolean(),
   sort_order: z.number().int(),
-  table_combination_members: z.array(z.object({ table_id: z.uuid() })),
+  table_combination_members: z.array(z.object({ table_id: z.guid() })),
 });
 
 export const openVisitTableRowSchema = z.object({
-  table_id: z.uuid(),
+  table_id: z.guid(),
   visit_id: z.number().int().positive(),
   customer_visits: z.object({
     id: z.number().int().positive(),
@@ -61,6 +61,13 @@ export const openVisitTableRowSchema = z.object({
 });
 
 export const rotationRowSchema = z.object({ next_section_code: z.string() });
+
+export const assignmentLabelRowSchema = z.object({
+  section_code: z.string(),
+  duty: z.enum(["waiter", "chips_runner"]),
+  full_name: z.string(),
+  employee_number: z.string(),
+});
 
 export type OpenVisitTableRow = z.infer<typeof openVisitTableRowSchema>;
 export type FloorAreaRow = z.infer<typeof floorAreaRowSchema>;

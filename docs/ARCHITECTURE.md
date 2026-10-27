@@ -52,7 +52,7 @@ src/
     (app)/                signed-in pages: home, floor, waiter, manage
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth, floor, seating now; staff, menu,
+  features/<module>/      one folder per module (auth, floor, seating, staff now; menu,
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)
