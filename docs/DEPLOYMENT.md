@@ -31,6 +31,9 @@ merged (Database → Migrations shows them).
    - **Allow new users to sign up**: turn **off**. Only administrators create accounts.
    - In the password settings under Authentication (shown with the Email provider), set the
      **minimum password length** to **10** (the app asks for 10).
+   - **Leaked password protection** (refuses passwords known from data breaches): switch it on if
+     your plan offers it (Supabase lists it for Pro and above). Supabase's Security Advisor warns
+     while it is off; that warning is the only one expected.
 2. **Authentication → URL Configuration**
    - **Site URL**: your Vercel address once you have it (step 3), for example
      `https://el-lorito-management.vercel.app`. Later, your own domain.
@@ -169,7 +172,7 @@ The app refuses to show pages if a value is missing, if the keys are swapped, or
 | `20261027090000_ticket_totals` | Applied Oct 27, 2026, when pull request #8 was merged |
 | `20261027100000_printing` | Applied Oct 27, 2026, when pull request #9 was merged |
 | `20261027110000_live_sync` | Applied Oct 27, 2026, when pull request #10 was merged |
-| `20261027120000_hardening` | Applied when pull request #12 is merged |
+| `20261027120000_hardening` | Applied Oct 27, 2026, when pull request #12 was merged |
 
 **Merging applies migrations.** Supabase's GitHub integration applies a migration to the live
 project as soon as its pull request is merged into `main` (the history shows these with no

@@ -23,7 +23,7 @@ noted, against the live Supabase project `yshypzeuqzgattkvmzak`.
 | HTTPS | ✅ | Vercel serves HTTPS only; the app adds HSTS (2 years) there. |
 | Public endpoints | ✅ | Only `/sign-in` and `/api/health` (which reports only "ok" or "misconfigured" and the app version). `/api/changes` needs a signed-in account. |
 | Dependencies | ✅ | `npm audit`: 0 known vulnerabilities in the app's packages (Oct 27, 2026). Versions are pinned. |
-| Supabase advisors | ✅ live | Security: only the expected "RLS enabled, no policy" notes (intended: browsers get nothing). Supabase's helper `rls_auto_enable()` was callable by browsers; the hardening migration removes that. |
+| Supabase advisors | ✅ live | Security: the expected "RLS enabled, no policy" notes (intended: browsers get nothing) and "leaked password protection off" (a dashboard switch, see DEPLOYMENT.md step 1). Supabase's helper `rls_auto_enable()` was callable by browsers; the hardening migration removed that on the live project. |
 | Test safety | ✅ | Browser tests refuse to run against anything but a local Supabase. Preview deployments get no keys (DEPLOYMENT.md step 3), so they can't touch live data. |
 
 ## Limits accepted for this version (owner decisions)
@@ -55,4 +55,8 @@ These are deliberate and documented in docs/PROJECT_REQUIREMENTS.md:
 ## Re-checking the live project
 
 After a merge with a migration: Supabase → Advisors → **Security** should list only "RLS Enabled
-No Policy" notes. The developer checks this after every merge.
+No Policy" notes, plus "Leaked Password Protection Disabled" until that is switched on
+(DEPLOYMENT.md step 1). The developer checks this after every merge.
+
+Checked Oct 27, 2026 after pull request #12: hardening migration applied; on the live project no
+table lacks RLS, and browsers can use no table, view, counter, or function in `public`.
