@@ -1,0 +1,41 @@
+import { TopBar } from "@/components/top-bar";
+import { PageHeader } from "@/components/ui/page-header";
+import { getSessionState } from "@/features/auth/session";
+
+type SectionShellProps = {
+  title: string;
+  description: string;
+  children: React.ReactNode;
+};
+
+/** Frame for inner pages: top bar, page title with Home button, then the page body. */
+export async function SectionShell({ title, description, children }: SectionShellProps) {
+  const session = await getSessionState();
+  const displayName = session.status === "signed-in" ? session.user.displayName : "";
+
+  return (
+    <div className="flex min-h-dvh flex-col">
+      <TopBar displayName={displayName} />
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
+        <PageHeader title={title} description={description} />
+        <div className="mt-8">{children}</div>
+      </main>
+    </div>
+  );
+}
+
+type ComingSoonProps = { phase: number; items: string[] };
+
+/** Honest placeholder: says what this page will do and which phase builds it. */
+export function ComingSoon({ phase, items }: ComingSoonProps) {
+  return (
+    <div className="rounded-2xl border-2 border-dashed border-glaze bg-paper p-6 sm:p-8">
+      <p className="text-lg font-semibold text-ink">Not built yet. Phase {phase} adds:</p>
+      <ul className="mt-3 list-disc space-y-1 pl-6 text-base text-muted">
+        {items.map((item) => (
+          <li key={item}>{item}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}

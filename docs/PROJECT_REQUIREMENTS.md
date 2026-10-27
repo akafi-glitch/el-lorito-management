@@ -1,0 +1,73 @@
+# Project requirements
+
+Source of truth: the approved requirements and the Phase 0 plan (Oct 26, 2026). Where an earlier
+project description and a later decision differ, the later decision wins and is noted here.
+
+## Purpose
+
+A private web app for El Lorito Mexican Restaurant staff to manage seating, table status, chips
+service, waiter assignments, food tickets, and printing, on several devices sharing one database.
+
+## Access
+
+- **Decided:** every page needs an administrator **username and password**. Accounts are created
+  only by administrators (first one by `npm run admin:create`). No sign-up page.
+- A device signs in once and stays signed in. Waiters then identify with their **employee number**
+  only (no PIN). Employee numbers are identifiers, not security.
+- All signed-in administrators can do everything for now; separate roles may come later.
+
+## Floor
+
+| Section | Tables |
+| --- | --- |
+| A | A1–A6 |
+| B | B1–B6 |
+| C | C1–C6 |
+| X(1) | X1, X2, X3, X9, X10, X11, X12 |
+| X(2) | X4, X5, X6, X7, X8, X13, X14 |
+| P | P1–P5 and P10 (**decided**; P6–P9 do not exist) |
+| Party | Party 1, Party 2, Party 3 (capacities unknown, **decided**) |
+| Bar | Four areas, open seating, never in the rotation |
+
+- Rotation: A → C → B → X(1) → X(2) → P, advancing after each party is seated.
+- Groups of 7+: Party areas first, then approved combinations. Above 12 guests only X6 + X7 + X8.
+- Approved combinations: A3 + A4, B3 + B4, C3 + C4, A4 + B4, X6 + X7 + X8. Staff may also make
+  their own combination; all its tables show occupied.
+- Capacities are data, never hard-coded. Do not invent capacities.
+
+## Table status
+
+Green = vacant. Yellow = seated, chips needed. Red = chips served. Gray = section closed.
+Occupancy and chips status are stored separately.
+**Decided:** the chips runner clears a red table ("Is the table cleaned?" Yes → green, visit closed).
+
+## Waiter section
+
+Employee number → current assignment → assigned tables → choose table (warning if it belongs to
+another waiter, may continue) → menu → ticket → save → print → back to home.
+
+## Tickets
+
+- A ticket can be changed until printed. **Decided:** printing locks it for good; every printed
+  ticket is kept as printed and never voided. A waiter may print any number of tickets for the same
+  table; changes after printing mean a new ticket.
+- Ticket shows: restaurant name, table, waiter number (and name, pending), ticket number, date and
+  time, items, quantities, prices, food subtotal, liquor subtotal, food tax 8.5%, liquor tax 10.5%, total.
+- Item names and prices are copied onto the ticket, so later menu price changes never alter it.
+- Printing never marks anything paid and never clears the table.
+
+## Tax
+
+Food and nonalcoholic drinks 8.5%; beer and cocktails (including wine) 10.5%.
+Proposed rounding: per tax group on the group subtotal, half-up to the cent (needs approval).
+
+## Out of scope
+
+Payments, split bills, inventory, payroll, customer accounts, loyalty, kitchen display, food
+modifications, special instructions, advanced analytics, multiple printers, silent printing.
+
+## Open questions
+
+Tracked in the Phase 0 plan: Bar tracking, capacity confirmations, rotation on manual seating,
+role list, runner coverage, menu gaps (cheese-dip add-ons, chile con queso price, lunch hours),
+tax rounding approval, waiter name on ticket, printer model.
