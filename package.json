@@ -4,7 +4,7 @@
   "private": true,
   "description": "El Lorito Restaurant Management System",
   "engines": {
-    "node": ">=22.18.0"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "next dev",

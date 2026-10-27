@@ -6,9 +6,9 @@ assignments, food tickets, and ticket printing, shared live across the restauran
 Built with Next.js (App Router), TypeScript, Tailwind CSS, and Supabase (PostgreSQL + Auth).
 Hosted on Vercel.
 
-> **Status: Phase 11 of 12.** Everything below works, stays in step across devices, and is tested
-> in real browsers on every change. Deployment preparation and the security review come next. The rest
-> arrives phase by phase. See [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
+> **Status: all 12 phases built; ready to deploy.** Follow **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)**
+> (Supabase settings, first administrator, Vercel, first-day checks). History of each phase:
+> [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
 
 ## What works now
 
@@ -39,16 +39,18 @@ Hosted on Vercel.
 
 ## Local setup
 
-You need Node.js 22.18 or newer, Git, and Docker Desktop (Supabase runs its local database in Docker).
+You need Node.js 22 (22.18 or newer), Git, and Docker Desktop (Supabase runs locally in Docker).
 
 ```bash
 npm install
-npx supabase start          # starts local Postgres + Auth; prints the URL and keys
-cp .env.example .env.local  # then paste the URL, publishable key, and secret key into .env.local
-npx supabase db reset       # applies all migrations to the local database
+npx supabase start          # local Postgres, Auth, API, and Realtime; prints the URL and keys
+psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -f scripts/ensure-realtime-policy.sql
+cp .env.example .env.local  # then paste the local URL, publishable key, and secret key into .env.local
 npm run admin:create        # creates your first administrator (asks for username and password)
 npm run dev                 # open http://localhost:3000 and sign in
 ```
+
+To put the app online, follow [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md) instead.
 
 `npx supabase start` prints keys labelled **Publishable** (`sb_publishable_…`) and **Secret**
 (`sb_secret_…`). The secret key goes only in `SUPABASE_SECRET_KEY`, never in a `NEXT_PUBLIC_` variable.
@@ -73,8 +75,11 @@ npm run dev                 # open http://localhost:3000 and sign in
 Browsers only ever hold the low-privilege publishable key. All data access happens on the server.
 The secret key lives in server-only modules (`server-only` makes the build fail if browser code
 imports them), and a post-build scan checks that it never reaches browser files. Every database
-table has Row Level Security on with no browser policies. Passwords are stored only as hashes by
-Supabase Auth. Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+table has Row Level Security on with no browser policies, and browsers have no rights on any table
+or function. Live updates use a private channel that only active accounts can hear, carrying no
+data. Passwords are stored only as hashes by Supabase Auth. A Content Security Policy keeps pages
+talking only to the app and its Supabase project. Full review, including the limits accepted for
+this version (employee numbers are not passwords): [docs/SECURITY.md](docs/SECURITY.md).
 
 ## Documentation
 
@@ -84,4 +89,5 @@ Supabase Auth. Details: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/D
 - [Database design](docs/DATABASE_DESIGN.md)
 - [Development roadmap](docs/DEVELOPMENT_ROADMAP.md)
 - [Testing](docs/TESTING.md)
-- [Deployment](docs/DEPLOYMENT.md)
+- [Deployment](docs/DEPLOYMENT.md) (step-by-step guide)
+- [Security review](docs/SECURITY.md)
