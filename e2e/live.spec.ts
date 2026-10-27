@@ -65,7 +65,7 @@ test.describe.serial("live updates across devices", () => {
     await seat(["C5"], 2); // seating in C moves the rotation to B
     await page.goto("/floor");
     if (env.realtime) await expect(page.getByTestId("live-status")).toHaveText("Live", { timeout: 20_000 });
-    const next = page.locator("section[aria-labelledby='new-party-heading'] p");
+    const next = page.locator("section[aria-labelledby='new-party-heading'] p", { hasText: "Next in rotation" });
     await expect(next).toHaveText("Next in rotation: B");
 
     const manager = await browser.newPage({ storageState: "e2e/.auth/admin.json" });
