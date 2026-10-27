@@ -53,6 +53,12 @@ describe("server configuration", () => {
     expect(problems.length).toBeGreaterThanOrEqual(2);
   });
 
+  it("uses 80 mm receipt paper unless told 58", () => {
+    expect(parseServerEnv(valid).RECEIPT_PAPER_WIDTH_MM).toBe(80);
+    expect(parseServerEnv({ ...valid, RECEIPT_PAPER_WIDTH_MM: "58" }).RECEIPT_PAPER_WIDTH_MM).toBe(58);
+    expect(problemsOf(() => parseServerEnv({ ...valid, RECEIPT_PAPER_WIDTH_MM: "72" })).join(" ")).toMatch(/RECEIPT_PAPER_WIDTH_MM/);
+  });
+
   it("rejects an unknown time zone", () => {
     const problems = problemsOf(() => parseServerEnv({ ...valid, APP_TIME_ZONE: "Mars/Olympus" }));
     expect(problems.join(" ")).toMatch(/APP_TIME_ZONE/);

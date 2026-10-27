@@ -116,7 +116,7 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Prices:** Management can change a price or turn an item off. New prices apply to new tickets
   only; tickets keep the price they were made with (Phase 7). Items are never deleted.
 
-## Tickets (Built, Phase 7; printing in Phase 9)
+## Tickets (Built, Phases 7–9)
 
 - A ticket belongs to the group seated at the table (the visit) and to the waiter who made it.
   Any number of tickets per group. Numbers start at 1001 and never reset; a refused save uses no
@@ -133,6 +133,23 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Table cleared:** its tickets are kept and can no longer be changed. A save that arrives while
   the table is being cleared waits, then is refused. The next group starts with no tickets.
 - Every save and cancel is recorded in the audit history, with the lines before and after.
+
+## Printing (Built, Phase 9)
+
+- **Save first:** Print saves the ticket if the screen has changes, then prints what was saved.
+- **Locks for good:** the first print locks the ticket and freezes its totals and tax rates on it,
+  so later menu, price, or tax-rate changes never alter a printed ticket.
+- **Print again:** any number of times, by any active waiter, even after the table is cleared.
+  Every print request is kept (attempt 1 is the first print, then reprints 2, 3, ...).
+- **No false claims:** the browser can't tell whether paper came out. After each print the waiter
+  answers "Did it print?"; the answer is stored as the waiter's report. Yes ends the print workflow
+  on the home page; No offers Print again.
+- **On the ticket:** EL LORITO, Mexican Restaurant, ticket number, table (joined tables as
+  "X6 + X7 + X8"), waiter number only (owner decision Oct 27, 2026), date and time of the first
+  print, each item with quantity and price (and "@ each" when more than one), food subtotal, liquor
+  subtotal, food tax 8.5%, liquor tax 10.5%, total.
+- **Paper:** 80 mm by default; `RECEIPT_PAPER_WIDTH_MM=58` for 58 mm paper. Only the receipt prints.
+- Printing never marks anything paid and never clears the table.
 
 ## Tax (Built, Phase 8; rounding approved Oct 27, 2026)
 

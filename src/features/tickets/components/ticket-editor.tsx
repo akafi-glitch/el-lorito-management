@@ -11,6 +11,8 @@ import type { Draft } from "@/features/menu/order-draft";
 import type { TaxSetup } from "@/features/billing/setup";
 import type { Menu } from "@/features/menu/types";
 
+import { PrintFlow, type PrintTarget } from "@/features/printing/components/print-flow";
+
 import { cancelTicketAction, saveTicketAction, type TicketActionResult } from "../actions";
 import { draftFromTicket, hasUnsavedChanges, savedPriceMap, withTicket } from "../rules";
 import type { SavedTicket } from "../types";
@@ -26,12 +28,13 @@ type TicketEditorProps = {
   ticket: SavedTicket | null;
   /** Table page link, for moving between tickets. */
   tableHref: string;
+  paperWidthMm: 58 | 80;
 };
 
 const OFFLINE = "Couldn't reach the server. Nothing was saved. Check the connection, then try again.";
 
 /** Build or change a ticket, then save it. The database sets the final prices. */
-export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visitId, ticket, tableHref }: TicketEditorProps) {
+export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visitId, ticket, tableHref, paperWidthMm }: TicketEditorProps) {
   const router = useRouter();
   const [busy, startTransition] = useTransition();
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -90,6 +93,24 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
     });
   }
 
+  /** Printing always prints what is saved: save first if the screen has changes. */
+  async function prepareForPrint(): Promise<PrintTarget | null> {
+    if (ticket && !dirty) return { visitId, ticketId: ticket.id, version: ticket.version, ticketNumber: ticket.number };
+    const result = await saveTicketAction({
+      employeeNumber,
+      visitId,
+      ticketId: ticket?.id ?? null,
+      version: ticket?.version ?? null,
+      lines: draft.map((line) => ({ itemId: line.itemId, quantity: line.quantity })),
+    });
+    if (!result.ok) {
+      setNotice({ tone: "error", text: result.message });
+      if (result.reload) router.refresh();
+      return null;
+    }
+    return { visitId, ticketId: result.ticketId, version: result.version, ticketNumber: result.ticketNumber };
+  }
+
   function cancelTicket() {
     if (!ticket) return;
     setConfirmCancel(false);
@@ -142,11 +163,20 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
             <p className={`text-sm font-semibold ${dirty ? "text-ink" : "text-muted"}`} data-testid="ticket-status">
               {status}
             </p>
+            <PrintFlow
+              employeeNumber={employeeNumber}
+              paperWidthMm={paperWidthMm}
+              mode={{ kind: "first", prepare: prepareForPrint }}
+              label={dirty ? "Save and print" : "Print ticket"}
+              disabled={busy || draft.length === 0}
+              onError={(text) => setNotice({ tone: "error", text })}
+              ticketHref={(number) => withTicket(tableHref, number)}
+            />
             <button
               type="button"
               disabled={busy || !dirty || draft.length === 0}
               onClick={save}
-              className={buttonClasses("primary", "min-h-14 w-full text-lg")}
+              className={buttonClasses("secondary", "w-full")}
             >
               {ticket ? "Save changes" : "Save ticket"}
             </button>
@@ -165,7 +195,7 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
                 Cancel this ticket
               </button>
             ) : null}
-            <p className="text-xs text-muted">Prices and tax are set when the ticket is saved. Printing comes in Phase 9.</p>
+            <p className="text-xs text-muted">Prices and tax are set when the ticket is saved. Printing saves first and then locks the ticket.</p>
           </div>
         }
       />

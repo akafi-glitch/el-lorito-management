@@ -18,11 +18,13 @@ import { cancelTicketSchema, saveTicketSchema, type CancelTicketInput, type Save
  */
 
 export type TicketActionResult =
-  | { ok: true; message: string; ticketNumber: number }
+  | { ok: true; message: string; ticketNumber: number; ticketId: number; version: number }
   | { ok: false; message: string; reload: boolean };
 
 /** save_ticket returns one row: { ticket_id, ticket_number, version }. */
-const savedRows = z.array(z.object({ ticket_number: z.number().int().positive() })).length(1);
+const savedRows = z
+  .array(z.object({ ticket_id: z.number().int().positive(), ticket_number: z.number().int().positive(), version: z.number().int().positive() }))
+  .length(1);
 
 async function activeEmployeeId(employeeNumber: string): Promise<{ id: number } | { message: string }> {
   const employee = await findEmployeeByNumber(employeeNumber);
@@ -60,10 +62,10 @@ export async function saveTicketAction(input: SaveTicketInput): Promise<TicketAc
   }
 
   const saved = savedRows.safeParse(data);
-  const ticketNumber = saved.success ? saved.data[0]!.ticket_number : null;
-  if (ticketNumber === null) return { ok: false, message: "The ticket was saved but couldn't be shown. Refresh the page.", reload: true };
+  if (!saved.success) return { ok: false, message: "The ticket was saved but couldn't be shown. Refresh the page.", reload: true };
+  const row = saved.data[0]!;
   refreshWaiterPages();
-  return { ok: true, message: `Ticket #${ticketNumber} saved.`, ticketNumber };
+  return { ok: true, message: `Ticket #${row.ticket_number} saved.`, ticketNumber: row.ticket_number, ticketId: row.ticket_id, version: row.version };
 }
 
 export async function cancelTicketAction(input: CancelTicketInput): Promise<TicketActionResult> {
@@ -93,5 +95,7 @@ export async function cancelTicketAction(input: CancelTicketInput): Promise<Tick
     ok: true,
     message: number.success ? `Ticket #${number.data} cancelled.` : "Ticket cancelled.",
     ticketNumber: number.success ? number.data : 0,
+    ticketId,
+    version: version + 1,
   };
 }

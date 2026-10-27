@@ -8,7 +8,18 @@ import { staffLabel, STATUS_TEXT } from "../rules";
 import type { SavedTicket } from "../types";
 
 /** A ticket that can't be changed any more (printed, cancelled, or the table was cleared). */
-export function TicketView({ ticket, reason, newTicketHref }: { ticket: SavedTicket; reason: string; newTicketHref: string | null }) {
+export function TicketView({
+  ticket,
+  reason,
+  newTicketHref,
+  actions,
+}: {
+  ticket: SavedTicket;
+  reason: string;
+  newTicketHref: string | null;
+  /** Extra buttons, such as "Print again" on a printed ticket. */
+  actions?: React.ReactNode;
+}) {
   return (
     <section aria-labelledby="ticket-view-heading" className="mx-auto w-full max-w-xl rounded-2xl border border-glaze bg-paper p-5">
       <h2 id="ticket-view-heading" className="text-2xl font-bold text-ink">
@@ -31,8 +42,9 @@ export function TicketView({ ticket, reason, newTicketHref }: { ticket: SavedTic
       <div className="mt-3 border-t-2 border-ink/20 pt-3">
         <TotalsBlock totals={ticket.totals} />
       </div>
+      {actions ? <div className="mt-5">{actions}</div> : null}
       {newTicketHref ? (
-        <Link href={newTicketHref} className={buttonClasses("primary", "mt-5 w-full")}>
+        <Link href={newTicketHref} className={buttonClasses(actions ? "secondary" : "primary", "mt-3 w-full")}>
           Start a new ticket
         </Link>
       ) : null}

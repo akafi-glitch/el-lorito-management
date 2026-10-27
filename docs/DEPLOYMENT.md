@@ -20,6 +20,7 @@ Test data and real data never share a project.
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Yes | `sb_publishable_…` |
 | `SUPABASE_SECRET_KEY` | **Never** | `sb_secret_…`; server only |
 | `APP_TIME_ZONE` | No | Default `America/Chicago` |
+| `RECEIPT_PAPER_WIDTH_MM` | No | `80` (default) or `58`: the thermal printer's paper width |
 
 The app refuses to start pages if a value is missing, if the keys are swapped, or if any
 `NEXT_PUBLIC_` variable holds a secret key.
@@ -34,7 +35,8 @@ The app refuses to start pages if a value is missing, if the keys are swapped, o
 | `20261027060000_staff` | Applied Oct 27, 2026, after pull request #4 was merged |
 | `20261027070000_menu` | Applied Oct 27, 2026, when pull request #6 was merged |
 | `20261027080000_tickets` | Applied Oct 27, 2026, when pull request #7 was merged |
-| `20261027090000_ticket_totals` | Not yet: applied when pull request #8 is merged |
+| `20261027090000_ticket_totals` | Applied Oct 27, 2026, when pull request #8 was merged |
+| `20261027100000_printing` | Not yet: applied when pull request #9 is merged |
 
 **Merging applies migrations.** Since the staff migration, Supabase applies a migration to the
 live project by itself as soon as its pull request is merged into `main` (Supabase's GitHub

@@ -5,6 +5,7 @@ import { SectionShell } from "@/components/section-shell";
 import { buttonClasses } from "@/components/ui/button";
 import { allTables } from "@/features/floor/layout";
 import { loadTaxSetup } from "@/features/billing/queries";
+import { ReprintButton } from "@/features/printing/components/reprint-button";
 import { STATUS_LABEL } from "@/features/floor/status";
 import { loadMenu } from "@/features/menu/queries";
 import { employeeLabel } from "@/features/staff/rules";
@@ -118,10 +119,21 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
           ticket={selected}
           reason={
             selected.status === "printed"
-              ? "Printed tickets can't be changed. Start a new ticket for anything else."
+              ? "Printed: locked for good. Print again for another copy, or start a new ticket."
               : "This ticket was cancelled."
           }
           newTicketHref={withTicket(tableHref, null)}
+          actions={
+            selected.status === "printed" ? (
+              <ReprintButton
+                employeeNumber={me.number}
+                paperWidthMm={serverEnv().RECEIPT_PAPER_WIDTH_MM}
+                ticketId={selected.id}
+                ticketNumber={selected.number}
+                tableHref={tableHref}
+              />
+            ) : null
+          }
         />
       ) : (
         <TicketEditor
@@ -133,6 +145,7 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
           visitId={visit.visitId}
           ticket={selected}
           tableHref={tableHref}
+          paperWidthMm={serverEnv().RECEIPT_PAPER_WIDTH_MM}
         />
       )}
       <div className="flex flex-col gap-3 sm:flex-row">

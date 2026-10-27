@@ -131,8 +131,9 @@ select throws_ok($$ select * from public.save_ticket(pg_temp.id('visit'), (selec
   pg_temp.id('kafi'), pg_temp.lines('Taco', '1'), 'America/Chicago', pg_temp.actor()) $$,
   'P0001', 'ticket_cancelled', 'a cancelled ticket can''t be changed');
 
--- Printed tickets are locked (printing itself is Phase 9) --------------------------------------
-update public.tickets set status = 'printed', printed_at = now() where ticket_number = 1001;
+-- Printed tickets are locked (printing itself: printing.test.sql) ------------------------------
+select public.print_ticket(pg_temp.id('visit'), (select ticket_id from saved where name = 't1'),
+  (select version from public.tickets where ticket_number = 1001), pg_temp.id('kafi'), pg_temp.actor());
 select throws_ok($$ select * from public.save_ticket(pg_temp.id('visit'), (select ticket_id from saved where name = 't1'), 3,
   pg_temp.id('kafi'), pg_temp.lines('Taco', '1'), 'America/Chicago', pg_temp.actor()) $$,
   'P0001', 'ticket_printed', 'a printed ticket can''t be changed');

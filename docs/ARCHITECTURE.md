@@ -53,7 +53,7 @@ src/
                           waiter/[number]/tables/[code]: a waiter's tables, then one table
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets, billing now;
+  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets, billing, printing now;
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)
@@ -116,3 +116,13 @@ signed-in account and the waiter's number, then calls `save_ticket`, which sets 
 the database (the device's prices are only a preview). Each ticket has a version: a save based
 on an older version is refused and the page reloads the newer one, so two tablets can never
 silently overwrite each other.
+
+## Printing
+
+Browser printing, no printer driver code: the receipt is a small block placed directly under
+`<body>` that is hidden on screen; in print mode `globals.css` hides everything else and an
+`@page` rule sets the paper width. The order is always: the server records the print in the
+database (locking the ticket and freezing its totals the first time), the receipt is built from
+what the database stored, then `window.print()` opens the dialog, then the waiter answers "Did it
+print?". The print actions don't refresh the page, so the question stays on screen; the page
+refreshes when the waiter is done.
