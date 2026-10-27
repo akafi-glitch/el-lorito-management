@@ -55,3 +55,21 @@ test("no serious accessibility problems on the working screens", async ({ page }
     expect(serious, path).toEqual([]);
   }
 });
+
+test("no page breaks the security policy (content security policy violations)", async ({ page }) => {
+  await page.addInitScript(() => {
+    const w = window as unknown as { __cspViolations: string[] };
+    w.__cspViolations = [];
+    document.addEventListener("securitypolicyviolation", (event) => {
+      w.__cspViolations.push(`${event.violatedDirective} ${event.blockedURI}`);
+    });
+  });
+  for (const path of PAGES) {
+    await page.goto(path);
+    await page.waitForLoadState("networkidle").catch(() => {});
+    const violations = await page.evaluate(() => (window as unknown as { __cspViolations: string[] }).__cspViolations);
+    expect(violations, path).toEqual([]);
+  }
+  const csp = (await page.request.get("/")).headers()["content-security-policy"];
+  expect(csp).toContain("frame-ancestors 'none'");
+});

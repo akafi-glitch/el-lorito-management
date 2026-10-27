@@ -1,5 +1,8 @@
 "use client";
 
+// First, before anything that defines validation rules: see src/lib/zod-config.ts.
+import "@/lib/zod-config";
+
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 

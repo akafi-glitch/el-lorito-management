@@ -1,3 +1,5 @@
+import "@/lib/zod-config";
+
 import { z } from "zod";
 
 /** What can change: matches public.sync_versions. */
