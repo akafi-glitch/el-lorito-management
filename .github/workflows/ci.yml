@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  app:
+    name: Lint, types, tests, build
+    runs-on: ubuntu-latest
+    env:
+      # Placeholder values so the build can run. Real keys live only in Vercel and .env.local.
+      NEXT_PUBLIC_SUPABASE_URL: http://127.0.0.1:54321
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_placeholder
+      SUPABASE_SECRET_KEY: sb_secret_ci_placeholder_value
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build # also runs the secret-key scan
+
+  database:
+    name: Migrations and database tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+      - run: supabase db start # applies every migration to a fresh database
+      - run: supabase test db # pgTAP tests in supabase/tests
