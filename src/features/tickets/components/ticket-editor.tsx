@@ -42,15 +42,41 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
 
   const savedKey = `${ticket?.id ?? "new"}:${ticket?.version ?? 0}`;
   const [shownKey, setShownKey] = useState(savedKey);
+  /** The saved lines the screen last showed, to tell whether the waiter has unsaved changes. */
+  const [shownSaved, setShownSaved] = useState<Draft>(() => draftFromTicket(ticket));
   const [draft, setDraft] = useState<Draft>(() => draftFromTicket(ticket));
-  // When a newer saved version arrives (after saving, or another device's change), show it.
+  /** The saved version this screen's changes are based on (sent with every save). */
+  const [baseVersion, setBaseVersion] = useState<number | null>(ticket?.version ?? null);
+  /** Another device saved this ticket while this screen had unsaved changes. */
+  const [conflict, setConflict] = useState(false);
+  /** After a refused save, show the newer version as soon as it arrives. */
+  const [takeNewer, setTakeNewer] = useState(false);
+
+  // A newer saved version arrived (our own save, or another device through live updates).
   if (shownKey !== savedKey) {
+    const sameTicket = shownKey.split(":")[0] === savedKey.split(":")[0];
+    const newSaved = draftFromTicket(ticket);
+    const hadChanges = hasUnsavedChanges(draft, shownSaved);
     setShownKey(savedKey);
-    setDraft(draftFromTicket(ticket));
+    setShownSaved(newSaved);
+    if (!sameTicket || takeNewer || !hadChanges || !hasUnsavedChanges(draft, newSaved)) {
+      setDraft(newSaved);
+      setBaseVersion(ticket?.version ?? null);
+      setConflict(false);
+      setTakeNewer(false);
+    } else {
+      setConflict(true); // keep the waiter's changes; saving them would be refused, so say so now
+    }
   }
 
   const saved = draftFromTicket(ticket);
   const dirty = hasUnsavedChanges(draft, saved);
+
+  function showNewer() {
+    setDraft(saved);
+    setBaseVersion(ticket?.version ?? null);
+    setConflict(false);
+  }
 
   // Warn before leaving the page with an unsaved order.
   useEffect(() => {
@@ -72,6 +98,7 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
       router.replace(withTicket(tableHref, nextTicket));
       router.refresh();
     } else if (result.reload) {
+      setTakeNewer(true);
       router.refresh();
     }
   }
@@ -83,7 +110,7 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
           employeeNumber,
           visitId,
           ticketId: ticket?.id ?? null,
-          version: ticket?.version ?? null,
+          version: ticket ? baseVersion : null,
           lines: draft.map((line) => ({ itemId: line.itemId, quantity: line.quantity })),
         });
         finish(result, result.ok ? result.ticketNumber : (ticket?.number ?? null));
@@ -100,12 +127,15 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
       employeeNumber,
       visitId,
       ticketId: ticket?.id ?? null,
-      version: ticket?.version ?? null,
+      version: ticket ? baseVersion : null,
       lines: draft.map((line) => ({ itemId: line.itemId, quantity: line.quantity })),
     });
     if (!result.ok) {
       setNotice({ tone: "error", text: result.message });
-      if (result.reload) router.refresh();
+      if (result.reload) {
+        setTakeNewer(true);
+        router.refresh();
+      }
       return null;
     }
     return { visitId, ticketId: result.ticketId, version: result.version, ticketNumber: result.ticketNumber };
@@ -116,7 +146,7 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
     setConfirmCancel(false);
     startTransition(async () => {
       try {
-        const result = await cancelTicketAction({ employeeNumber, visitId, ticketId: ticket.id, version: ticket.version });
+        const result = await cancelTicketAction({ employeeNumber, visitId, ticketId: ticket.id, version: baseVersion ?? ticket.version });
         finish(result, result.ok ? null : ticket.number);
       } catch {
         setNotice({ tone: "error", text: OFFLINE });
@@ -148,6 +178,17 @@ export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visi
           </p>
         ) : null}
       </div>
+
+      {conflict ? (
+        <div role="alert" className="flex flex-col gap-3 rounded-xl border-2 border-status-chips bg-status-chips/20 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-base font-semibold text-ink">
+            Someone else just saved a change to this ticket. Your changes here aren&apos;t saved and can&apos;t be saved over theirs.
+          </p>
+          <button type="button" onClick={showNewer} className={buttonClasses("primary", "shrink-0")}>
+            Show their version
+          </button>
+        </div>
+      ) : null}
 
       <MenuScreen
         menu={menu}

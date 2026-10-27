@@ -6,6 +6,7 @@ import { buttonClasses } from "@/components/ui/button";
 import { ROLE_LABEL, employeeLabel } from "@/features/staff/rules";
 import { WaiterRefused } from "@/features/waiter/components/waiter-refused";
 import { WaiterTables } from "@/features/waiter/components/waiter-tables";
+import { loadVersions } from "@/features/sync/queries";
 import { loadWaiterScreen } from "@/features/waiter/queries";
 import { resolveWaiter } from "@/features/waiter/resolve";
 import { waiterPath } from "@/features/waiter/rules";
@@ -27,10 +28,15 @@ export default async function WaiterTablesPage({ params }: Props) {
   }
 
   const me = result.employee;
+  const versions = await loadVersions(); // before the data: see floor/page.tsx
   const { view } = await loadWaiterScreen(me);
 
   return (
-    <SectionShell title={employeeLabel(me)} description={`${ROLE_LABEL[me.role]}. Choose a table with seated guests.`}>
+    <SectionShell
+      title={employeeLabel(me)}
+      description={`${ROLE_LABEL[me.role]}. Choose a table with seated guests.`}
+      live={{ watch: ["floor", "staff"], versions }}
+    >
       <div className="mb-6">
         <Link href="/waiter" className={buttonClasses("secondary")}>
           Not you? Change number

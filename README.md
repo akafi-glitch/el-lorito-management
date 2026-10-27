@@ -6,8 +6,8 @@ assignments, food tickets, and ticket printing, shared live across the restauran
 Built with Next.js (App Router), TypeScript, Tailwind CSS, and Supabase (PostgreSQL + Auth).
 Hosted on Vercel.
 
-> **Status: Phase 9 of 12.** Sign-in, floor management, staff management, the Waiter Section, the
-> menu, tickets with tax, and printing work. Live updates across devices come next. The rest
+> **Status: Phase 10 of 12.** Everything below works and stays in step across devices. End-to-end
+> testing and deployment preparation come next. The rest
 > arrives phase by phase. See [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
 
 ## What works now
@@ -32,6 +32,9 @@ Hosted on Vercel.
   print dialog with a thermal-receipt layout, then asks "Did it print?". Yes returns to the home
   page; No offers **Print again**. Printed tickets can be printed again any number of times.
   See [a sample receipt](docs/receipt-sample.png).
+- **Live updates**: when a table, ticket, assignment, or menu item changes on one device, every
+  other screen showing it updates by itself, usually within a second. A small dot under each page
+  title says **Live**, **Reconnecting** (then it checks every few seconds), or **Offline**.
 - `/api/health` reports whether the app is configured (never the settings themselves).
 
 ## Local setup
