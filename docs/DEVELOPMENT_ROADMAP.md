@@ -10,9 +10,9 @@ and the production build, and updates these docs.
 | 2 | Floor map from the database (sections, tables, combinations, capacities as data) | Done (pull request #2) |
 | 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | Done (pull request #3) |
 | 4 | Employees, shifts, section and runner assignments, administrator accounts page | Done (pull request #4) |
-| 5 | Waiter number entry, assigned tables, other-section warning | **Done, awaiting approval** |
-| 6 | Menu from the database (206 items imported), search, categories | Next |
-| 7 | Tickets saved, editable until printed | |
+| 5 | Waiter number entry, assigned tables, other-section warning | Done (pull request #5) |
+| 6 | Menu from the database (206 items imported), search, categories | **Done, awaiting approval** |
+| 7 | Tickets saved, editable until printed | Next |
 | 8 | Tax and ticket totals | |
 | 9 | Thermal printing (browser print), reprint | |
 | 10 | Live sync across devices, conflict handling | |
@@ -105,3 +105,30 @@ tickets, and printing arrive in Phases 6–9. No database changes in this phase.
 
 **Not in this phase:** the screen updates when assignments change after **Refresh**; automatic
 live updates come in Phase 10.
+
+## Phase 6 record
+
+**Objective:** the menu comes from the database and a waiter can build an order.
+
+**Built:** migration `menu` (tax groups and tax categories, menu categories, menu items, and
+`update_menu_item`), loaded with the owner's menu file: 206 items in 25 categories, plus a
+"Cheese dip add-ons" category. On a table, the waiter picks a category or searches, taps items to
+add them, changes quantities with − and +, removes lines, and sees the running total before tax.
+Management has a new **Menu** tab to change prices and turn items off or on (recorded in the
+audit history).
+
+**Decisions applied (Oct 27, 2026):** chile con queso $5.19; lunch items are served all day and
+cost $1.00 more from 3:00 PM (restaurant time). Food and nonalcoholic drinks are taxed as food;
+beer and cocktails (wine is on the cocktail page) as liquor.
+
+**Choices made where the requirements were silent (easy to change):**
+- The menu's cheese-dip prices are four ordinary items (lunch enchilada $1.25, lunch burrito $1.50,
+  combo enchilada $1.00, combo burrito $1.25), since food modifications are out of scope.
+- The category is named "Lunch" (not "Lunch Only"), because lunch is served all day.
+- Turned-off items stay on the waiter's menu, greyed out, so staff can see they're unavailable.
+- Item names are kept exactly as in the menu file. Management can change prices and availability;
+  renaming and adding items can come later if needed.
+
+**Not in this phase:** the order is not saved yet (Phase 7). If the waiter leaves the page, the
+unsaved order is lost. The lunch price shown follows the device clock in restaurant time; from
+Phase 7 the server sets the price when the ticket is saved.

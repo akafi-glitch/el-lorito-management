@@ -53,7 +53,7 @@ src/
                           waiter/[number]/tables/[code]: a waiter's tables, then one table
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth, floor, seating, staff, waiter now; menu,
+  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu now;
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)
@@ -98,3 +98,12 @@ are refused), so a stale link stops working as soon as someone is turned off. Op
 section's table needs `?continue=1`, which the warning's Continue button adds; a typed link without
 it shows the warning first. The number identifies the waiter; the administrator sign-in is what
 protects the app. Pure rules live in `features/waiter/rules.ts` and are unit tested.
+
+## Menu and money
+
+The menu (about 210 items) is read once per table page in two parallel queries and searched on the
+device, so typing in the search box makes no database requests. Money is whole cents end to end
+(`features/menu/money.ts`); dollars appear only on screen and in the Management price box, which is
+read as text, not as a floating-point number. Lunch's 3:00 PM price comes from data on the Lunch
+category and the restaurant's time zone (`APP_TIME_ZONE`), so a tablet set to another time zone
+still shows the right price. The order being built is kept on the device until Phase 7 saves it.

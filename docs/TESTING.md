@@ -129,6 +129,27 @@ shows after Refresh and B3 then opens directly; an unassigned waiter is told so 
 section; Done returns Home; browsing writes nothing; phone layout has no sideways scroll; no page
 errors.
 
+## Phase 6 tests (28 new unit tests, 27 new database checks)
+
+- **Unit** (`src/features/menu/menu.test.ts`, on the real menu exported from the database): 26
+  categories with Lunch first; 206 menu items plus 4 add-ons; chile con queso $5.19; tax
+  categories; only Lunch has late pricing; money in whole cents (0.10 + 0.20 is exactly 0.30;
+  typed prices like 8.255 refused); lunch price $7.99 at 2:59 PM and $8.99 from 3:00 PM on the
+  restaurant's clock whatever the device's time zone; search ("combo 5" finds Combo #5, not #15;
+  accents and punctuation ignored); adding, quantities 1–99, removing, and totals.
+- **Database (`menu.test.sql`):** tables; tax rates; 26 categories, 206 + 4 items; spot prices;
+  every item priced and available; Lunch late pricing; 7 beers, 22 cocktails, 21 nonalcoholic
+  drinks; late time without an amount, negative prices, and duplicate names refused;
+  `update_menu_item` changes price and availability, records the change, refuses unknown items;
+  browsers refused.
+
+**Browser walkthrough** on real PostgREST and the database functions: 26 of 26 steps passed.
+26 categories, Lunch first; tap to add; quantities with − and + (− stops at 1); search and "nothing
+matches"; remove; totals; Management changes Taco to $2.50 and turns it off (recorded twice in the
+audit history); the waiter sees $2.50 greyed out; with the device clock moved to 3:00 PM, Lunch #2
+changes to $8.99 without reloading and is labelled; phone order bar; no sideways scroll; no page
+errors. Phase 3–5 walkthroughs re-run and still pass.
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,

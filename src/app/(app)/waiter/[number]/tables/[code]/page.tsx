@@ -5,12 +5,15 @@ import { SectionShell } from "@/components/section-shell";
 import { buttonClasses } from "@/components/ui/button";
 import { allTables } from "@/features/floor/layout";
 import { STATUS_LABEL } from "@/features/floor/status";
+import { MenuScreen } from "@/features/menu/components/menu-screen";
+import { loadMenu } from "@/features/menu/queries";
 import { employeeLabel } from "@/features/staff/rules";
 import { WaiterRefused } from "@/features/waiter/components/waiter-refused";
 import { loadWaiterScreen } from "@/features/waiter/queries";
 import { resolveWaiter } from "@/features/waiter/resolve";
 import { crossSectionWarning, openTableProblem, tableAccess, tablePath, waiterPath } from "@/features/waiter/rules";
 import { tableCodeSchema } from "@/features/waiter/schema";
+import { serverEnv } from "@/lib/env";
 
 export const metadata: Metadata = { title: "Table" };
 
@@ -33,7 +36,7 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
   const back = waiterPath(me);
 
   const parsedCode = tableCodeSchema.safeParse(code);
-  const { floor, waiters } = await loadWaiterScreen(me);
+  const [{ floor, waiters }, menu] = await Promise.all([loadWaiterScreen(me), loadMenu()]);
   const table = parsedCode.success ? allTables(floor).find((t) => t.code === parsedCode.data) : undefined;
 
   const backLink = (
@@ -72,18 +75,18 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
   return shell(
     `Table ${visit.tableLabels.join(" + ")}`,
     <div className="flex flex-col gap-6">
-      <dl className="grid gap-4 rounded-2xl border border-glaze bg-paper p-5 sm:grid-cols-3">
+      <dl className="grid grid-cols-3 gap-3 rounded-2xl border border-glaze bg-paper p-4">
         <div>
           <dt className="text-sm font-semibold text-muted">Waiter</dt>
-          <dd className="text-xl font-bold text-ink">{employeeLabel(me)}</dd>
+          <dd className="text-lg font-bold text-ink">{employeeLabel(me)}</dd>
         </div>
         <div>
           <dt className="text-sm font-semibold text-muted">Guests</dt>
-          <dd className="text-xl font-bold text-ink">{guests}</dd>
+          <dd className="text-lg font-bold text-ink">{guests}</dd>
         </div>
         <div>
           <dt className="text-sm font-semibold text-muted">Status</dt>
-          <dd className="text-xl font-bold text-ink">{STATUS_LABEL[table.status]}</dd>
+          <dd className="text-lg font-bold text-ink">{STATUS_LABEL[table.status]}</dd>
         </div>
       </dl>
       {warning ? (
@@ -91,14 +94,7 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
           You confirmed opening a table outside your section. Tickets you create here will carry your name.
         </p>
       ) : null}
-      <div className="rounded-2xl border-2 border-dashed border-glaze bg-paper p-6">
-        <p className="text-lg font-semibold text-ink">The menu and tickets aren&apos;t built yet.</p>
-        <ul className="mt-3 list-disc space-y-1 pl-6 text-base text-muted">
-          <li>Phases 6 and 7: menu and orders for this table</li>
-          <li>Phase 8: taxes and the combined bill</li>
-          <li>Phase 9: printing the ticket</li>
-        </ul>
-      </div>
+      <MenuScreen menu={menu} timeZone={serverEnv().APP_TIME_ZONE} nowIso={new Date().toISOString()} />
       <div className="flex flex-col gap-3 sm:flex-row">
         {backLink}
         <Link href="/" className={buttonClasses("primary")}>

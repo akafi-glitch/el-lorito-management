@@ -93,11 +93,23 @@ Sign-in accounts use Supabase Auth's admin API from the server, then `app_users`
 now also records shift starts, assignment changes, employee changes, and account changes (never
 passwords).
 
+### Menu and tax (Phase 6, `20261027070000_menu.sql`)
+
+| Table | Purpose | Key rules |
+| --- | --- | --- |
+| `tax_groups` | Food 850, Liquor 1050 (basis points: 850 = 8.5%) | Rate 0–10000 |
+| `tax_categories` | food, nonalcoholic → Food; beer, cocktail → Liquor | Each points at one group |
+| `menu_categories` | 26 categories in menu order, with an optional note | `late_from` + `late_surcharge_cents` together or not at all (Lunch: 15:00, 100) |
+| `menu_items` | 210 items: name, description, `price_cents`, tax category, `is_available`, order | Price 0–1,000,000 cents; name unique within a category; turned off, never deleted |
+
+| Function | Does | Refuses with |
+| --- | --- | --- |
+| `update_menu_item(item, price cents, available, actor)` | Changes the current price and/or on/off; records it; returns the name | `menu_item_not_found` |
+
 ## Planned (approved design)
 
 | Group | Tables | Phase |
 | --- | --- | --- |
-| Menu & tax | menu_categories, tax_groups (FOOD 850, LIQUOR 1050), tax_categories, menu_items (never deleted) | 6 |
 | Tickets | orders (from 1001), order_items (name and price copied), bills, bill_lines, print_attempts | 7–9 |
 
 Still to come: create_order, update_order_items, create_bill, record_print_attempt.
