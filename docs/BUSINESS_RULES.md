@@ -44,7 +44,7 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 6. **Anyone** signed in can join any free tables by hand. Every joined table shows "with …".
 7. **Rotation (decided):** after any seating, suggested or tapped, the rotation moves to the section
    after the one used. Tables in two sections (A4 + B4) move it past the later one (B). Party and Bar
-   seating don't move it. After P it starts again at A.
+   seating don't move it. After P it starts again at A. Starting a new shift puts it back at A.
 8. **Closed sections (decided):** can't be seated at all, by suggestion or by tapping. Tapping a table
    there offers "Open section …". Tables already seated keep their color when a section closes.
 
@@ -55,7 +55,8 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Employee numbers** are unique digits (1–6). "01" and "1" count as the same number, so either can
   be typed. A number never changes; a mistake means turning that employee off and adding a new one.
 - **Shifts:** one is open at a time. "Start new shift" ends the current shift and every assignment
-  in it. Seated tables are not affected.
+  in it, and starts the seating rotation again at A (decided Oct 27, 2026). Seated tables, visits,
+  tickets, and history are not affected.
 - **Assignments:** each section has at most one waiter and one chips runner at a time (database
   rule). One person can cover several sections. Moving someone ends the old assignment and starts a
   new one, so history is kept and the latest assignment is always the current one.

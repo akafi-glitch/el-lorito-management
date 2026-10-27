@@ -60,6 +60,25 @@ test.describe.serial("live updates across devices", () => {
     await expect(page.locator("button[aria-label^='Add Lunch #4 (Taco Salad),']")).toBeEnabled();
   });
 
+  test("a new shift started on one device puts the rotation back at A on another floor", async ({ page, browser }) => {
+    await startShift();
+    await seat(["C5"], 2); // seating in C moves the rotation to B
+    await page.goto("/floor");
+    if (env.realtime) await expect(page.getByTestId("live-status")).toHaveText("Live", { timeout: 20_000 });
+    const next = page.locator("section[aria-labelledby='new-party-heading'] p");
+    await expect(next).toHaveText("Next in rotation: B");
+
+    const manager = await browser.newPage({ storageState: "e2e/.auth/admin.json" });
+    await manager.goto("/manage");
+    await manager.click("section[aria-labelledby='shift-heading'] button:has-text('Start new shift')");
+    await manager.locator("dialog").getByRole("button", { name: "Start new shift" }).click();
+    await expect(manager.getByText("New shift started. The rotation starts at A.")).toBeVisible();
+
+    await expect(next).toHaveText("Next in rotation: A", { timeout: env.realtime ? 4_000 : 15_000 });
+    await expect(page.locator("main button[aria-label^='C5,']")).toHaveAttribute("aria-label", /2 guests/);
+    await manager.close();
+  });
+
   test("losing the connection is shown, and changes made meanwhile appear when it's back", async ({ page, context }) => {
     await page.goto("/floor");
     await context.setOffline(true);

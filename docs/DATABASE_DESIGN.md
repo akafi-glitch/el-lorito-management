@@ -54,7 +54,7 @@ update public.restaurant_tables set capacity = 10 where code = 'PARTY-1';
 
 | Table | Purpose | Key rules |
 | --- | --- | --- |
-| `rotation_state` | The next section in the rotation (one row) | Starts at A |
+| `rotation_state` | The next section in the rotation (one row) | Starts at A, and again at every new shift |
 | `customer_visits` | One group from seating until the table is cleared | `guest_count` 1–100; `chips_status` needed / served (separate from occupancy); `cleared_at` set = closed; can't be cleared before chips; `version` raised on every change; who seated, served, and cleared |
 | `visit_tables` | Which tables a visit occupies (several = joined tables) | **Unique open row per table**: the database itself refuses to seat two groups at one table |
 | `audit_events` | History of seating, chips, clearing, section open/close | Append-only: a trigger refuses edits and deletes |
@@ -84,7 +84,7 @@ The app turns each refusal into plain words (`src/features/seating/errors.ts`).
 
 | Function | Does | Refuses with |
 | --- | --- | --- |
-| `start_shift(actor)` | Ends the open shift and its assignments, opens a new one | — |
+| `start_shift(actor)` | Ends the open shift and its assignments, opens a new one, and puts the rotation back at A | — |
 | `assign_duty(section, duty, employee or null, actor)` | Sets or clears a section's waiter or runner; keeps history | `no_open_shift`, `bar_open_to_all`, `employee_inactive`, `role_mismatch`, `employee_not_found` |
 | `add_employee(number, name, role, actor)` | Adds an employee | `employee_number_taken` |
 | `update_employee(id, name, role, active, actor)` | Renames, changes role, turns on/off; ends duties that no longer fit | `employee_not_found` |

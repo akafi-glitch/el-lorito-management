@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(23);
+select plan(24);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000aa01', 'live@staff.ellorito-management.com'),
@@ -57,8 +57,11 @@ insert into ids select 'kafi', public.add_employee('01', 'Kafi', 'waiter', pg_te
 select ok(pg_temp.moved('staff') > 0, 'adding an employee moves the staff version');
 select pg_temp.snap();
 select public.start_shift(pg_temp.actor());
+select ok(pg_temp.moved('staff') > 0 and pg_temp.moved('floor') > 0,
+  'a new shift moves the staff version, and the floor version (the rotation goes back to A)');
+select pg_temp.snap();
 select public.assign_duty('A', 'waiter', pg_temp.id('kafi'), pg_temp.actor());
-select ok(pg_temp.moved('staff') > 0, 'a new shift and an assignment move the staff version');
+select ok(pg_temp.moved('staff') > 0, 'an assignment moves the staff version');
 select is(pg_temp.moved('floor'), 0::bigint, '... and not the floor version');
 
 -- Menu ------------------------------------------------------------------------------------------
