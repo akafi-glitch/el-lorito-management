@@ -2,6 +2,10 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { TotalsBlock } from "@/features/billing/components/totals-block";
+import type { TaxSetup } from "@/features/billing/setup";
+import { computeTotals, type TaxGroup } from "@/features/billing/tax";
+
 import { formatCents } from "../money";
 import { addItem, priceDraft, quantityOf, removeItem, setQuantity, MAX_QUANTITY, type Draft } from "../order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate } from "../pricing";
@@ -17,7 +21,9 @@ type MenuScreenProps = {
   draft: Draft;
   onDraftChange: (update: (current: Draft) => Draft) => void;
   /** Lines already saved on the ticket keep their saved name and price. */
-  savedLines?: ReadonlyMap<number, { name: string; unitCents: number }>;
+  savedLines?: ReadonlyMap<number, { name: string; unitCents: number; taxGroup: TaxGroup }>;
+  /** Tax rates and groups from the database, for the totals preview. */
+  tax: TaxSetup;
   /** Heading of the order panel, e.g. "New ticket" or "Ticket #1001". */
   orderTitle: string;
   /** Buttons and status under the order total (save, cancel...). */
@@ -32,6 +38,7 @@ export function MenuScreen({
   draft,
   onDraftChange: setDraft,
   savedLines,
+  tax,
   orderTitle,
   orderFooter,
 }: MenuScreenProps) {
@@ -56,8 +63,11 @@ export function MenuScreen({
     const saved = savedLines?.get(itemId);
     if (saved) return saved;
     const found = lookup.get(itemId);
-    return found ? { name: found.item.name, unitCents: priceOf(found.item, found.category) } : undefined;
+    return found
+      ? { name: found.item.name, unitCents: priceOf(found.item, found.category), taxGroup: tax.groupOf[found.item.taxCategory] }
+      : undefined;
   });
+  const totals = computeTotals(order.lines, tax.rates);
 
   const searching = query.trim() !== "";
   const hits = searching ? searchMenu(menu.categories, query) : [];
@@ -211,9 +221,8 @@ export function MenuScreen({
             ))}
           </ul>
         )}
-        <div className="mt-3 flex items-center justify-between border-t-2 border-ink/20 pt-3">
-          <span className="text-base font-semibold text-ink">Items before tax</span>
-          <span className="text-xl font-bold tabular-nums text-ink">{formatCents(order.subtotalCents)}</span>
+        <div className="mt-3 border-t-2 border-ink/20 pt-3">
+          <TotalsBlock totals={totals} />
         </div>
         <div className="mt-4">{orderFooter}</div>
       </section>
@@ -224,7 +233,7 @@ export function MenuScreen({
           className="sticky bottom-3 z-10 flex min-h-14 items-center justify-between rounded-xl bg-cobalt px-5 text-lg font-bold text-white shadow-lg lg:hidden"
         >
           <span>View order ({order.itemCount})</span>
-          <span className="tabular-nums">{formatCents(order.subtotalCents)}</span>
+          <span className="tabular-nums">{formatCents(totals.totalCents)}</span>
         </a>
       ) : null}
     </div>

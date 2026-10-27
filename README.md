@@ -6,8 +6,8 @@ assignments, food tickets, and ticket printing, shared live across the restauran
 Built with Next.js (App Router), TypeScript, Tailwind CSS, and Supabase (PostgreSQL + Auth).
 Hosted on Vercel.
 
-> **Status: Phase 7 of 12.** Sign-in, floor management, staff management, the Waiter Section, the
-> menu, and saved tickets work. Tax and printing come next. The rest
+> **Status: Phase 8 of 12.** Sign-in, floor management, staff management, the Waiter Section, the
+> menu, saved tickets, and tax totals work. Printing comes next. The rest
 > arrives phase by phase. See [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
 
 ## What works now
@@ -26,8 +26,9 @@ Hosted on Vercel.
   with search, quantities, and a running order. Lunch items cost $1.00 more from 3:00 PM. Management
   can change prices and turn items off.
 - **Tickets**: the order is saved as a numbered ticket (from #1001) for the seated group, can be
-  changed or cancelled until printed, and keeps its prices even if the menu changes. Tax and
-  printing come in Phases 8–9.
+  changed or cancelled until printed, and keeps its prices even if the menu changes. Each ticket
+  shows food and liquor subtotals, food tax (8.5%), liquor tax (10.5%), and the total. Printing
+  comes in Phase 9.
 - `/api/health` reports whether the app is configured (never the settings themselves).
 
 ## Local setup

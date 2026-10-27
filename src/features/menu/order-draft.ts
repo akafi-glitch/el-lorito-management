@@ -31,18 +31,19 @@ export function quantityOf(draft: Draft, itemId: number): number {
   return draft.find((line) => line.itemId === itemId)?.quantity ?? 0;
 }
 
-export type PricedLine = DraftLine & { name: string; unitCents: number; totalCents: number };
+export type PricedLine<T extends { name: string; unitCents: number } = { name: string; unitCents: number }> = DraftLine &
+  T & { totalCents: number };
 
-/** Prices each line with the given price lookup; lines whose item vanished are dropped. */
-export function priceDraft(
+/** Prices each line with the given lookup (which may add more, such as the tax group); lines whose item vanished are dropped. */
+export function priceDraft<T extends { name: string; unitCents: number }>(
   draft: Draft,
-  lookup: (itemId: number) => { name: string; unitCents: number } | undefined,
-): { lines: PricedLine[]; itemCount: number; subtotalCents: number } {
-  const lines: PricedLine[] = [];
+  lookup: (itemId: number) => T | undefined,
+): { lines: PricedLine<T>[]; itemCount: number; subtotalCents: number } {
+  const lines: PricedLine<T>[] = [];
   for (const line of draft) {
     const item = lookup(line.itemId);
     if (!item) continue;
-    lines.push({ ...line, name: item.name, unitCents: item.unitCents, totalCents: lineTotalCents(item.unitCents, line.quantity) });
+    lines.push({ ...item, ...line, totalCents: lineTotalCents(item.unitCents, line.quantity) });
   }
   return {
     lines,

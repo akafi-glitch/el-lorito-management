@@ -1,14 +1,16 @@
 import { lineTotalCents } from "@/features/menu/money";
 import type { Draft } from "@/features/menu/order-draft";
 
-import type { TicketRow } from "./schema";
-import type { SavedTicket, TicketStatus } from "./types";
+import type { TicketRow, TicketTotalsRow } from "./schema";
+import type { SavedLine, SavedTicket, TicketStatus } from "./types";
 
 /** Database row -> ticket for the screen. */
 export function buildTicket(
   row: TicketRow,
   format: { dateTime: (iso: string) => string; clock: (iso: string) => string },
+  totals: TicketTotalsRow,
 ): SavedTicket {
+  if (totals.ticket_id !== row.id) throw new Error(`Totals for ticket ${totals.ticket_id} given for ticket ${row.id}`);
   const lines = [...row.ticket_lines]
     .sort((a, b) => a.line_no - b.line_no)
     .map((line) => ({
@@ -33,6 +35,14 @@ export function buildTicket(
     lines,
     itemCount: lines.reduce((sum, line) => sum + line.quantity, 0),
     subtotalCents: lines.reduce((sum, line) => sum + line.totalCents, 0),
+    totals: {
+      foodSubtotalCents: totals.food_subtotal_cents,
+      liquorSubtotalCents: totals.liquor_subtotal_cents,
+      foodTaxCents: totals.food_tax_cents,
+      liquorTaxCents: totals.liquor_tax_cents,
+      totalCents: totals.total_cents,
+      rates: { food: totals.food_rate_bp, liquor: totals.liquor_rate_bp },
+    },
   };
 }
 
@@ -54,8 +64,12 @@ export function hasUnsavedChanges(draft: Draft, saved: Draft): boolean {
 }
 
 /** Saved name and price per item, so the order panel shows what the ticket really charges. */
-export function savedPriceMap(ticket: Pick<SavedTicket, "lines"> | null): Map<number, { name: string; unitCents: number }> {
-  return new Map((ticket?.lines ?? []).map((line) => [line.itemId, { name: line.name, unitCents: line.unitCents }]));
+export function savedPriceMap(
+  ticket: Pick<SavedTicket, "lines"> | null,
+): Map<number, { name: string; unitCents: number; taxGroup: SavedLine["taxGroup"] }> {
+  return new Map(
+    (ticket?.lines ?? []).map((line) => [line.itemId, { name: line.name, unitCents: line.unitCents, taxGroup: line.taxGroup }]),
+  );
 }
 
 export function canEdit(ticket: Pick<SavedTicket, "status"> | null, visitOpen: boolean): boolean {

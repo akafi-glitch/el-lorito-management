@@ -28,6 +28,20 @@ export const ticketRowSchema = z.object({
 
 export type TicketRow = z.infer<typeof ticketRowSchema>;
 
+/** One row of the public.ticket_totals view. */
+export const ticketTotalsRowSchema = z.object({
+  ticket_id: z.number().int().positive(),
+  food_subtotal_cents: z.number().int().nonnegative(),
+  liquor_subtotal_cents: z.number().int().nonnegative(),
+  food_rate_bp: z.number().int().min(0).max(10_000),
+  liquor_rate_bp: z.number().int().min(0).max(10_000),
+  food_tax_cents: z.number().int().nonnegative(),
+  liquor_tax_cents: z.number().int().nonnegative(),
+  total_cents: z.number().int().nonnegative(),
+});
+
+export type TicketTotalsRow = z.infer<typeof ticketTotalsRowSchema>;
+
 const lines = z
   .array(z.object({ itemId: z.number().int().positive(), quantity: z.number().int().min(1).max(MAX_QUANTITY) }))
   .min(1, "Add at least one item before saving.")

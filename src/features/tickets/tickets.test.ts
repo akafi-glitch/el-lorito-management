@@ -2,7 +2,9 @@ import { describe, expect, it } from "vitest";
 
 import { shouldReload, ticketErrorMessage } from "./errors";
 import { buildTicket, canEdit, draftFromTicket, hasUnsavedChanges, savedPriceMap, staffLabel, withTicket } from "./rules";
-import { cancelTicketSchema, saveTicketSchema, ticketNumberParamSchema, type TicketRow } from "./schema";
+import { computeTotals } from "@/features/billing/tax";
+
+import { cancelTicketSchema, saveTicketSchema, ticketNumberParamSchema, type TicketRow, type TicketTotalsRow } from "./schema";
 
 const row: TicketRow = {
   id: 7,
@@ -20,7 +22,17 @@ const row: TicketRow = {
     { line_no: 3, menu_item_id: 2, item_name: "Lunch #2", unit_price_cents: 899, late_surcharge_cents: 100, quantity: 1, tax_group_code: "food" },
   ],
 };
-const ticket = buildTicket(row, { dateTime: () => "Tue, Oct 27, 4:05 PM", clock: () => "4:05 PM" });
+const totalsRow: TicketTotalsRow = {
+  ticket_id: 7,
+  food_subtotal_cents: 2779,
+  liquor_subtotal_cents: 499,
+  food_rate_bp: 850,
+  liquor_rate_bp: 1050,
+  food_tax_cents: 236,
+  liquor_tax_cents: 52,
+  total_cents: 3566,
+};
+const ticket = buildTicket(row, { dateTime: () => "Tue, Oct 27, 4:05 PM", clock: () => "4:05 PM" }, totalsRow);
 
 describe("a saved ticket", () => {
   it("lists lines in the order they were added, with totals in cents", () => {
@@ -36,15 +48,31 @@ describe("a saved ticket", () => {
   it("keeps the maker and the last editor apart", () => {
     expect(staffLabel(ticket.maker)).toBe("Kafi (01)");
     expect(ticket.lastEditor && staffLabel(ticket.lastEditor)).toBe("Musfika (02)");
-    expect(buildTicket({ ...row, editor: null }, { dateTime: String, clock: String }).lastEditor).toBeNull();
+    expect(buildTicket({ ...row, editor: null }, { dateTime: String, clock: String }, totalsRow).lastEditor).toBeNull();
   });
 
   it("remembers the after-3 PM part of a lunch price", () => {
     expect(ticket.lines[2]).toMatchObject({ unitCents: 899, lateCents: 100, taxGroup: "food" });
   });
 
+  it("carries the database's totals, which match the app's own calculation", () => {
+    expect(ticket.totals).toEqual({
+      foodSubtotalCents: 2779,
+      liquorSubtotalCents: 499,
+      foodTaxCents: 236,
+      liquorTaxCents: 52,
+      totalCents: 3566,
+      rates: { food: 850, liquor: 1050 },
+    });
+    expect(computeTotals(ticket.lines, { food: 850, liquor: 1050 })).toEqual(ticket.totals);
+  });
+
+  it("refuses totals that belong to another ticket", () => {
+    expect(() => buildTicket(row, { dateTime: String, clock: String }, { ...totalsRow, ticket_id: 8 })).toThrow();
+  });
+
   it("shows saved names and prices in the order panel", () => {
-    expect(savedPriceMap(ticket).get(10)).toEqual({ name: "Combo #5", unitCents: 940 });
+    expect(savedPriceMap(ticket).get(10)).toEqual({ name: "Combo #5", unitCents: 940, taxGroup: "food" });
     expect(savedPriceMap(null).size).toBe(0);
   });
 });

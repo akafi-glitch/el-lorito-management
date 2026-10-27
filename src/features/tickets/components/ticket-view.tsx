@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { buttonClasses } from "@/components/ui/button";
+import { TotalsBlock } from "@/features/billing/components/totals-block";
 import { formatCents } from "@/features/menu/money";
 
 import { staffLabel, STATUS_TEXT } from "../rules";
@@ -27,9 +28,8 @@ export function TicketView({ ticket, reason, newTicketHref }: { ticket: SavedTic
           </li>
         ))}
       </ul>
-      <div className="mt-3 flex justify-between border-t-2 border-ink/20 pt-3">
-        <span className="font-semibold text-ink">Items before tax</span>
-        <span className="text-xl font-bold tabular-nums text-ink">{formatCents(ticket.subtotalCents)}</span>
+      <div className="mt-3 border-t-2 border-ink/20 pt-3">
+        <TotalsBlock totals={ticket.totals} />
       </div>
       {newTicketHref ? (
         <Link href={newTicketHref} className={buttonClasses("primary", "mt-5 w-full")}>
