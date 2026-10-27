@@ -3,16 +3,27 @@ import { deriveTableStatus, STATUS_ORDER, type TableStatus, type VisitSnapshot }
 
 /** Everything the floor map screen needs, built from database rows by pure code (easy to test). */
 
+export type SectionInfo = {
+  code: string;
+  name: string;
+  kind: SectionRow["kind"];
+  isOpen: boolean;
+  /** Position in the seating rotation; null for Party and Bar. */
+  rotationOrder: number | null;
+};
+
 export type FloorTable = {
   id: string;
   code: string;
   label: string;
   capacity: number | null;
-  section: { code: string; name: string; kind: SectionRow["kind"] };
+  section: SectionInfo;
   row: number;
   col: number;
+  sortOrder: number;
   status: TableStatus;
-  guestCount: number | null;
+  /** The group seated here, or null when the table is free. */
+  visit: VisitSnapshot | null;
 };
 
 export type FloorArea = {
@@ -21,7 +32,7 @@ export type FloorArea = {
   placement: { row: number; col: number; rowSpan: number; colSpan: number };
   grid: { rows: number; cols: number };
   /** Sections drawn in this area, in display order (X shows X(1) and X(2)). */
-  sections: { code: string; name: string; kind: SectionRow["kind"]; isOpen: boolean }[];
+  sections: SectionInfo[];
   tables: FloorTable[];
 };
 
@@ -36,9 +47,19 @@ export type FloorCombination = {
 
 export type FloorMap = {
   areas: FloorArea[];
+  /** Every section in display order. */
+  sections: SectionInfo[];
   combinations: FloorCombination[];
   counts: Record<TableStatus, number>;
   tableCount: number;
+  /** Section the rotation will suggest next. */
+  nextSectionCode: string | null;
+};
+
+export type FloorState = {
+  /** Open visits, keyed by table id. */
+  visits?: ReadonlyMap<string, VisitSnapshot>;
+  nextSectionCode?: string | null;
 };
 
 export class FloorLayoutError extends Error {
@@ -59,8 +80,20 @@ export function combinedCapacity(capacities: readonly (number | null)[]): number
   return total;
 }
 
-export function buildFloorMap(rows: FloorRows, visits: ReadonlyMap<string, VisitSnapshot> = new Map()): FloorMap {
-  const sectionsByCode = new Map(rows.sections.map((section) => [section.code, section]));
+function toSectionInfo(section: SectionRow): SectionInfo {
+  return {
+    code: section.code,
+    name: section.name,
+    kind: section.kind,
+    isOpen: section.is_open,
+    rotationOrder: section.rotation_order,
+  };
+}
+
+export function buildFloorMap(rows: FloorRows, state: FloorState = {}): FloorMap {
+  const visits = state.visits ?? new Map<string, VisitSnapshot>();
+  const sortedSections = [...rows.sections].sort((a, b) => a.sort_order - b.sort_order);
+  const sectionsByCode = new Map(sortedSections.map((section) => [section.code, toSectionInfo(section)]));
   const areaCodes = new Set(rows.areas.map((area) => area.code));
   const tablesById = new Map(rows.tables.map((table) => [table.id, table]));
   const occupiedCells = new Set<string>();
@@ -80,22 +113,22 @@ export function buildFloorMap(rows: FloorRows, visits: ReadonlyMap<string, Visit
     occupiedCells.add(cell);
 
     const visit = visits.get(table.id) ?? null;
-    const status = deriveTableStatus({ sectionOpen: section.is_open, visit });
+    const status = deriveTableStatus({ sectionOpen: section.isOpen, visit });
     counts[status] += 1;
 
-    const floorTable: FloorTable = {
+    const list = tablesByArea.get(table.area_code) ?? [];
+    list.push({
       id: table.id,
       code: table.code,
       label: table.label,
       capacity: table.capacity,
-      section: { code: section.code, name: section.name, kind: section.kind },
+      section,
       row: table.layout_row,
       col: table.layout_col,
+      sortOrder: table.sort_order,
       status,
-      guestCount: visit?.guestCount ?? null,
-    };
-    const list = tablesByArea.get(table.area_code) ?? [];
-    list.push(floorTable);
+      visit,
+    });
     tablesByArea.set(table.area_code, list);
   }
 
@@ -103,12 +136,7 @@ export function buildFloorMap(rows: FloorRows, visits: ReadonlyMap<string, Visit
     .sort((a, b) => a.sort_order - b.sort_order)
     .map((area) => {
       const tables = (tablesByArea.get(area.code) ?? []).sort((a, b) => a.row - b.row || a.col - b.col);
-      const sectionCodes = [...new Set(tables.map((table) => table.section.code))];
-      const sections = sectionCodes
-        .map((code) => sectionsByCode.get(code))
-        .filter((section): section is SectionRow => section !== undefined)
-        .sort((a, b) => a.sort_order - b.sort_order)
-        .map((section) => ({ code: section.code, name: section.name, kind: section.kind, isOpen: section.is_open }));
+      const codes = new Set(tables.map((table) => table.section.code));
       return {
         code: area.code,
         name: area.name,
@@ -117,7 +145,7 @@ export function buildFloorMap(rows: FloorRows, visits: ReadonlyMap<string, Visit
           rows: Math.max(0, ...tables.map((table) => table.row)),
           cols: Math.max(0, ...tables.map((table) => table.col)),
         },
-        sections,
+        sections: [...sectionsByCode.values()].filter((section) => codes.has(section.code)),
         tables,
       };
     });
@@ -141,12 +169,24 @@ export function buildFloorMap(rows: FloorRows, visits: ReadonlyMap<string, Visit
       };
     });
 
-  return { areas, combinations, counts, tableCount: activeTables.length };
+  return {
+    areas,
+    sections: [...sectionsByCode.values()],
+    combinations,
+    counts,
+    tableCount: activeTables.length,
+    nextSectionCode: state.nextSectionCode ?? null,
+  };
 }
 
 /** "X6" before "X10": compares the letter part, then the number. */
 export function naturalCompare(a: string, b: string): number {
   return a.localeCompare(b, "en", { numeric: true });
+}
+
+/** All tables of the map in one list. */
+export function allTables(map: Pick<FloorMap, "areas">): FloorTable[] {
+  return map.areas.flatMap((area) => area.tables);
 }
 
 export { STATUS_ORDER };

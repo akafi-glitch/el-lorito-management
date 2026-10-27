@@ -39,6 +39,8 @@ Restaurant devices ──calls──▶ Next.js on Vercel ──RPC──▶ Sup
 3. After Supabase Auth accepts the password, the server checks `app_users.is_active`. Turned-off
    accounts are signed straight back out.
 4. The signed-in layout (`src/app/(app)/layout.tsx`) checks the account again on every page.
+5. Every Server Action checks the account itself (`requireActiveUser`), because actions can be
+   called directly, not only from the page.
 
 Supabase Auth also limits sign-in attempts per IP address (`[auth.rate_limit]` in `supabase/config.toml`).
 
@@ -50,7 +52,7 @@ src/
     (app)/                signed-in pages: home, floor, waiter, manage
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth and floor now; seating, staff, menu,
+  features/<module>/      one folder per module (auth, floor, seating now; staff, menu,
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)
@@ -72,6 +74,13 @@ supabase/
 scripts/                  admin:create, secret scan
 docs/                     these documents
 ```
+
+## Floor changes from several devices
+
+Each floor action calls one database function. The database decides: a table can hold one open
+visit (unique index), tables are locked in a fixed order (no deadlocks), and every visit change
+carries the version the screen saw (stale changes are refused). After any action the floor page
+reloads its data. Live push updates to other screens come in Phase 10.
 
 ## Design
 

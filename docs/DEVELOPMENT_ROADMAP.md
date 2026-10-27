@@ -7,9 +7,9 @@ and the production build, and updates these docs.
 | --- | --- | --- |
 | 0 | Architecture and database plan | Approved |
 | 1 | App shell, navigation, administrator sign-in | Done (pull request #1) |
-| 2 | Floor map from the database (sections, tables, combinations, capacities as data) | **Done, awaiting approval** |
-| 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | Next |
-| 4 | Employees, shifts, section and runner assignments, administrator accounts page | |
+| 2 | Floor map from the database (sections, tables, combinations, capacities as data) | Done (pull request #2) |
+| 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | **Done, awaiting approval** |
+| 4 | Employees, shifts, section and runner assignments, administrator accounts page | Next |
 | 5 | Waiter number entry, assigned tables, other-section warning | |
 | 6 | Menu from the database (206 items imported), search, categories | |
 | 7 | Tickets saved, editable until printed | |
@@ -48,3 +48,20 @@ shown on tiles where one block holds two sections (X(1)/X(2), P/Party).
 
 **Not in this phase:** tapping tables (seating, chips, clearing) and opening or closing sections
 come in Phase 3. All tables show green until then.
+
+## Phase 3 record
+
+**Objective:** run the floor: suggest tables, seat, serve chips, clear, open and close sections.
+
+**Built:** migration `seating` (visits, visit tables, rotation, audit history, four database
+functions). Floor screen: New party panel with up to 3 suggestions following your rules; tap free
+tables to seat one or join several (guest count asked only if not entered); tap yellow for "Chips
+served"; tap red for "Is the table cleaned?"; open/close buttons per section; guest counts and
+joined tables on tiles; plain-language messages when another device got there first.
+
+**Decisions applied:** tapped seating moves the rotation; closed sections can't be seated; the
+chips runner clears; anyone can join tables.
+
+**Not in this phase:** who is the waiter or chips runner (Phase 4); live updates on other screens
+without a refresh (Phase 10). Until then, another device's changes appear on the next action or reload,
+and the database still refuses every conflicting change.

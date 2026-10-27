@@ -62,6 +62,34 @@ the right chairs; counts show 45 vacant; A, B, C left to right; Bar above X; P b
 no sideways scrolling on phone; no browser errors. All Phase 1 sign-in and navigation checks
 re-run and still pass. Screenshots checked at 390, 1024, and 1440 px widths.
 
+## Phase 3 tests (39 new unit tests, 38 new database checks, 2 race tests)
+
+- **Suggestions** (`src/features/seating/recommend.test.ts`, on the real layout): rotation order
+  and wrap; closed sections skipped; Party and Bar never in the rotation; first suggestion in the next
+  section; 4 guests get a 4-chair table, 5–6 a 6-chair table, 2 guests a 2-chair table; occupied and
+  closed tables never suggested; 7+ guests get Party areas first with a "check it fits" reminder,
+  then the smallest combination that fits; above 12 only X6 + X7 + X8; a combination with any taken
+  table is skipped; clear messages when nothing fits; bad guest counts refused.
+- **Input and messages** (`actions-support.test.ts`): seating input rules, plain-language messages
+  for every database refusal, never showing raw database text, and joined tables grouped per party.
+- **Database (`seating.test.sql`):** seating, double seating refused (including writing rows
+  directly), closed sections refused, open again then seat, rotation A → C → … and wrap after P,
+  Party and Bar don't move it, approved and hand-made combinations, bad input refused, yellow can't
+  be cleared, out-of-date versions refused, chips twice refused, clearing frees the table and keeps
+  the visit, a new group gets a new visit, audit recorded and can't be edited, browsers refused.
+- **Two hosts at the same moment** (`scripts/db-race-test.sh`, also in GitHub Actions): two real
+  connections seat A6 together, so one wins and the other is told it's taken. Two hosts join A5 + B5 in
+  opposite order: one wins, and there's no deadlock.
+
+**Browser walkthrough against the real database functions.** The local test database runs real
+PostgREST (the API server Supabase uses); only sign-in is a stand-in. 24 of 24 steps passed:
+suggestion → seat → yellow with guests → rotation moves → chips → red → "Is the table cleaned?" No
+stays red, Yes clears; tap B3 + B4 → guest count asked → joined and recorded as the approved
+combination; close C → gray → tap → "Open section C"; 14 guests → Party first with reminder; another
+device takes A2 first → clear message and refresh, one visit only; another device serves chips first
+→ refused, not overwritten; phone has no sideways scroll; no page errors. Phase 1 and 2 browser
+checks re-run against the same database and still pass.
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,

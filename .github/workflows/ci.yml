@@ -40,3 +40,5 @@ jobs:
           version: 2.122.0
       - run: supabase db start # applies every migration to a fresh database
       - run: supabase test db # pgTAP tests in supabase/tests
+      - name: Two hosts seat the same table at once
+        run: bash scripts/db-race-test.sh "postgresql://postgres:postgres@127.0.0.1:54322/postgres"

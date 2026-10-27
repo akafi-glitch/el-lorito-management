@@ -24,6 +24,18 @@ Test data and real data never share a project.
 The app refuses to start pages if a value is missing, if the keys are swapped, or if any
 `NEXT_PUBLIC_` variable holds a secret key.
 
+## Live project status
+
+| Migration | Live project (`yshypzeuqzgattkvmzak`) |
+| --- | --- |
+| `20261027030000_app_users` | Applied Oct 26, 2026, after pull request #1 was merged |
+| `20261027040000_floor_layout` | Applied Oct 26, 2026, after pull request #2 was merged |
+| `20261027050000_seating` | Not yet: applied after pull request #3 is approved |
+
+Migrations are applied to the live project only after their pull request is approved and merged.
+The live migration history uses the same version numbers as these files, so `supabase db push`
+only sends what's missing. A separate free test project is recommended before opening day.
+
 ## Supabase cloud setup (when you're ready)
 
 1. Create the two free projects in the Supabase dashboard.

@@ -50,22 +50,41 @@ Custom combinations made by staff on the spot are not stored here; they are a se
 update public.restaurant_tables set capacity = 10 where code = 'PARTY-1';
 ```
 
+### Seating (Phase 3, `20261027050000_seating.sql`)
+
+| Table | Purpose | Key rules |
+| --- | --- | --- |
+| `rotation_state` | The next section in the rotation (one row) | Starts at A |
+| `customer_visits` | One group from seating until the table is cleared | `guest_count` 1–100; `chips_status` needed / served (separate from occupancy); `cleared_at` set = closed; can't be cleared before chips; `version` raised on every change; who seated, served, and cleared |
+| `visit_tables` | Which tables a visit occupies (several = joined tables) | **Unique open row per table**: the database itself refuses to seat two groups at one table |
+| `audit_events` | History of seating, chips, clearing, section open/close | Append-only: a trigger refuses edits and deletes |
+
+IDs for these tables are `bigint` identity numbers (they grow every shift), per Supabase guidance.
+
+**Database functions** (each one transaction; only the server role may call them; browsers refused):
+
+| Function | Does | Refuses with |
+| --- | --- | --- |
+| `seat_party(table codes, guests, actor, combination?)` | Locks the tables in a fixed order (no deadlocks), checks them, creates the visit, moves the rotation, records it | `invalid_guest_count`, `duplicate_tables`, `table_not_found`, `table_inactive`, `section_closed`, `table_occupied`, `combination_mismatch` |
+| `mark_chips_served(visit, version, actor)` | Yellow → red | `stale_visit`, `visit_closed`, `chips_already_served` |
+| `clear_visit(visit, version, actor)` | Red → green; closes the visit and frees its tables; keeps everything | `chips_not_served`, `stale_visit`, `visit_closed` |
+| `set_section_open(section, open?, actor)` | Opens or closes a section; records it | `section_not_found` |
+
+The app turns each refusal into plain words (`src/features/seating/errors.ts`).
+
 ## Planned (approved design)
 
 | Group | Tables | Phase |
 | --- | --- | --- |
-| Seating | rotation_state | 3 |
-| Visits | customer_visits (chips status separate from occupancy), visit_tables (unique open row per table blocks double seating) | 3 |
 | Staff | employee_roles, employees (`employee_number` text, unique), shifts (one open at a time), shift_assignments (history kept) | 4 |
 | Menu & tax | menu_categories, tax_groups (FOOD 850, LIQUOR 1050), tax_categories, menu_items (never deleted) | 6 |
 | Tickets | orders (from 1001), order_items (name and price copied), bills, bill_lines, print_attempts | 7–9 |
-| History | audit_events (append-only) | 3 |
 
-Database functions (each one transaction): seat_party, mark_chips_served, clear_visit,
-set_section_open, start_shift, assign_section, create_order, update_order_items, create_bill,
-record_print_attempt. Full column list: Phase 0 plan.
+Still to come: start_shift, assign_section, create_order, update_order_items, create_bill,
+record_print_attempt.
 
 ## Testing
 
 `supabase/tests/*.test.sql` (pgTAP) runs with `npm run test:db` locally and in GitHub Actions on
-every push.
+every push. `scripts/db-race-test.sh` opens two real connections at once to prove two hosts can't
+seat the same table, and that joining the same tables in opposite order can't deadlock.
