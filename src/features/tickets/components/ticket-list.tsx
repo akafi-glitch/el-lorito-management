@@ -25,7 +25,7 @@ export function TicketList({ tickets, selected, tableHref }: TicketListProps) {
             href={withTicket(tableHref, null)}
             aria-current={selected === null ? "page" : undefined}
             className={`flex min-h-14 items-center rounded-xl px-4 font-semibold ${
-              selected === null ? "bg-cobalt text-white" : "border-2 border-dashed border-glaze text-cobalt hover:border-cobalt"
+              selected === null ? "bg-leaf text-white" : "border-2 border-dashed border-glaze text-leaf hover:border-leaf"
             }`}
           >
             + New ticket
@@ -40,7 +40,7 @@ export function TicketList({ tickets, selected, tableHref }: TicketListProps) {
                 aria-current={current ? "page" : undefined}
                 aria-label={`Ticket ${ticket.number}, ${staffLabel(ticket.maker)}, ${ticket.itemCount} items, ${formatCents(ticket.totals.totalCents)} with tax, ${STATUS_TEXT[ticket.status]}`}
                 className={`flex min-h-14 flex-col justify-center rounded-xl px-4 py-1 text-left ${
-                  current ? "bg-cobalt text-white" : "border-2 border-glaze bg-paper text-ink hover:border-cobalt"
+                  current ? "bg-leaf text-white" : "border-2 border-glaze bg-paper text-ink hover:border-leaf"
                 } ${ticket.status === "cancelled" && !current ? "opacity-60 line-through" : ""}`}
               >
                 <span className="font-bold">

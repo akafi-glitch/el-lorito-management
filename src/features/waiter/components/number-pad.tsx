@@ -10,7 +10,7 @@ import { cleanTypedNumber } from "../rules";
 const KEYS = ["1", "2", "3", "4", "5", "6", "7", "8", "9"] as const;
 
 const keyClass =
-  "flex min-h-16 items-center justify-center rounded-xl border-2 border-glaze bg-paper text-2xl font-bold text-ink hover:border-cobalt active:bg-tile disabled:opacity-60";
+  "flex min-h-16 items-center justify-center rounded-xl border-2 border-glaze bg-paper text-2xl font-bold text-ink hover:border-leaf active:bg-tile disabled:opacity-60";
 
 /** Big on-screen keypad for tablets; a hardware keyboard can type into the field too. */
 export function NumberPad() {
@@ -33,7 +33,7 @@ export function NumberPad() {
         aria-invalid={state.message ? true : undefined}
         value={value}
         onChange={(event) => setValue(cleanTypedNumber(event.target.value))}
-        className="min-h-16 rounded-xl border-2 border-glaze bg-paper px-4 text-center text-3xl font-bold tracking-[0.3em] text-ink focus:border-cobalt focus:outline-none"
+        className="min-h-16 rounded-xl border-2 border-glaze bg-paper px-4 text-center text-3xl font-bold tracking-[0.3em] text-ink focus:border-leaf focus:outline-none"
       />
 
       <div aria-live="polite">

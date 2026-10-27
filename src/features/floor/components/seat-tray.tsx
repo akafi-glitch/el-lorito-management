@@ -26,7 +26,7 @@ export function SeatTray({ tableLabels, chairs, guestCount, onGuestCountChange, 
     <div
       role="region"
       aria-label="Seat selected tables"
-      className="fixed inset-x-0 bottom-0 z-20 border-t-4 border-cobalt bg-paper shadow-[0_-4px_16px_rgba(19,42,107,0.18)]"
+      className="fixed inset-x-0 bottom-0 z-20 border-t-4 border-leaf bg-paper shadow-[0_-4px_16px_rgba(29,92,34,0.18)]"
     >
       <form
         className="mx-auto flex max-w-[96rem] flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:px-6"

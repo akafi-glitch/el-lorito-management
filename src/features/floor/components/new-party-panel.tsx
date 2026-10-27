@@ -68,7 +68,7 @@ export function NewPartyPanel({
                 {advice.options.map((option, index) => (
                   <li
                     key={option.tableCodes.join("+")}
-                    className={`rounded-xl border-2 p-3 ${index === 0 ? "border-cobalt" : "border-glaze"}`}
+                    className={`rounded-xl border-2 p-3 ${index === 0 ? "border-leaf" : "border-glaze"}`}
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>

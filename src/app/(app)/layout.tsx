@@ -20,7 +20,7 @@ export default async function SignedInLayout({ children }: { children: React.Rea
     return (
       <main className="tile-pattern flex min-h-dvh items-center justify-center p-4">
         <div className="w-full max-w-md rounded-2xl bg-paper p-8 text-center">
-          <div className="-mx-8 -mt-8 mb-6 rounded-t-2xl bg-cobalt-deep px-8 py-6">
+          <div className="-mx-8 -mt-8 mb-6 rounded-t-2xl bg-leaf-light px-8 py-6">
             <Wordmark size="small" />
           </div>
           <p className="text-lg text-ink">{message}</p>

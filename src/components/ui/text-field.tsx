@@ -15,7 +15,7 @@ export function TextField({ label, name, id, className = "", ...props }: TextFie
       <input
         id={inputId}
         name={name}
-        className={`min-h-12 rounded-lg border border-glaze bg-paper px-4 text-lg text-ink placeholder:text-muted focus:border-cobalt focus:outline-none focus-visible:outline-3 focus-visible:outline-cobalt ${className}`}
+        className={`min-h-12 rounded-lg border border-glaze bg-paper px-4 text-lg text-ink placeholder:text-muted focus:border-leaf focus:outline-none focus-visible:outline-3 focus-visible:outline-leaf ${className}`}
         {...props}
       />
     </div>

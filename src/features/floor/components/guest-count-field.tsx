@@ -10,7 +10,7 @@ type GuestCountFieldProps = {
 };
 
 const stepButton =
-  "flex size-14 shrink-0 items-center justify-center rounded-lg border border-glaze bg-paper text-2xl font-bold text-cobalt hover:border-cobalt disabled:opacity-40";
+  "flex size-14 shrink-0 items-center justify-center rounded-lg border border-glaze bg-paper text-2xl font-bold text-leaf hover:border-leaf disabled:opacity-40";
 
 /** Number of guests with large − / + buttons for quick taps, and a box for typing. */
 export function GuestCountField({ id, value, onChange, autoFocus = false }: GuestCountFieldProps) {
@@ -40,7 +40,7 @@ export function GuestCountField({ id, value, onChange, autoFocus = false }: Gues
           const parsed = Number.parseInt(event.target.value, 10);
           onChange(Number.isNaN(parsed) ? null : Math.min(MAX_GUESTS, Math.max(0, parsed)));
         }}
-        className="h-14 w-full min-w-0 rounded-lg border border-glaze bg-paper text-center text-2xl font-bold text-ink focus:border-cobalt focus:outline-none"
+        className="h-14 w-full min-w-0 rounded-lg border border-glaze bg-paper text-center text-2xl font-bold text-ink focus:border-leaf focus:outline-none"
       />
       <button
         type="button"

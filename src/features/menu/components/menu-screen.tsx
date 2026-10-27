@@ -92,13 +92,13 @@ export function MenuScreen({
               placeholder="For example: combo 5, fajitas, margarita"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="min-h-12 min-w-0 flex-1 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-cobalt focus:outline-none"
+              className="min-h-12 min-w-0 flex-1 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none"
             />
             {searching ? (
               <button
                 type="button"
                 onClick={() => setQuery("")}
-                className="min-h-12 rounded-lg border border-glaze bg-paper px-4 font-semibold text-cobalt hover:border-cobalt"
+                className="min-h-12 rounded-lg border border-glaze bg-paper px-4 font-semibold text-leaf hover:border-leaf"
               >
                 Clear
               </button>
@@ -120,7 +120,7 @@ export function MenuScreen({
                       setQuery("");
                     }}
                     className={`min-h-12 whitespace-nowrap rounded-full px-4 text-base font-semibold ${
-                      current ? "bg-cobalt text-white" : "border border-glaze bg-paper text-cobalt hover:border-cobalt"
+                      current ? "bg-leaf text-white" : "border border-glaze bg-paper text-leaf hover:border-leaf"
                     }`}
                   >
                     {c.name}
@@ -190,7 +190,7 @@ export function MenuScreen({
                       aria-label={`One fewer ${line.name}`}
                       disabled={line.quantity <= 1}
                       onClick={() => setDraft((current) => setQuantity(current, line.itemId, line.quantity - 1))}
-                      className="flex size-12 items-center justify-center rounded-lg border border-glaze text-2xl font-bold text-cobalt hover:border-cobalt disabled:opacity-40"
+                      className="flex size-12 items-center justify-center rounded-lg border border-glaze text-2xl font-bold text-leaf hover:border-leaf disabled:opacity-40"
                     >
                       −
                     </button>
@@ -202,7 +202,7 @@ export function MenuScreen({
                       aria-label={`One more ${line.name}`}
                       disabled={line.quantity >= MAX_QUANTITY}
                       onClick={() => setDraft((current) => setQuantity(current, line.itemId, line.quantity + 1))}
-                      className="flex size-12 items-center justify-center rounded-lg border border-glaze text-2xl font-bold text-cobalt hover:border-cobalt disabled:opacity-40"
+                      className="flex size-12 items-center justify-center rounded-lg border border-glaze text-2xl font-bold text-leaf hover:border-leaf disabled:opacity-40"
                     >
                       +
                     </button>
@@ -230,7 +230,7 @@ export function MenuScreen({
       {order.itemCount > 0 ? (
         <a
           href="#current-order"
-          className="sticky bottom-3 z-10 flex min-h-14 items-center justify-between rounded-xl bg-cobalt px-5 text-lg font-bold text-white shadow-lg lg:hidden"
+          className="sticky bottom-3 z-10 flex min-h-14 items-center justify-between rounded-xl bg-leaf px-5 text-lg font-bold text-white shadow-lg lg:hidden"
         >
           <span>View order ({order.itemCount})</span>
           <span className="tabular-nums">{formatCents(totals.totalCents)}</span>
@@ -262,7 +262,7 @@ function ItemButton({
       onClick={onAdd}
       aria-label={`Add ${item.name}, ${formatCents(priceCents)}${inOrder > 0 ? `, ${inOrder} in order` : ""}${item.isAvailable ? "" : ", not available"}`}
       className={`flex h-full min-h-20 w-full flex-col gap-1 rounded-xl border-2 p-3 text-left ${
-        inOrder > 0 ? "border-cobalt bg-cobalt/5" : "border-glaze bg-paper hover:border-cobalt"
+        inOrder > 0 ? "border-leaf bg-leaf/5" : "border-glaze bg-paper hover:border-leaf"
       } disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-60`}
     >
       <span className="flex items-start justify-between gap-2">
@@ -274,7 +274,7 @@ function ItemButton({
       <span className="mt-auto flex flex-wrap gap-2 text-xs font-semibold">
         {lateLabel ? <span className="rounded bg-status-chips/30 px-1.5 py-0.5 text-ink">{lateLabel}</span> : null}
         {!item.isAvailable ? <span className="rounded bg-status-closed/30 px-1.5 py-0.5 text-ink">Not available</span> : null}
-        {inOrder > 0 ? <span className="rounded bg-cobalt px-1.5 py-0.5 text-white">{inOrder} in order</span> : null}
+        {inOrder > 0 ? <span className="rounded bg-leaf px-1.5 py-0.5 text-white">{inOrder} in order</span> : null}
       </span>
     </button>
   );

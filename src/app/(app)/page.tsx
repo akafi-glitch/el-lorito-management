@@ -26,9 +26,9 @@ export default async function HomePage() {
             <Link
               key={destination.href}
               href={destination.href}
-              className="flex min-h-36 flex-col gap-3 rounded-2xl border-2 border-glaze bg-paper p-6 shadow-[0_2px_0_var(--color-glaze)] transition-colors hover:border-cobalt sm:min-h-48 sm:p-8"
+              className="flex min-h-36 flex-col gap-3 rounded-2xl border-2 border-glaze bg-paper p-6 shadow-[0_2px_0_var(--color-glaze)] transition-colors hover:border-leaf sm:min-h-48 sm:p-8"
             >
-              <span className="text-2xl font-bold text-cobalt sm:text-3xl">{destination.label}</span>
+              <span className="text-2xl font-bold text-leaf sm:text-3xl">{destination.label}</span>
               <span className="text-base text-muted sm:text-lg">{destination.description}</span>
             </Link>
           ))}
@@ -37,7 +37,7 @@ export default async function HomePage() {
         <div className="mt-8 flex justify-center">
           <Link
             href={managementDestination.href}
-            className="inline-flex min-h-12 items-center rounded-lg px-5 font-semibold text-cobalt underline-offset-4 hover:underline"
+            className="inline-flex min-h-12 items-center rounded-lg px-5 font-semibold text-leaf underline-offset-4 hover:underline"
           >
             {managementDestination.label}: {managementDestination.description.toLowerCase()}
           </Link>

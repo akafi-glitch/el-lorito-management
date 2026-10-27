@@ -92,7 +92,7 @@ export function WaiterTables({ view, basePath }: WaiterTablesProps) {
 
       {view.others.length > 0 ? (
         <details open={unassigned} className="rounded-2xl border border-glaze bg-paper p-4 sm:p-5">
-          <summary className="flex min-h-12 cursor-pointer items-center text-lg font-bold text-cobalt">
+          <summary className="flex min-h-12 cursor-pointer items-center text-lg font-bold text-leaf">
             {unassigned ? "All sections" : "Other sections"}
           </summary>
           <p className="mt-1 text-sm text-muted">You can open these too. You&apos;ll be asked to confirm first.</p>

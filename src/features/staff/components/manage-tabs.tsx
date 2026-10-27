@@ -22,7 +22,7 @@ export function ManageTabs() {
             href={tab.href}
             aria-current={current ? "page" : undefined}
             className={`inline-flex min-h-12 items-center rounded-lg px-4 text-base font-semibold ${
-              current ? "bg-cobalt text-white" : "border border-glaze bg-paper text-cobalt hover:border-cobalt"
+              current ? "bg-leaf text-white" : "border border-glaze bg-paper text-leaf hover:border-leaf"
             }`}
           >
             {tab.label}

@@ -37,7 +37,8 @@ export function TableTile({ table, showSection, wrapOnPhone, selected, disabled,
   const placement = wrapOnPhone
     ? "sm:[grid-row:var(--tile-row)] sm:[grid-column:var(--tile-col)]"
     : "[grid-row:var(--tile-row)] [grid-column:var(--tile-col)]";
-  const ring = selected ? "ring-4 ring-cobalt ring-offset-2 ring-offset-paper" : "";
+  // Ink, not brand green: a green ring would blend into a green (vacant) tile.
+  const ring = selected ? "ring-4 ring-ink ring-offset-2 ring-offset-paper" : "";
 
   const spoken = [
     table.label,

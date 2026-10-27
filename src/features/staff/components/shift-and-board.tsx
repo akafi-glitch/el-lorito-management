@@ -11,7 +11,7 @@ import type { StaffBoard } from "../queries";
 import { DUTY_LABEL, eligibleFor, employeeLabel, type Duty, type EmployeeRef } from "../rules";
 
 const selectClass =
-  "min-h-12 w-full rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-cobalt focus:outline-none disabled:opacity-60";
+  "min-h-12 w-full rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none disabled:opacity-60";
 
 /** Current shift, "Start new shift", and who works each section this shift. */
 export function ShiftAndBoard({ board }: { board: StaffBoard }) {

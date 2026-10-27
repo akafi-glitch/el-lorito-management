@@ -18,7 +18,7 @@ export function PageHeader({ title, description, status }: PageHeaderProps) {
       </div>
       <Link
         href="/"
-        className="inline-flex min-h-12 items-center justify-center rounded-lg border border-glaze bg-paper px-5 font-semibold text-cobalt hover:border-cobalt"
+        className="inline-flex min-h-12 items-center justify-center rounded-lg border border-glaze bg-paper px-5 font-semibold text-leaf hover:border-leaf"
       >
         Home
       </Link>

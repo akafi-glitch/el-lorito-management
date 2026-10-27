@@ -100,7 +100,7 @@ export function AccountsManager({ accounts, currentUserId }: { accounts: Account
                 <div>
                   <p className="text-lg font-bold text-ink">
                     {account.displayName} <span className="font-normal text-muted">({account.username})</span>
-                    {isMe ? <span className="ml-2 text-sm font-semibold text-cobalt">You</span> : null}
+                    {isMe ? <span className="ml-2 text-sm font-semibold text-leaf">You</span> : null}
                   </p>
                   <p className="text-sm text-muted">
                     {account.isActive ? "On" : "Turned off"}. Added {account.createdAt}.

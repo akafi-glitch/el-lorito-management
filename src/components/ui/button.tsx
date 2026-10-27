@@ -6,9 +6,9 @@ const base =
   "inline-flex min-h-12 items-center justify-center gap-2 rounded-lg px-5 text-base font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-60";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-cobalt text-white hover:bg-cobalt-deep",
-  secondary: "border border-glaze bg-paper text-cobalt hover:border-cobalt",
-  quiet: "text-white/90 hover:bg-white/10 hover:text-white",
+  primary: "bg-leaf text-white hover:bg-leaf-deep",
+  secondary: "border border-glaze bg-paper text-leaf hover:border-leaf",
+  quiet: "text-leaf-deep hover:bg-leaf/10",
 };
 
 export function buttonClasses(variant: Variant = "primary", extra = ""): string {

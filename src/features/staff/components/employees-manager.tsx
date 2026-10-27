@@ -10,7 +10,7 @@ import { addEmployeeAction, updateEmployeeAction } from "../actions";
 import { ROLE_LABEL, ROLES, type EmployeeRef, type Role } from "../rules";
 
 const selectClass =
-  "min-h-12 w-full rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-cobalt focus:outline-none";
+  "min-h-12 w-full rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none";
 
 /** Add employees, then rename, change role, or turn them on and off. Numbers never change. */
 export function EmployeesManager({ employees }: { employees: EmployeeRef[] }) {
@@ -123,7 +123,7 @@ function EmployeeRow({
       </span>
       <input
         aria-label={`Name for number ${employee.number}`}
-        className="min-h-12 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-cobalt focus:outline-none"
+        className="min-h-12 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none"
         value={name}
         onChange={(event) => setName(event.target.value)}
       />

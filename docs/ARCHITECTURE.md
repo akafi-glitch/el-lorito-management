@@ -85,8 +85,8 @@ reloads its data. Live push updates to other screens come in Phase 10.
 
 ## Design
 
-Cobalt and tile white, after Talavera tile, so brand colors never compete with the table-status
-colors (green, yellow, red, gray). System fonts only (no download at build or load). Touch targets
+Light green, after the parrot in the logo, with a Talavera-style tile pattern. The table-status
+colors (green, yellow, red, gray) always come with a text label. System fonts only (no download at build or load). Touch targets
 are at least 48 px. Layouts are checked at phone (390 px), tablet (820 px), and desktop (1366 px) widths.
 
 ## Waiter Section flow

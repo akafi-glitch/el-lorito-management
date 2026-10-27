@@ -50,7 +50,7 @@ export function MenuManager({ menu }: { menu: Menu }) {
                 setCategoryId(Number(event.target.value));
                 setQuery("");
               }}
-              className="min-h-12 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-cobalt focus:outline-none"
+              className="min-h-12 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none"
             >
               {menu.categories.map((c) => (
                 <option key={c.id} value={c.id}>
@@ -69,7 +69,7 @@ export function MenuManager({ menu }: { menu: Menu }) {
               autoComplete="off"
               value={query}
               onChange={(event) => setQuery(event.target.value)}
-              className="min-h-12 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-cobalt focus:outline-none"
+              className="min-h-12 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none"
             />
           </div>
         </div>
@@ -137,7 +137,7 @@ function ItemRow({
           value={price}
           onChange={(event) => setPrice(event.target.value)}
           aria-invalid={typed === null ? true : undefined}
-          className="min-h-12 w-full rounded-lg border border-glaze bg-paper px-3 text-base tabular-nums text-ink focus:border-cobalt focus:outline-none aria-[invalid=true]:border-danger"
+          className="min-h-12 w-full rounded-lg border border-glaze bg-paper px-3 text-base tabular-nums text-ink focus:border-leaf focus:outline-none aria-[invalid=true]:border-danger"
         />
       </div>
       <button

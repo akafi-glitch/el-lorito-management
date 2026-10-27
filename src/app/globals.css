@@ -2,17 +2,19 @@
 
 /*
  * El Lorito design tokens.
- * Brand: cobalt and tile white, after Talavera tile. Kept apart from the table-status colors
- * (green / yellow / red / gray) so status always reads at a glance on the floor map.
+ * Brand: light green, after the green of the parrot in the logo. The table-status green is brighter
+ * and always shown with a text label, so status still reads at a glance on the floor map.
+ * leaf-light is the brand band (sign-in, home header, top bar); text on it uses ink or leaf-deep.
  */
 @theme {
-  --color-tile: #f6f8fc;
+  --color-tile: #f1f8ec;
   --color-paper: #ffffff;
-  --color-cobalt: #1f3d99;
-  --color-cobalt-deep: #132a6b;
-  --color-ink: #16213d;
-  --color-muted: #55617f;
-  --color-glaze: #d3dbee;
+  --color-leaf: #2e7d32;
+  --color-leaf-deep: #1d5c22;
+  --color-leaf-light: #d8eecd;
+  --color-ink: #17301b;
+  --color-muted: #4f6553;
+  --color-glaze: #cbe2c0;
 
   /* Table status (used from Phase 2). */
   --color-status-vacant: #2f9e5e;
@@ -38,15 +40,15 @@
   }
 
   :focus-visible {
-    outline: 3px solid var(--color-cobalt);
+    outline: 3px solid var(--color-leaf);
     outline-offset: 3px;
   }
 }
 
-/* Talavera-style tile: a four-petal motif repeated in cobalt. Used only behind the wordmark. */
+/* Talavera-style tile: a four-petal motif in leaf green on light green. Used behind the logo and wordmark. */
 @utility tile-pattern {
-  background-color: var(--color-cobalt-deep);
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%23ffffff' stroke-opacity='0.16' stroke-width='1.5'%3E%3Cpath d='M32 8c6 8 6 16 0 24c-6-8-6-16 0-24zM32 56c-6-8-6-16 0-24c6 8 6 16 0 24zM8 32c8-6 16-6 24 0c-8 6-16 6-24 0zM56 32c-8 6-16 6-24 0c8-6 16-6 24 0z'/%3E%3Ccircle cx='32' cy='32' r='3'/%3E%3Cpath d='M0 0h8M0 0v8M64 0h-8M64 0v8M0 64h8M0 64v-8M64 64h-8M64 64v-8'/%3E%3C/g%3E%3C/svg%3E");
+  background-color: var(--color-leaf-light);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 64 64'%3E%3Cg fill='none' stroke='%232e7d32' stroke-opacity='0.16' stroke-width='1.5'%3E%3Cpath d='M32 8c6 8 6 16 0 24c-6-8-6-16 0-24zM32 56c-6-8-6-16 0-24c6 8 6 16 0 24zM8 32c8-6 16-6 24 0c-8 6-16 6-24 0zM56 32c-8 6-16 6-24 0c8-6 16-6 24 0z'/%3E%3Ccircle cx='32' cy='32' r='3'/%3E%3Cpath d='M0 0h8M0 0v8M64 0h-8M64 0v8M0 64h8M0 64v-8M64 64h-8M64 64v-8'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 64px 64px;
 }
 
