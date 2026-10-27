@@ -42,3 +42,41 @@ jobs:
       - run: supabase test db # pgTAP tests in supabase/tests
       - name: Two hosts seat the same table at once
         run: bash scripts/db-race-test.sh "postgresql://postgres:postgres@127.0.0.1:54322/postgres"
+
+  e2e:
+    name: End-to-end (real Supabase with Realtime)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - uses: supabase/setup-cli@v1
+        with:
+          version: 2.122.0
+      - name: Start Supabase (database, sign-in, API, Realtime)
+        run: supabase start -x studio,imgproxy,mailpit,storage-api,edge-runtime,logflare,vector,supavisor,postgres-meta
+      - name: Make sure the Realtime listening rule exists
+        run: psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -v ON_ERROR_STOP=1 -f scripts/ensure-realtime-policy.sql
+      - name: Point the app at the local Supabase
+        run: |
+          supabase status -o json > /tmp/supabase-status.json
+          node scripts/ci-env.mjs /tmp/supabase-status.json > .env.local
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build # also runs the secret-key scan with the local keys
+      - name: Browser tests (two devices, live updates over Realtime)
+        run: npm run e2e
+        env:
+          E2E_REALTIME: "1"
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
+
