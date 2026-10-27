@@ -64,7 +64,8 @@ jobs:
       - name: Point the app at the local Supabase
         run: |
           supabase status -o json > /tmp/supabase-status.json
-          node scripts/ci-env.mjs /tmp/supabase-status.json > .env.local
+          node scripts/ci-env.mjs /tmp/supabase-status.json > .env.local 2> /tmp/ci-env.txt
+          echo "::notice title=Local Supabase keys::$(cat /tmp/ci-env.txt)"
       - run: npx playwright install --with-deps chromium
       - run: npm run build # also runs the secret-key scan with the local keys
       - name: Browser tests (two devices, live updates over Realtime)
