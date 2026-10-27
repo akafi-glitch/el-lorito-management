@@ -37,7 +37,7 @@ The app refuses to start pages if a value is missing, if the keys are swapped, o
 | `20261027080000_tickets` | Applied Oct 27, 2026, when pull request #7 was merged |
 | `20261027090000_ticket_totals` | Applied Oct 27, 2026, when pull request #8 was merged |
 | `20261027100000_printing` | Applied Oct 27, 2026, when pull request #9 was merged |
-| `20261027110000_live_sync` | Not yet: applied when pull request #10 is merged |
+| `20261027110000_live_sync` | Applied Oct 27, 2026, when pull request #10 was merged |
 
 **Merging applies migrations.** Since the staff migration, Supabase applies a migration to the
 live project by itself as soon as its pull request is merged into `main` (Supabase's GitHub
@@ -58,6 +58,12 @@ only sends what's missing. A separate free test project is recommended before op
   needed for it to work.
 - Recommended: in the Supabase dashboard's Realtime settings, turn off public channel access so
   only private channels are allowed.
+- **Found Oct 27, 2026:** the live project's `realtime.messages` has no daily partitions yet
+  (Realtime creates them once an app connects), so signals sent before then are dropped quietly.
+  Nothing to do; screens update through the 5-second check until then.
+- **Local `supabase start`:** Realtime may create `realtime.messages` after the migrations run.
+  Run `psql "postgresql://postgres:postgres@127.0.0.1:54322/postgres" -f scripts/ensure-realtime-policy.sql`
+  once afterwards (CI does this).
 - **First-deployment check:** open the Floor on two devices; the dot under the title should say
   **Live**, and seating a table on one should show on the other within about a second. If it says
   "Reconnecting", the screens still update (every 5 seconds) and Realtime needs a look.

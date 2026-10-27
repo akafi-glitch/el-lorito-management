@@ -7,7 +7,37 @@
 | Types | TypeScript | `npm run typecheck` | |
 | Lint | ESLint (Next.js rules) | `npm run lint` | |
 | Secret scan | `scripts/check-no-secrets.mjs` | runs after `npm run build` | |
+| Race tests | two real database connections at once | `bash scripts/db-race-test.sh <local db url>` | `scripts/db-race-test.sh` |
+| Browser (end-to-end) | Playwright + axe | `npm run e2e` (needs `npx supabase start` and `npm run build`) | `e2e/*.spec.ts` |
 | CI | GitHub Actions | every push and pull request | `.github/workflows/ci.yml` |
+
+## The 20 required test areas and where they are covered
+
+| # | Requirement | Unit | Database | Browser / race |
+| --- | --- | --- | --- | --- |
+| 1 | Section rotation | `recommend.test.ts` | `seating.test.sql` (rotation moves) | `floor.spec.ts` (suggestions) |
+| 2 | Table availability | `recommend.test.ts` | `seating.test.sql` (`table_occupied`) | race 1; `floor.spec.ts` (taken on another device) |
+| 3 | Table-capacity matching | `recommend.test.ts` | `floor_layout.test.sql` (capacities) | |
+| 4 | Party seating priority | `recommend.test.ts` | | `floor.spec.ts` (14 guests → Party) |
+| 5 | Approved table combinations | `recommend.test.ts` | `floor_layout.test.sql`, `seating.test.sql` | `floor.spec.ts` (B3 + B4); race 2 (no deadlock) |
+| 6 | Simultaneous table assignments | | `seating.test.sql` | races 1 and 2 |
+| 7 | Employee lookup | `waiter.test.ts` | `staff.test.sql` (01 = 1) | `waiter.spec.ts` |
+| 8 | Shift reassignment | `staff.test.ts` | `staff.test.sql` (Kafi X(1) → B, history kept) | `staff.spec.ts`, `live.spec.ts` |
+| 9 | Cross-section warning | `waiter.test.ts` | | `waiter.spec.ts` (exact wording) |
+| 10 | Menu search | `menu.test.ts` | | `tickets.spec.ts` |
+| 11 | Order quantity calculations | `menu.test.ts`, `tickets.test.ts` | `tickets.test.sql` | `tickets.spec.ts` |
+| 12 | Multiple orders per visit | | `tickets.test.sql` (#1001, #1002 on one visit) | `tickets.spec.ts` |
+| 13 | Food tax | `tax.test.ts` | `ticket_totals.test.sql` | `tickets.spec.ts` ($1.60 on $18.80) |
+| 14 | Liquor tax | `tax.test.ts` | `ticket_totals.test.sql` | `tickets.spec.ts` ($0.52 on $4.99) |
+| 15 | Combined bill totals | `tax.test.ts` (total = four parts) | `ticket_totals.test.sql` | `tickets.spec.ts` (screen = database) |
+| 16 | Order editing | `tickets.test.ts` | `tickets.test.sql` | `tickets.spec.ts`; race 3 |
+| 17 | Table clearance | | `seating.test.sql`, `tickets.test.sql` | `floor.spec.ts`; race 4 |
+| 18 | Historical order preservation | | `tickets.test.sql` (clearing keeps tickets; menu changes don't touch them), `printing.test.sql` (frozen totals) | `tickets.spec.ts` |
+| 19 | Failed print attempts and reprints | `printing.test.ts` | `printing.test.sql` | `tickets.spec.ts` (No → Print again → Yes) |
+| 20 | Multi-device state consistency | `sync.test.ts` | `live_sync.test.sql` | `live.spec.ts` (two browsers, Realtime in CI); races 3 and 4 |
+
+Database migrations are tested on every pull request: CI applies all of them to a fresh Supabase
+database and runs every database test against it.
 
 ## Phase 1 tests (48 unit tests, 10 database checks)
 
@@ -243,6 +273,40 @@ other version; the print question stays put while changes arrive; Management's m
 (search kept); offline shown, and the change made meanwhile appears when back online; no page
 errors. Phase 1–9 walkthroughs re-run and pass (they now ignore the local stand-in's refused
 Realtime connection; the stand-in has no Realtime service).
+
+## Phase 11 tests (32 browser tests in the repository)
+
+The browser walkthroughs used in earlier phases are now part of the repository (`e2e/`), and CI
+runs them on every pull request against a full local Supabase (database, sign-in, API, and
+**Realtime**). The tests refuse to run against anything but a local Supabase.
+
+- `auth.spec.ts`: sign-in required (and returns you where you were going), wrong password,
+  change counter needs sign-in, public health check shows no settings, home, page not found.
+- `floor.spec.ts`: 45 tables and legend; suggested seating → chips → "Is the table cleaned?" →
+  green; joined tables by hand (guest count asked); 14 guests → Party first; close and reopen a
+  section; a table taken on another device can't be seated twice.
+- `staff.spec.ts`: add employee, number can't repeat; assignments on the board, floor, and
+  waiter screen; latest wins; the Bar takes no waiter.
+- `waiter.spec.ts`: unknown and turned-off numbers; "1" finds "01"; own section, Bar, other
+  section with the exact warning; empty tables can't open.
+- `tickets.spec.ts`: categories, search, quantities, remove, taxes ($25.91); save, change, undo,
+  save changes, saved price kept after a menu change, database total = screen; Save and print,
+  receipt contents (waiter number only), locked, attempt recorded, No → Print again → Yes → home,
+  table not cleared, reprint from the locked ticket; another device's save can't be overwritten,
+  Show their version, cancel.
+- `live.spec.ts`: seating on one device shows on another without reloading; a second browser
+  follows the first; reassignment and menu changes reach the waiter; offline shown, changes made
+  meanwhile appear. In CI the dot must say **Live**, and the update must arrive within 4 seconds
+  while live (the screen doesn't poll while live, so it came over Realtime).
+- `devices.spec.ts`: every working page on a phone (390 px), tablet (820 px), and computer
+  (1440 px) with no sideways scrolling; floor and menu buttons at least 44 px; no serious or
+  critical accessibility problems (axe, WCAG 2.1 AA) on any working page.
+
+**Fixed because of these tests:** the floor's section open/close buttons were smaller than 44 px;
+empty tables in the Waiter Section had faded text below the contrast minimum.
+
+**Local results:** 32 of 32, twice in a row on the same database (the tests can be re-run). Local
+runs here use the 5-second fallback (no Realtime in this workspace); CI checks the live path.
 
 ## Not verified in Phase 1
 
