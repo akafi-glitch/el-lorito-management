@@ -6,7 +6,8 @@ assignments, food tickets, and ticket printing, shared live across the restauran
 Built with Next.js (App Router), TypeScript, Tailwind CSS, and Supabase (PostgreSQL + Auth).
 Hosted on Vercel.
 
-> **Status: Phase 4 of 12.** Sign-in, floor management, and staff management work. The rest
+> **Status: Phase 5 of 12.** Sign-in, floor management, staff management, and the Waiter Section
+> (number entry and table choice) work. The rest
 > arrives phase by phase. See [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
 
 ## What works now
@@ -18,7 +19,9 @@ Hosted on Vercel.
   the table cleaned?" to clear, and opens or closes sections.
 - **Management**: start shifts, assign each section's waiter and chips runner, manage employees and
   sign-in accounts. The floor shows who works each section.
-- A placeholder Waiter Section page that says which phase builds it.
+- **Waiter Section**: a waiter types their employee number on a big number pad and sees their
+  sections' tables plus the Bar. Other sections can be opened after a warning that names the
+  assigned waiter. Choosing a table shows the table and waiter; the menu and tickets come in Phases 6–9.
 - `/api/health` reports whether the app is configured (never the settings themselves).
 
 ## Local setup

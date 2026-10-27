@@ -68,10 +68,22 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   accounts off or on. Nobody can turn off their own account, and at least one account stays on.
   Passwords are never shown or stored by the app.
 
-## Waiter section (Planned, Phase 5)
+## Waiter section (Built, Phase 5)
 
+- **Identify:** the waiter types their employee number (01 and 1 are the same). Unknown numbers and
+  turned-off employees are refused. The number says who is working; it is not a password (the
+  administrator sign-in protects the app).
+- **Your tables:** the tables of every section assigned to you in the current shift, using the
+  latest assignment. Then the Bar, then all other sections.
 - **Any waiter can bill a Bar table**, with no "assigned to someone else" warning. The Bar is always
   offered in every waiter's table list, alongside their assigned tables.
+- **Another section:** the waiter may open it after confirming "This table is assigned to
+  Musfika (02). Do you want to continue?" If nobody is assigned there: "This table is in section C,
+  which isn't assigned to you. Do you want to continue?" A waiter with no section this shift sees
+  every section, each with this confirmation (except the Bar).
+- **Only seated tables open:** a table with no open visit says "No guests are seated at X3. Seat
+  them on the Floor first." (Tickets belong to a visit; visits start when guests are seated.)
+- From Phase 7, the ticket records the waiter who actually created it.
 
 ## Table status (Built, Phase 3)
 

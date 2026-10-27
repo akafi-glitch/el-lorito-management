@@ -50,9 +50,10 @@ Supabase Auth also limits sign-in attempts per IP address (`[auth.rate_limit]` i
 src/
   app/                    routes (thin: load data, render features)
     (app)/                signed-in pages: home, floor, waiter, manage
+                          waiter/[number]/tables/[code]: a waiter's tables, then one table
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth, floor, seating, staff now; menu,
+  features/<module>/      one folder per module (auth, floor, seating, staff, waiter now; menu,
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)
@@ -87,3 +88,13 @@ reloads its data. Live push updates to other screens come in Phase 10.
 Cobalt and tile white, after Talavera tile, so brand colors never compete with the table-status
 colors (green, yellow, red, gray). System fonts only (no download at build or load). Touch targets
 are at least 48 px. Layouts are checked at phone (390 px), tablet (820 px), and desktop (1366 px) widths.
+
+## Waiter Section flow
+
+The employee number travels in the link (`/waiter/01`, `/waiter/01/tables/B3`) rather than in a
+cookie. Nothing is remembered between waiters on a shared tablet, and "Not you? Change number" or
+Home starts over. Every page checks the number again on the server (unknown or turned-off numbers
+are refused), so a stale link stops working as soon as someone is turned off. Opening another
+section's table needs `?continue=1`, which the warning's Continue button adds; a typed link without
+it shows the warning first. The number identifies the waiter; the administrator sign-in is what
+protects the app. Pure rules live in `features/waiter/rules.ts` and are unit tested.

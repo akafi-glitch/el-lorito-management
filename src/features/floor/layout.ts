@@ -10,6 +10,8 @@ export type SectionInfo = {
   isOpen: boolean;
   /** Position in the seating rotation; null for Party and Bar. */
   rotationOrder: number | null;
+  /** True for the Bar: no waiter is assigned and any waiter can bill it. */
+  openToAllWaiters: boolean;
 };
 
 export type FloorTable = {
@@ -94,6 +96,7 @@ function toSectionInfo(section: SectionRow): SectionInfo {
     kind: section.kind,
     isOpen: section.is_open,
     rotationOrder: section.rotation_order,
+    openToAllWaiters: section.open_to_all_waiters,
   };
 }
 
