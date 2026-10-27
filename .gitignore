@@ -26,3 +26,8 @@ supabase/.temp/
 
 # vercel
 .vercel/
+
+# end-to-end test output
+/test-results/
+/playwright-report/
+/e2e/.auth/

@@ -15,9 +15,9 @@ and the production build, and updates these docs.
 | 7 | Tickets saved, editable until printed | Done (pull request #7) |
 | 8 | Tax and ticket totals | Done (pull request #8) |
 | 9 | Thermal printing (browser print), reprint | Done (pull request #9) |
-| 10 | Live sync across devices, conflict handling | **Done, awaiting approval** |
-| 11 | End-to-end tests and fixes | Next |
-| 12 | Deployment and security review | |
+| 10 | Live sync across devices, conflict handling | Done (pull request #10) |
+| 11 | End-to-end tests and fixes | **Done, awaiting approval** |
+| 12 | Deployment and security review | Next |
 
 ## Phase 1 record
 
@@ -223,3 +223,20 @@ browser contains the prefix in a key-type check.
 
 **Not in this phase:** a Realtime test against the live project (this workspace can't reach
 supabase.co); check it on the first deployment (docs/DEPLOYMENT.md).
+
+## Phase 11 record
+
+**Objective:** prove the whole app works together, in real browsers, on every change.
+
+**Built:** 32 Playwright browser tests in `e2e/` (sign-in, floor, staff, waiter, tickets and
+printing, live updates on two browsers, phone/tablet/computer layouts, tap sizes, accessibility).
+A new CI job starts a full local Supabase **including Realtime**, builds the app, and runs them,
+so the live connection (private channel and its access rule) is tested on every pull request.
+The required test areas are mapped to their tests in docs/TESTING.md.
+
+**Fixed:** floor section buttons enlarged to 44 px; Waiter Section empty tables made readable.
+
+**Found on the live project:** its Realtime message storage has no partitions yet, so live signals
+are dropped until Realtime is first used by a connected app (Supabase creates them then). Screens
+still update through the 5-second check meanwhile. Check the dot says **Live** after the first
+deployment (docs/DEPLOYMENT.md).

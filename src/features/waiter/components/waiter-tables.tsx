@@ -170,11 +170,11 @@ function WaiterTableTile({ table, onPress }: { table: FloorTable; onPress: () =>
       aria-label={spoken}
       onClick={onPress}
       className={`flex min-h-24 w-full flex-col items-center justify-center rounded-xl border-2 px-2 py-2 text-center ${STATUS_TILE[table.status]} ${
-        visit ? "" : "opacity-70"
+        visit ? "" : "border-dashed"
       }`}
     >
       <span className="text-xl font-bold leading-tight text-ink">{table.label}</span>
-      <span className={`text-sm ${visit ? "font-bold text-ink" : "text-ink/80"}`}>{guests}</span>
+      <span className={`text-sm text-ink ${visit ? "font-bold" : ""}`}>{guests}</span>
       {partners.length > 0 ? <span className="text-xs font-semibold text-ink">with {partners.join(" + ")}</span> : null}
       <span className="text-xs font-semibold text-ink/70">{status}</span>
     </button>

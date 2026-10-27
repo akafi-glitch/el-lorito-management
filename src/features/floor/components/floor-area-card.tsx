@@ -51,7 +51,7 @@ export function FloorAreaCard({ area, staff, selectedCodes, busy, onTablePress, 
               disabled={busy}
               onClick={() => onSectionToggle(section)}
               aria-label={`${section.isOpen ? "Close" : "Open"} section ${section.name}`}
-              className={`min-h-10 rounded-lg border px-3 text-sm font-semibold disabled:opacity-60 ${
+              className={`min-h-11 min-w-11 rounded-lg border px-3 text-sm font-semibold disabled:opacity-60 ${
                 section.isOpen
                   ? "border-glaze bg-paper text-muted hover:border-cobalt hover:text-cobalt"
                   : "border-ink bg-ink text-white hover:bg-cobalt-deep"

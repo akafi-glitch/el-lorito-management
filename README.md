@@ -6,8 +6,8 @@ assignments, food tickets, and ticket printing, shared live across the restauran
 Built with Next.js (App Router), TypeScript, Tailwind CSS, and Supabase (PostgreSQL + Auth).
 Hosted on Vercel.
 
-> **Status: Phase 10 of 12.** Everything below works and stays in step across devices. End-to-end
-> testing and deployment preparation come next. The rest
+> **Status: Phase 11 of 12.** Everything below works, stays in step across devices, and is tested
+> in real browsers on every change. Deployment preparation and the security review come next. The rest
 > arrives phase by phase. See [docs/DEVELOPMENT_ROADMAP.md](docs/DEVELOPMENT_ROADMAP.md).
 
 ## What works now
@@ -63,7 +63,8 @@ npm run dev                 # open http://localhost:3000 and sign in
 | `npm run lint` | ESLint |
 | `npm run build` | Production build, then a scan that fails if a secret key reached browser files |
 | `npm run test:db` | Database tests (pgTAP), needs `npx supabase start` |
-| `bash scripts/db-race-test.sh <local db url>` | Two hosts seating the same table at once (local database only) |
+| `bash scripts/db-race-test.sh <local db url>` | Two devices changing the same thing at once (local database only) |
+| `npm run e2e` | Browser tests (Playwright): needs `npx supabase start`, then `npm run build`. Local Supabase only |
 | `npm run check` | Lint, types, tests, and build together |
 | `npm run admin:create` | Create an administrator account |
 
