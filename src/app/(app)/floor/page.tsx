@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
 
-import { ComingSoon, SectionShell } from "@/components/section-shell";
+import { SectionShell } from "@/components/section-shell";
+import { FloorMap } from "@/features/floor/components/floor-map";
+import { loadFloorMap } from "@/features/floor/queries";
 
 export const metadata: Metadata = { title: "Floor Management" };
 
-export default function FloorPage() {
+export default async function FloorPage() {
+  const map = await loadFloorMap();
+
   return (
-    <SectionShell title="Floor Management" description="Seat guests, track chips, and clear tables.">
-      <ComingSoon
-        phase={2}
-        items={[
-          "The floor map with every section and table",
-          "Green, yellow, and red table status (Phase 3 adds seating and chips)",
-        ]}
-      />
+    <SectionShell
+      title="Floor Management"
+      description="Every table and its status. Seating, chips, and clearing arrive in the next phase."
+      wide
+    >
+      <FloorMap map={map} />
     </SectionShell>
   );
 }

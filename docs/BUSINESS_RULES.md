@@ -14,6 +14,18 @@ Legend: **Built** = implemented and tested. **Planned** = approved, built in the
 - A turned-off account (`is_active = false`) cannot sign in and is blocked on every page.
 - After sign-in the app returns to the page the person asked for, but only pages on this site.
 
+## Floor layout (Built, Phase 2)
+
+- 45 tables, placed as on the owner's drawing. "4ch" on the drawing = 4 chairs (confirmed).
+- Capacities are data. Party 1–3 and Bar 1–4 have no confirmed capacity and show "Seats not set".
+- Combined capacity = sum of the chairs (confirmed): A3 + A4 10, B3 + B4 10, C3 + C4 10,
+  A4 + B4 12, X6 + X7 + X8 18. Only X6 + X7 + X8 may take parties over twelve.
+- **Bar 1–4 are tracked like tables** (status colors and chips) but never take part in the rotation.
+- Section X is drawn as one block holding X(1) and X(2); each tile shows its section.
+- A table's color comes from two separate facts: whether it has an open visit, and the visit's chips
+  status. A table already seated keeps its color if its section is closed meanwhile; empty tables in
+  a closed section show gray.
+
 ## Seating (Planned, Phase 3)
 
 1. Only vacant, active tables in open sections are considered. Bar is never recommended.
@@ -24,6 +36,13 @@ Legend: **Built** = implemented and tested. **Planned** = approved, built in the
 4. Show the top 3; the host confirms; the table turns yellow showing the guest count.
 5. The rotation moves to the section after the one used.
 6. Manual seating: tap one or more vacant tables; ask guest count if not entered; all seated together or none.
+7. **Anyone** (manager, host, or other staff) can join any vacant tables into a combination by hand.
+   All of its tables show occupied.
+
+## Waiter section (Planned, Phase 5)
+
+- **Any waiter can bill a Bar table**, with no "assigned to someone else" warning. The Bar is always
+  offered in every waiter's table list, alongside their assigned tables.
 
 ## Table status (Planned, Phase 3)
 

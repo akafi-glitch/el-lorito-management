@@ -6,9 +6,9 @@ and the production build, and updates these docs.
 | Phase | Delivers | Status |
 | --- | --- | --- |
 | 0 | Architecture and database plan | Approved |
-| 1 | App shell, navigation, administrator sign-in | **Done, awaiting approval** |
-| 2 | Floor map from the database (sections, tables, combinations, capacities as data) | Next |
-| 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | |
+| 1 | App shell, navigation, administrator sign-in | Done (pull request #1) |
+| 2 | Floor map from the database (sections, tables, combinations, capacities as data) | **Done, awaiting approval** |
+| 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | Next |
 | 4 | Employees, shifts, section and runner assignments, administrator accounts page | |
 | 5 | Waiter number entry, assigned tables, other-section warning | |
 | 6 | Menu from the database (206 items imported), search, categories | |
@@ -31,3 +31,20 @@ health check, secret-key build scan, CI workflow, docs.
 **Database changes:** `supabase init` (sign-ups off, password length 10); migration `app_users`.
 
 **Known limits:** see TESTING.md, "Not verified in Phase 1".
+
+## Phase 2 record
+
+**Objective:** show the real restaurant floor from the database.
+
+**Built:** migration `floor_layout` with `floor_areas`, `sections`, `restaurant_tables`,
+`table_combinations`, `table_combination_members`, and the `table_combination_capacity` view, loaded
+with all 45 tables from the floor drawing. Floor Management page: a map placed like the drawing
+(A, B, C on top; Bar above X on the left; P and Party on the right), every tile showing its table,
+chairs, and status, status counts, and the approved combinations with summed chairs. The section is
+shown on tiles where one block holds two sections (X(1)/X(2), P/Party).
+
+**Database changes:** migration `20261027040000_floor_layout.sql`. It also indexes
+`app_users.created_by` and stops browser roles from calling helper functions.
+
+**Not in this phase:** tapping tables (seating, chips, clearing) and opening or closing sections
+come in Phase 3. All tables show green until then.

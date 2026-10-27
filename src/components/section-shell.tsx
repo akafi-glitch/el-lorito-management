@@ -6,17 +6,19 @@ type SectionShellProps = {
   title: string;
   description: string;
   children: React.ReactNode;
+  /** Use the full screen width (floor map). */
+  wide?: boolean;
 };
 
 /** Frame for inner pages: top bar, page title with Home button, then the page body. */
-export async function SectionShell({ title, description, children }: SectionShellProps) {
+export async function SectionShell({ title, description, children, wide = false }: SectionShellProps) {
   const session = await getSessionState();
   const displayName = session.status === "signed-in" ? session.user.displayName : "";
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <TopBar displayName={displayName} />
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6">
+      <TopBar displayName={displayName} wide={wide} />
+      <main className={`mx-auto w-full flex-1 px-4 py-8 sm:px-6 ${wide ? "max-w-[96rem]" : "max-w-6xl"}`}>
         <PageHeader title={title} description={description} />
         <div className="mt-8">{children}</div>
       </main>
