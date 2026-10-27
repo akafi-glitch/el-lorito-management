@@ -26,32 +26,47 @@ Legend: **Built** = implemented and tested. **Planned** = approved, built in the
   status. A table already seated keeps its color if its section is closed meanwhile; empty tables in
   a closed section show gray.
 
-## Seating (Planned, Phase 3)
+## Seating (Built, Phase 3)
 
-1. Only vacant, active tables in open sections are considered. Bar is never recommended.
-2. 7+ guests: Party areas first (capacity unknown → "confirm the party fits"), then approved
-   combinations that fit with every table vacant. Above 12 guests only X6 + X7 + X8.
-3. 6 or fewer: start at the next section in A → C → B → X(1) → X(2) → P, skipping closed sections;
-   pick the smallest table that fits; else the next section.
-4. Show the top 3; the host confirms; the table turns yellow showing the guest count.
-5. The rotation moves to the section after the one used.
-6. Manual seating: tap one or more vacant tables; ask guest count if not entered; all seated together or none.
-7. **Anyone** (manager, host, or other staff) can join any vacant tables into a combination by hand.
-   All of its tables show occupied.
+Suggestions live in `src/features/seating/recommend.ts`; the database re-checks every seat.
+
+1. Only free tables are suggested: nobody seated, section open, table active. The Bar is never suggested.
+2. **6 or fewer guests:** start at the next section in A → C → B → X(1) → X(2) → P, skipping closed
+   sections. In each section, the smallest table that fits (ties: table order). One suggestion per
+   section, up to 3, so the first follows the rotation.
+3. **7 or more guests:** Party areas first. Their seats aren't set, so each shows "check it fits".
+   Then approved combinations with every table free and enough chairs, smallest first. Above 12
+   guests only X6 + X7 + X8.
+4. If nothing fits, the screen says so and suggests joining tables by hand.
+5. **Seating by tapping:** tap one or more free tables, then Seat. The guest count is asked only if it
+   wasn't entered in New party. All tables are seated together or none. If the tapped tables are
+   exactly an approved combination, that's recorded too.
+6. **Anyone** signed in can join any free tables by hand. Every joined table shows "with …".
+7. **Rotation (decided):** after any seating, suggested or tapped, the rotation moves to the section
+   after the one used. Tables in two sections (A4 + B4) move it past the later one (B). Party and Bar
+   seating don't move it. After P it starts again at A.
+8. **Closed sections (decided):** can't be seated at all, by suggestion or by tapping. Tapping a table
+   there offers "Open section …". Tables already seated keep their color when a section closes.
 
 ## Waiter section (Planned, Phase 5)
 
 - **Any waiter can bill a Bar table**, with no "assigned to someone else" warning. The Bar is always
   offered in every waiter's table list, alongside their assigned tables.
 
-## Table status (Planned, Phase 3)
+## Table status (Built, Phase 3)
 
-| Color | Meaning | Action |
+| Color | Meaning | Tap does |
 | --- | --- | --- |
-| Green | No open visit | Seat |
-| Yellow | Seated, chips needed | Chips served → red |
-| Red | Chips served | Chips runner: "Is the table cleaned?" Yes → green, visit closed (tickets kept); No → stays red |
-| Gray | Section closed | Not recommended; manual seating allowed |
+| Green | No open visit | Selects the table for seating |
+| Yellow | Seated, chips needed | "Chips served" → red |
+| Red | Chips served | "Is the table cleaned?" Yes → green, visit closed (everything kept); No → stays red |
+| Gray | Section closed, no one seated | Offers to open the section |
+
+- A yellow table can't be cleared; chips are marked first (database rule).
+- Every change carries the version the screen saw. If another device changed the table first, the
+  change is refused with "This table was changed on another device" and the floor reloads.
+- Every seating, chips, clearing, and section open/close is recorded in the audit history, which
+  can't be edited or deleted.
 
 ## Tickets (Planned, Phases 7–9)
 

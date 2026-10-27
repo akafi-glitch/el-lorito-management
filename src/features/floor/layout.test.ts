@@ -125,16 +125,18 @@ describe("table status", () => {
   });
 
   it("is yellow until chips are served, then red, even if the section closes meanwhile", () => {
-    expect(deriveTableStatus({ sectionOpen: true, visit: { guestCount: 3, chipsServed: false } })).toBe("chips-needed");
-    expect(deriveTableStatus({ sectionOpen: false, visit: { guestCount: 3, chipsServed: true } })).toBe("chips-served");
+    expect(deriveTableStatus({ sectionOpen: true, visit: { chipsServed: false } })).toBe("chips-needed");
+    expect(deriveTableStatus({ sectionOpen: false, visit: { chipsServed: true } })).toBe("chips-served");
   });
 
   it("carries the guest count onto the map", () => {
     const rows = realRows();
     const a2 = rows.tables.find((table) => table.code === "A2");
-    const map = buildFloorMap(rows, new Map([[a2!.id, { guestCount: 3, chipsServed: false }]]));
+    const visit = { visitId: 7, version: 1, guestCount: 3, chipsServed: false, tableLabels: ["A2"] };
+    const map = buildFloorMap(rows, { visits: new Map([[a2!.id, visit]]), nextSectionCode: "C" });
     const tile = map.areas.flatMap((area) => area.tables).find((table) => table.code === "A2");
-    expect(tile).toMatchObject({ status: "chips-needed", guestCount: 3 });
+    expect(tile).toMatchObject({ status: "chips-needed", visit: { guestCount: 3, visitId: 7 } });
+    expect(map.nextSectionCode).toBe("C");
     expect(map.counts["chips-needed"]).toBe(1);
   });
 });

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { redirect } from "next/navigation";
 import { cache } from "react";
 
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -33,6 +34,16 @@ export const getSessionState = cache(async (): Promise<SessionState> => {
   if (!user.isActive) return { status: "inactive", user };
   return { status: "signed-in", user };
 });
+
+/**
+ * For Server Actions: they are reachable by direct request, so each one checks the account itself
+ * instead of trusting that the page was protected. Signed-out or turned-off accounts go to sign-in.
+ */
+export async function requireActiveUser(): Promise<AppUser> {
+  const session = await getSessionState();
+  if (session.status !== "signed-in") redirect("/sign-in");
+  return session.user;
+}
 
 export async function findAppUser(userId: string): Promise<AppUser | null> {
   const admin = createAdminClient();

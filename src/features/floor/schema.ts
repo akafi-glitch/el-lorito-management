@@ -48,6 +48,21 @@ export const combinationRowSchema = z.object({
   table_combination_members: z.array(z.object({ table_id: z.uuid() })),
 });
 
+export const openVisitTableRowSchema = z.object({
+  table_id: z.uuid(),
+  visit_id: z.number().int().positive(),
+  customer_visits: z.object({
+    id: z.number().int().positive(),
+    version: z.number().int().positive(),
+    guest_count: z.number().int().positive(),
+    chips_status: z.enum(["needed", "served"]),
+    cleared_at: z.string().nullable(),
+  }),
+});
+
+export const rotationRowSchema = z.object({ next_section_code: z.string() });
+
+export type OpenVisitTableRow = z.infer<typeof openVisitTableRowSchema>;
 export type FloorAreaRow = z.infer<typeof floorAreaRowSchema>;
 export type SectionRow = z.infer<typeof sectionRowSchema>;
 export type TableRow = z.infer<typeof tableRowSchema>;
