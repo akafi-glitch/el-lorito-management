@@ -38,13 +38,13 @@ export function TicketList({ tickets, selected, tableHref }: TicketListProps) {
               <Link
                 href={withTicket(tableHref, ticket.number)}
                 aria-current={current ? "page" : undefined}
-                aria-label={`Ticket ${ticket.number}, ${staffLabel(ticket.maker)}, ${ticket.itemCount} items, ${formatCents(ticket.subtotalCents)}, ${STATUS_TEXT[ticket.status]}`}
+                aria-label={`Ticket ${ticket.number}, ${staffLabel(ticket.maker)}, ${ticket.itemCount} items, ${formatCents(ticket.totals.totalCents)} with tax, ${STATUS_TEXT[ticket.status]}`}
                 className={`flex min-h-14 flex-col justify-center rounded-xl px-4 py-1 text-left ${
                   current ? "bg-cobalt text-white" : "border-2 border-glaze bg-paper text-ink hover:border-cobalt"
                 } ${ticket.status === "cancelled" && !current ? "opacity-60 line-through" : ""}`}
               >
                 <span className="font-bold">
-                  #{ticket.number} · {formatCents(ticket.subtotalCents)}
+                  #{ticket.number} · {formatCents(ticket.totals.totalCents)}
                 </span>
                 <span className={`text-xs ${current ? "text-white/85" : "text-muted"}`}>
                   {ticket.maker.name} · {ticket.createdTime} · {ticket.status === "open" ? "not printed" : ticket.status}

@@ -121,6 +121,15 @@ passwords).
 The visit row is locked `for share` while a ticket is saved, so clearing the table and saving a
 ticket happen one after the other, never half-and-half.
 
+### Tax and totals (Phase 8, `20261027090000_ticket_totals.sql`)
+
+| Object | Does |
+| --- | --- |
+| `tax_cents(subtotal cents, rate bp)` | One tax amount: `(subtotal × rate + 5000) / 10000`, whole cents, half a cent up; null for negative input |
+| `ticket_totals` (view) | Per ticket: food and liquor subtotals, both rates, both taxes, total (at the current rates) |
+
+`tax_groups` now accepts only `food` and `liquor`. Browsers can't read the view.
+
 ## Planned (approved design)
 
 | Group | Tables | Phase |

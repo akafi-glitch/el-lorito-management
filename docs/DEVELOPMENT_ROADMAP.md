@@ -12,9 +12,9 @@ and the production build, and updates these docs.
 | 4 | Employees, shifts, section and runner assignments, administrator accounts page | Done (pull request #4) |
 | 5 | Waiter number entry, assigned tables, other-section warning | Done (pull request #5) |
 | 6 | Menu from the database (206 items imported), search, categories | Done (pull request #6) |
-| 7 | Tickets saved, editable until printed | **Done, awaiting approval** |
-| 8 | Tax and ticket totals | Next |
-| 9 | Thermal printing (browser print), reprint | |
+| 7 | Tickets saved, editable until printed | Done (pull request #7) |
+| 8 | Tax and ticket totals | **Done, awaiting approval** |
+| 9 | Thermal printing (browser print), reprint | Next |
 | 10 | Live sync across devices, conflict handling | |
 | 11 | End-to-end tests and fixes | |
 | 12 | Deployment and security review | |
@@ -157,3 +157,19 @@ tickets per group; names and prices copied onto the ticket; lunch is $1.00 more 
 
 **Not in this phase:** tax and totals (Phase 8); printing and locking (Phase 9). Moving to another
 ticket on the same page discards unsaved changes without asking; leaving or reloading the page asks first.
+
+## Phase 8 record
+
+**Objective:** every ticket shows its taxes and total, worked out exactly.
+
+**Built:** migration `ticket_totals` (`tax_cents` and the `ticket_totals` view, which work out
+each ticket's food and liquor subtotals, taxes, and total in the database). The order panel shows
+Food subtotal, Liquor subtotal, Food tax (8.5%), Liquor tax (10.5%), and Total while the waiter
+builds the ticket; saved tickets show the database's figures; the ticket list shows each total.
+
+**Decisions applied (rounding approved Oct 27, 2026):** each tax is worked out once on its
+subtotal and rounded to the cent, half a cent up. $7.50 food + $5.25 beer → $0.64 + $0.55 →
+**$13.94**. Rates come from the database (food 8.5%, liquor 10.5%).
+
+**Not in this phase:** freezing the totals on the printed ticket (Phase 9). Until a ticket is
+printed, its totals use the current tax rates.

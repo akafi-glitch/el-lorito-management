@@ -53,7 +53,7 @@ src/
                           waiter/[number]/tables/[code]: a waiter's tables, then one table
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets now;
+  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets, billing now;
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { SectionShell } from "@/components/section-shell";
 import { buttonClasses } from "@/components/ui/button";
 import { allTables } from "@/features/floor/layout";
+import { loadTaxSetup } from "@/features/billing/queries";
 import { STATUS_LABEL } from "@/features/floor/status";
 import { loadMenu } from "@/features/menu/queries";
 import { employeeLabel } from "@/features/staff/rules";
@@ -41,7 +42,7 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
   const back = waiterPath(me);
 
   const parsedCode = tableCodeSchema.safeParse(code);
-  const [{ floor, waiters }, menu] = await Promise.all([loadWaiterScreen(me), loadMenu()]);
+  const [{ floor, waiters }, menu, tax] = await Promise.all([loadWaiterScreen(me), loadMenu(), loadTaxSetup()]);
   const table = parsedCode.success ? allTables(floor).find((t) => t.code === parsedCode.data) : undefined;
 
   const backLink = (
@@ -125,6 +126,7 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
       ) : (
         <TicketEditor
           menu={menu}
+          tax={tax}
           timeZone={serverEnv().APP_TIME_ZONE}
           nowIso={new Date().toISOString()}
           employeeNumber={me.number}

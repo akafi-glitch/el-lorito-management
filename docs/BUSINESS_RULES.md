@@ -134,7 +134,7 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   the table is being cleared waits, then is refused. The next group starts with no tickets.
 - Every save and cancel is recorded in the audit history, with the lines before and after.
 
-## Tax (Planned, Phase 8; rounding needs approval)
+## Tax (Built, Phase 8; rounding approved Oct 27, 2026)
 
 ```
 Total = Food sub + Liquor sub + round(Food sub × 0.085) + round(Liquor sub × 0.105)
@@ -143,3 +143,9 @@ Total = Food sub + Liquor sub + round(Food sub × 0.085) + round(Liquor sub × 0
 - Money is whole cents; rates are basis points (850, 1050). No floating-point money math.
 - Rounding: once per group on the group subtotal, half-up to the cent.
 - Example: $7.50 food + $5.25 beer → food tax $0.64, liquor tax $0.55, total **$13.94**.
+- Each tax is rounded once on its subtotal, never per line: three $1.00 food items are taxed
+  $0.255 → $0.26 (not 3 × $0.09 = $0.27).
+- Food and nonalcoholic drinks are added into the food subtotal; beer and cocktails (including
+  wine) into the liquor subtotal. A line's tax group is copied onto the ticket when it is saved.
+- The database works out saved tickets' totals (`ticket_totals`); the screen shows the same rule
+  as a preview while the ticket is built. Both are tested with the same examples.

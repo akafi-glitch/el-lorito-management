@@ -8,6 +8,7 @@ import { Modal } from "@/components/ui/modal";
 import type { Notice } from "@/components/use-action-runner";
 import { MenuScreen } from "@/features/menu/components/menu-screen";
 import type { Draft } from "@/features/menu/order-draft";
+import type { TaxSetup } from "@/features/billing/setup";
 import type { Menu } from "@/features/menu/types";
 
 import { cancelTicketAction, saveTicketAction, type TicketActionResult } from "../actions";
@@ -16,6 +17,7 @@ import type { SavedTicket } from "../types";
 
 type TicketEditorProps = {
   menu: Menu;
+  tax: TaxSetup;
   timeZone: string;
   nowIso: string;
   employeeNumber: string;
@@ -29,7 +31,7 @@ type TicketEditorProps = {
 const OFFLINE = "Couldn't reach the server. Nothing was saved. Check the connection, then try again.";
 
 /** Build or change a ticket, then save it. The database sets the final prices. */
-export function TicketEditor({ menu, timeZone, nowIso, employeeNumber, visitId, ticket, tableHref }: TicketEditorProps) {
+export function TicketEditor({ menu, tax, timeZone, nowIso, employeeNumber, visitId, ticket, tableHref }: TicketEditorProps) {
   const router = useRouter();
   const [busy, startTransition] = useTransition();
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -133,6 +135,7 @@ export function TicketEditor({ menu, timeZone, nowIso, employeeNumber, visitId, 
         draft={draft}
         onDraftChange={(update) => setDraft((current) => update(current))}
         savedLines={savedPriceMap(ticket)}
+        tax={tax}
         orderTitle={ticket ? `Ticket #${ticket.number}` : "New ticket"}
         orderFooter={
           <div className="flex flex-col gap-3">
@@ -162,7 +165,7 @@ export function TicketEditor({ menu, timeZone, nowIso, employeeNumber, visitId, 
                 Cancel this ticket
               </button>
             ) : null}
-            <p className="text-xs text-muted">Prices are set when the ticket is saved. Tax comes in Phase 8, printing in Phase 9.</p>
+            <p className="text-xs text-muted">Prices and tax are set when the ticket is saved. Printing comes in Phase 9.</p>
           </div>
         }
       />

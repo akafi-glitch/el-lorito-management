@@ -1,3 +1,5 @@
+import type { Totals } from "@/features/billing/tax";
+
 export type TicketStatus = "open" | "printed" | "cancelled";
 
 export type SavedLine = {
@@ -28,4 +30,6 @@ export type SavedTicket = {
   lines: SavedLine[];
   itemCount: number;
   subtotalCents: number;
+  /** Subtotals, taxes, and total, as the database works them out (public.ticket_totals). */
+  totals: Totals;
 };

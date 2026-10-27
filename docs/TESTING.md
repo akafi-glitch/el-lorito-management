@@ -176,6 +176,25 @@ opens read-only; a just-turned-off item refused by name; saving after the table 
 both tickets kept; the next group starts with no tickets; phone layout; no page errors. Phase 3–6
 walkthroughs re-run and still pass.
 
+## Phase 8 tests (20 new unit tests, 18 new database checks)
+
+- **Unit** (`src/features/billing/tax.test.ts`, plus ticket totals in `tickets.test.ts`): the
+  same rounding examples as the database ($7.50 → $0.64, $5.25 → $0.55, exactly half a cent rounds
+  up, 1 cent has no tax, large amounts stay exact); the owner's $13.94 example; food and
+  nonalcoholic drinks together, beer and cocktails together; rounding once on the subtotal, not
+  per line; food-only and liquor-only tickets; total always equals its four parts; missing rates or
+  categories are errors, never guesses; rates shown as 8.5% and 10.5%; the database's totals for a
+  ticket equal the app's own calculation.
+- **Database (`ticket_totals.test.sql`):** the same rounding examples; real tickets saved through
+  `save_ticket` (mixed, food-only, liquor-only, lunch after 3 PM) with their subtotals, taxes, and
+  totals; total = the four parts; rates from the tax groups; browsers refused; only food and
+  liquor tax groups.
+
+**Browser walkthrough:** 29 of 29 ticket steps passed, including the totals preview while building
+($18.80 + $4.99 + $1.60 + $0.52 = $25.91), the database's total matching the screen after saving,
+and a read-only printed ticket showing its taxes and total. Phase 3–6 walkthroughs re-run and
+still pass.
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,

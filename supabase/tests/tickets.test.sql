@@ -4,6 +4,9 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(48);
 
+-- Ticket numbers are a sequence, which other test files may have used; restart it here (rolled back at the end).
+alter sequence public.ticket_number_seq restart with 1001;
+
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000dd', 'host@staff.ellorito-management.com');
 insert into public.app_users (user_id, username, display_name) values ('00000000-0000-0000-0000-0000000000dd', 'host', 'Host');
 

@@ -33,7 +33,8 @@ The app refuses to start pages if a value is missing, if the keys are swapped, o
 | `20261027050000_seating` | Applied Oct 26, 2026, after pull request #3 was merged |
 | `20261027060000_staff` | Applied Oct 27, 2026, after pull request #4 was merged |
 | `20261027070000_menu` | Applied Oct 27, 2026, when pull request #6 was merged |
-| `20261027080000_tickets` | Not yet: applied when pull request #7 is merged |
+| `20261027080000_tickets` | Applied Oct 27, 2026, when pull request #7 was merged |
+| `20261027090000_ticket_totals` | Not yet: applied when pull request #8 is merged |
 
 **Merging applies migrations.** Since the staff migration, Supabase applies a migration to the
 live project by itself as soon as its pull request is merged into `main` (Supabase's GitHub
