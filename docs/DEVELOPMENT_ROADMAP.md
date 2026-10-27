@@ -16,8 +16,8 @@ and the production build, and updates these docs.
 | 8 | Tax and ticket totals | Done (pull request #8) |
 | 9 | Thermal printing (browser print), reprint | Done (pull request #9) |
 | 10 | Live sync across devices, conflict handling | Done (pull request #10) |
-| 11 | End-to-end tests and fixes | **Done, awaiting approval** |
-| 12 | Deployment and security review | Next |
+| 11 | End-to-end tests and fixes | Done (pull request #11) |
+| 12 | Deployment and security review | **Done, awaiting owner's deployment** |
 
 ## Phase 1 record
 
@@ -234,9 +234,35 @@ A new CI job starts a full local Supabase **including Realtime**, builds the app
 so the live connection (private channel and its access rule) is tested on every pull request.
 The required test areas are mapped to their tests in docs/TESTING.md.
 
-**Fixed:** floor section buttons enlarged to 44 px; Waiter Section empty tables made readable.
+**Fixed:** floor section buttons enlarged to 44 px; Waiter Section empty tables made readable;
+`supabase/config.toml` had email + password sign-in switched off (`[auth.email] enable_signup` is
+the provider switch), found when CI ran real Supabase sign-in. CI: 32/32 on a real Supabase with
+Realtime, live updates arriving over Realtime.
 
 **Found on the live project:** its Realtime message storage has no partitions yet, so live signals
 are dropped until Realtime is first used by a connected app (Supabase creates them then). Screens
 still update through the 5-second check meanwhile. Check the dot says **Live** after the first
 deployment (docs/DEPLOYMENT.md).
+
+## Phase 12 record
+
+**Objective:** everything ready for the owner to deploy on Vercel, with a security review.
+
+**Built:** migration `hardening` (no browser rights on ID counters; new tables, views, and counters
+closed to browsers by default; Supabase's `rls_auto_enable()` no longer browser-callable), with a
+database test that fails any pull request leaving something in `public` open to browsers. Content
+Security Policy and HSTS (on Vercel) through a tested module; Zod switched to jitless mode so the
+browser never needs `eval`; a browser test fails if any page breaks the policy. Node 22.x for
+Vercel. Step-by-step deployment guide (docs/DEPLOYMENT.md) and security review (docs/SECURITY.md).
+
+**Checked on the live project:** every table has RLS; browsers have no rights on any table, view,
+or function in `public`; every function's search path is fixed; Supabase advisors clean apart from
+the intended "RLS enabled, no policy" notes.
+
+**For the owner to decide:** Vercel's free (Hobby) plan is for non-commercial use, so a restaurant
+likely needs Pro. Supabase Free pauses after a week without use and has no daily backups. Nothing
+was bought or switched on.
+
+**Still open:** printer model and paper width (setting `RECEIPT_PAPER_WIDTH_MM`, 80 by default);
+first live check of Realtime after deployment; custom domain later.
+

@@ -53,7 +53,7 @@ src/
                           waiter/[number]/tables/[code]: a waiter's tables, then one table
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets, billing, printing, sync now;
+  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets, billing, printing, sync;
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)
@@ -141,3 +141,12 @@ The browser never receives restaurant data from the database directly. Instead:
    during a page load causes one extra refresh, never a missed one.
 4. Things that must not be interrupted hold refreshes (`features/sync/hold.ts`): the print
    question. The ticket editor keeps unsaved changes and shows a warning instead of overwriting them.
+
+## Security headers
+
+`next.config.ts` sends the headers from `src/config/security-headers.ts` on every response: a
+Content Security Policy (only the app and its Supabase project; inline scripts and styles allowed
+because Next.js needs them; no `eval` except in development), no framing, `nosniff`, same-origin
+referrer, a restrictive permissions policy, and HSTS on Vercel. Zod runs in jitless mode
+(`src/lib/zod-config.ts`) so validation never needs `eval` in the browser.
+

@@ -308,6 +308,23 @@ empty tables in the Waiter Section had faded text below the contrast minimum.
 **Local results:** 32 of 32, twice in a row on the same database (the tests can be re-run). Local
 runs here use the 5-second fallback (no Realtime in this workspace); CI checks the live path.
 
+## Phase 12 tests (5 new unit tests, 7 new database checks, 1 new browser test)
+
+- **Unit** (`src/config/security-headers.test.ts`): the page may talk only to itself and the
+  Supabase project (HTTPS + secure websocket on Vercel, plain websocket locally); no framing, no
+  plugins; `eval` only in development; HSTS only on Vercel; no key ever in a header.
+- **Database (`hardening.test.sql`):** every table has RLS; browsers can't read or change any table
+  or view, use any ID counter, or run any function in `public`; the only thing a signed-in browser
+  may run is the "am I an active administrator?" check; tables and counters added later are closed
+  to browsers by default.
+- **Browser** (`devices.spec.ts`): no page breaks the Content Security Policy (this found Zod's
+  `eval` probe, now switched off).
+- Build without any keys succeeds and the app then refuses pages (so keyless preview deployments
+  can't touch live data).
+
+**Results:** 242 unit tests, 267 database checks, 4 race tests, 33 browser tests locally; all three
+CI jobs green on the pull request (real Supabase with Realtime).
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,

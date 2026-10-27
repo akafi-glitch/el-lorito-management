@@ -80,4 +80,7 @@ X(1), X(2), P, and Party.
 Decided Oct 27: chile con queso $5.19; lunch items are served all day and cost $1.00 more from
 3:00 PM; cheese-dip add-ons are ordinary menu items.
 
-Still open: tax rounding approval, waiter name on ticket, printer model.
+Decided Oct 27: tax rounding approved (each group's tax rounded once, half-cent up); the ticket
+shows the waiter's number only.
+
+Still open: printer model and paper width (`RECEIPT_PAPER_WIDTH_MM`, 80 mm by default).

@@ -158,6 +158,15 @@ Topics: floor = visits, visit tables, sections, tables, rotation, combinations; 
 assignments, employees; menu = items, categories, tax rates; tickets = tickets and their lines.
 A failed signal never blocks a change (the version still moves, so screens catch up).
 
+### Hardening (Phase 12, `20261027120000_hardening.sql`)
+
+- Browser roles (`anon`, `authenticated`) lose all rights on every ID counter (sequence) in `public`.
+- Default privileges: tables, views, counters, and functions created later in `public` start with
+  no browser rights, so a future migration can't open something by accident.
+- Supabase's helper `rls_auto_enable()` (if present) can no longer be run by browsers.
+- `hardening.test.sql` fails any change that leaves a table without RLS, or any table, view,
+  counter, or function in `public` usable by a browser.
+
 ## Testing
 
 `supabase/tests/*.test.sql` (pgTAP) runs with `npm run test:db` locally and in GitHub Actions on
