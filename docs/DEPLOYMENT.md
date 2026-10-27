@@ -31,7 +31,7 @@ The app refuses to start pages if a value is missing, if the keys are swapped, o
 | `20261027030000_app_users` | Applied Oct 26, 2026, after pull request #1 was merged |
 | `20261027040000_floor_layout` | Applied Oct 26, 2026, after pull request #2 was merged |
 | `20261027050000_seating` | Applied Oct 26, 2026, after pull request #3 was merged |
-| `20261027060000_staff` | Not yet: applied after pull request #4 is approved |
+| `20261027060000_staff` | Applied Oct 27, 2026, after pull request #4 was merged |
 
 Migrations are applied to the live project only after their pull request is approved and merged.
 The live migration history uses the same version numbers as these files, so `supabase db push`

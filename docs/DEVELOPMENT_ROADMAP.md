@@ -9,9 +9,9 @@ and the production build, and updates these docs.
 | 1 | App shell, navigation, administrator sign-in | Done (pull request #1) |
 | 2 | Floor map from the database (sections, tables, combinations, capacities as data) | Done (pull request #2) |
 | 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | Done (pull request #3) |
-| 4 | Employees, shifts, section and runner assignments, administrator accounts page | **Done, awaiting approval** |
-| 5 | Waiter number entry, assigned tables, other-section warning | Next |
-| 6 | Menu from the database (206 items imported), search, categories | |
+| 4 | Employees, shifts, section and runner assignments, administrator accounts page | Done (pull request #4) |
+| 5 | Waiter number entry, assigned tables, other-section warning | **Done, awaiting approval** |
+| 6 | Menu from the database (206 items imported), search, categories | Next |
 | 7 | Tickets saved, editable until printed | |
 | 8 | Tax and ticket totals | |
 | 9 | Thermal printing (browser print), reprint | |
@@ -80,3 +80,28 @@ and chips runner.
 the Bar has no assigned waiter.
 
 **Not in this phase:** the Waiter Section using these assignments (Phase 5).
+
+## Phase 5 record
+
+**Objective:** a waiter identifies themselves and picks a table.
+
+**Built:** the Waiter Section. A number pad (also accepts a keyboard) looks up the employee; "1"
+finds "01". Unknown and turned-off numbers are refused in plain words. The waiter sees their own
+sections' tables first, then the Bar, then the other sections folded away. Tiles show the table
+color, guest count, and joined tables. Choosing a table shows the waiter and the table; the menu,
+tickets, and printing arrive in Phases 6–9. No database changes in this phase.
+
+**Decisions applied:** any waiter can bill the Bar with no warning; another waiter's table asks
+"This table is assigned to Musfika (02). Do you want to continue?" and the waiter may continue.
+
+**Choices made where the requirements were silent (easy to change):**
+- Only a table with seated guests can be opened, because tickets belong to a customer visit and
+  visits start on the Floor. An empty table says "Seat them on the Floor first."
+- A table in a section with no waiter also asks first ("This table is in section C, which isn't
+  assigned to you").
+- Any active employee number opens the Waiter Section, including chips runners and managers
+  ("everyone can access everything for now").
+- A typed link to another section's table still asks before opening.
+
+**Not in this phase:** the screen updates when assignments change after **Refresh**; automatic
+live updates come in Phase 10.

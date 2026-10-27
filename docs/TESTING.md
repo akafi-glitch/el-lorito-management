@@ -111,6 +111,24 @@ it off (can't sign in), turn it on (old password refused, new one works); you ca
 new shift asks first and clears assignments; history recorded; no page errors. Phase 1–3 walkthroughs
 re-run and still pass.
 
+## Phase 5 tests (19 new unit tests, no database changes)
+
+- **Unit** (`src/features/waiter/waiter.test.ts`, on the real floor layout): lookup accepts active
+  staff and refuses unknown and turned-off numbers; typed numbers are digits only, at most six;
+  Kafi on X(1) sees X1, X2, X3, X9, X10, X11, X12, then the Bar, then the rest; a waiter on two
+  sections sees both; an unassigned waiter sees everything; moving Kafi to B moves his tables; the
+  warning uses the owner's exact words; no warning for your own table or the Bar; a section with no
+  waiter is named; empty tables can't be opened; links and table codes are checked.
+
+**Browser walkthrough** on real PostgREST and the database functions: 30 of 30 steps passed.
+Number pad and keyboard entry; unknown, turned-off, and malformed numbers refused; "1" opens
+Kafi (01) with X(1) first; guest counts on tiles; empty table refused with a reason; own table and
+Bar open with no warning; Musfika's B3 asks with the exact warning, Cancel stays, Continue opens
+and notes it; a typed link asks too; section C (nobody assigned) warns by section; moving Kafi to B
+shows after Refresh and B3 then opens directly; an unassigned waiter is told so and sees every
+section; Done returns Home; browsing writes nothing; phone layout has no sideways scroll; no page
+errors.
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,
