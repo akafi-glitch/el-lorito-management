@@ -18,6 +18,7 @@ export function testEnv() {
   return {
     url,
     secretKey: required("SUPABASE_SECRET_KEY"),
+    publishableKey: required("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY"),
     username: process.env.E2E_USERNAME ?? "e2e-admin",
     password: process.env.E2E_PASSWORD ?? "e2e-correct-horse-42",
     /** Set where Supabase Realtime runs (CI): the live connection itself is then tested. */
