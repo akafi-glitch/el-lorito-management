@@ -1,6 +1,8 @@
 /**
  * Runs after `next build`. Fails the build if anything that reaches a browser contains a
- * Supabase secret key: the `sb_secret_` prefix, or the actual SUPABASE_SECRET_KEY value.
+ * Supabase secret key: anything shaped like one (`sb_secret_` followed by key characters), or the
+ * actual SUPABASE_SECRET_KEY value. The bare words "sb_secret_" may appear in code that checks
+ * key types (ours and supabase-js's); a real key never may.
  * Checks browser JavaScript (.next/static) and pre-rendered HTML (.next/server/app).
  */
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
@@ -33,8 +35,10 @@ if (!existsSync(".next/static")) {
 }
 
 const secret = loadSecretFromEnvFile();
-const needles = ["sb_secret_"];
+const needles = [];
 if (secret && !secret.includes("replace_me") && secret.length >= 12) needles.push(secret);
+/** sb_secret_ plus at least 16 key characters: a key, not a prefix check in code. */
+const keyShape = /sb_secret_[A-Za-z0-9_-]{16,}/;
 
 const leaks = [];
 let scanned = 0;
@@ -44,7 +48,7 @@ for (const root of roots) {
     if (!browserFile.test(file)) continue;
     scanned += 1;
     const content = readFileSync(file, "utf8");
-    if (needles.some((needle) => content.includes(needle))) leaks.push(file);
+    if (keyShape.test(content) || needles.some((needle) => content.includes(needle))) leaks.push(file);
   }
 }
 

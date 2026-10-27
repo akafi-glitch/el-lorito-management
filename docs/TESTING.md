@@ -220,6 +220,30 @@ walkthroughs re-run and still pass.
 **Still to check on the real printer** (model not chosen yet): the paper width, that the browser's
 print dialog sends one receipt-length strip, and the cut.
 
+## Phase 10 tests (17 new unit tests, 23 new database checks)
+
+- **Unit** (`src/features/sync/sync.test.ts`): one refresh per change from another device; several
+  changes close together become one refresh; other topics, old versions, and junk ignored; no
+  second refresh for a change already on screen; polling every 5 seconds only while the live
+  connection is down; catching up after reconnecting; working with no live connection at all;
+  offline shown and recovered; checking on focus; waiting while held (print question) then
+  refreshing once; stopping cleanly; holds counted.
+- **Database (`live_sync.test.sql`):** each topic's version moves with its changes (seating,
+  chips, sections; employees, shifts, assignments; prices; tickets, printing) and not with others;
+  the signal goes privately to `restaurant` with only topic and version; a refused change sends
+  nothing; a failing Realtime never blocks a change and the version still moves; only active
+  accounts may listen; browsers can't read versions or send signals.
+
+**Two-device walkthrough** (`sync-flow`, local fallback path; this workspace has no Realtime
+service): 18 of 18 steps passed. Seating by another device shows within a second; chips served on
+one floor turns the table red on the other; a reassignment reaches the waiter's screen; a price
+change and an item turned off reach the waiter's menu; a ticket saved elsewhere appears; an open
+ticket follows another device's save; with unsaved changes the waiter is warned and can show the
+other version; the print question stays put while changes arrive; Management's menu follows
+(search kept); offline shown, and the change made meanwhile appears when back online; no page
+errors. Phase 1–9 walkthroughs re-run and pass (they now ignore the local stand-in's refused
+Realtime connection; the stand-in has no Realtime service).
+
 ## Not verified in Phase 1
 
 - A real Supabase Auth server: the build environment could not download Supabase's Docker images,

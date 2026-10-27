@@ -36,7 +36,8 @@ The app refuses to start pages if a value is missing, if the keys are swapped, o
 | `20261027070000_menu` | Applied Oct 27, 2026, when pull request #6 was merged |
 | `20261027080000_tickets` | Applied Oct 27, 2026, when pull request #7 was merged |
 | `20261027090000_ticket_totals` | Applied Oct 27, 2026, when pull request #8 was merged |
-| `20261027100000_printing` | Not yet: applied when pull request #9 is merged |
+| `20261027100000_printing` | Applied Oct 27, 2026, when pull request #9 was merged |
+| `20261027110000_live_sync` | Not yet: applied when pull request #10 is merged |
 
 **Merging applies migrations.** Since the staff migration, Supabase applies a migration to the
 live project by itself as soon as its pull request is merged into `main` (Supabase's GitHub
@@ -49,6 +50,17 @@ Alex 2, Sofia 3, Ali 4, Maria 5, Lalo 6, Elizabeth 7, Cin 8, Abdullah 9, Isa 10,
 Chuy 13, Ashley 17, Deirha 18, Alvaro 20. Change anyone's role on Management → Employees.
 The live migration history uses the same version numbers as these files, so `supabase db push`
 only sends what's missing. A separate free test project is recommended before opening day.
+
+## Live updates (Supabase Realtime)
+
+- The app uses Realtime **broadcast** on one **private** channel, `restaurant`. The migration adds
+  the database policy that lets only active administrator accounts listen. No dashboard change is
+  needed for it to work.
+- Recommended: in the Supabase dashboard's Realtime settings, turn off public channel access so
+  only private channels are allowed.
+- **First-deployment check:** open the Floor on two devices; the dot under the title should say
+  **Live**, and seating a table on one should show on the other within about a second. If it says
+  "Reconnecting", the screens still update (every 5 seconds) and Realtime needs a look.
 
 ## Supabase cloud setup (when you're ready)
 

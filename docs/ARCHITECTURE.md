@@ -53,7 +53,7 @@ src/
                           waiter/[number]/tables/[code]: a waiter's tables, then one table
     sign-in/              public sign-in page
     api/health/           public health check
-  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets, billing, printing now;
+  features/<module>/      one folder per module (auth, floor, seating, staff, waiter, menu, tickets, billing, printing, sync now;
                           orders, billing, printing later)
     actions.ts            Server Actions
     queries.ts            server-only reads (floor: loadFloorMap)
@@ -126,3 +126,18 @@ database (locking the ticket and freezing its totals the first time), the receip
 what the database stored, then `window.print()` opens the dialog, then the waiter answers "Did it
 print?". The print actions don't refresh the page, so the question stays on screen; the page
 refreshes when the waiter is done.
+
+## Live updates
+
+The browser never receives restaurant data from the database directly. Instead:
+
+1. Every change raises a version for its topic (`floor`, `staff`, `menu`, `tickets`) and the
+   database sends a tiny private Realtime signal: "floor changed, version 42".
+2. Each page reads the versions **before** its data and hands them to `LiveSync`
+   (`features/sync`). A signal newer than what the page shows makes the page call
+   `router.refresh()`, which re-runs the server code that loads its data.
+3. If the live connection is down, `LiveSync` asks `/api/changes` every 5 seconds (and on
+   reconnect, focus, or back online), so nothing is missed. Reading versions first means a change
+   during a page load causes one extra refresh, never a missed one.
+4. Things that must not be interrupted hold refreshes (`features/sync/hold.ts`): the print
+   question. The ticket editor keeps unsaved changes and shows a warning instead of overwriting them.

@@ -144,6 +144,20 @@ ticket happen one after the other, never half-and-half.
 | `reprint_ticket(ticket, employee, actor)` | Records the next attempt for a printed ticket | `ticket_not_printed`, `employee_inactive` |
 | `record_print_outcome(attempt, printed?, employee, actor)` | Stores the waiter's answer once | `outcome_already_recorded`, `invalid_outcome` |
 
+### Live updates (Phase 10, `20261027110000_live_sync.sql`)
+
+| Object | Does |
+| --- | --- |
+| `sync_versions` | One row per topic (`floor`, `staff`, `menu`, `tickets`) with a version that only goes up |
+| `note_change()` (statement triggers) | On any change to that topic's tables, raises the version in the same transaction and sends the signal |
+| `send_live_signal(topic, version)` | Supabase Realtime broadcast on the private channel `restaurant`: event = topic, payload = `{topic, version}` only |
+| `private.is_active_staff()` | True when the signed-in account is an active administrator (answers only for the caller) |
+| Policy on `realtime.messages` | Signed-in active administrators may receive `restaurant` broadcasts; nobody may send from a browser |
+
+Topics: floor = visits, visit tables, sections, tables, rotation, combinations; staff = shifts,
+assignments, employees; menu = items, categories, tax rates; tickets = tickets and their lines.
+A failed signal never blocks a change (the version still moves, so screens catch up).
+
 ## Testing
 
 `supabase/tests/*.test.sql` (pgTAP) runs with `npm run test:db` locally and in GitHub Actions on

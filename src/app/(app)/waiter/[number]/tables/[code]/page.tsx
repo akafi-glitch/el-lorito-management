@@ -5,6 +5,7 @@ import { SectionShell } from "@/components/section-shell";
 import { buttonClasses } from "@/components/ui/button";
 import { allTables } from "@/features/floor/layout";
 import { loadTaxSetup } from "@/features/billing/queries";
+import { loadVersions } from "@/features/sync/queries";
 import { ReprintButton } from "@/features/printing/components/reprint-button";
 import { STATUS_LABEL } from "@/features/floor/status";
 import { loadMenu } from "@/features/menu/queries";
@@ -32,8 +33,14 @@ type Props = {
 export default async function WaiterTablePage({ params, searchParams }: Props) {
   const [{ number, code }, query] = await Promise.all([params, searchParams]);
   const result = await resolveWaiter(number);
+  // Versions before the data (see floor/page.tsx), so this screen follows changes from other devices.
+  const versions = result.ok ? await loadVersions() : null;
   const shell = (title: string, children: React.ReactNode) => (
-    <SectionShell title={title} description="Waiter Section">
+    <SectionShell
+      title={title}
+      description="Waiter Section"
+      live={versions ? { watch: ["floor", "staff", "menu", "tickets"], versions } : undefined}
+    >
       {children}
     </SectionShell>
   );

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 
 import { buttonClasses } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
+import { holdRefresh } from "@/features/sync/hold";
 
 import { printTicketAction, recordPrintOutcomeAction, reprintTicketAction, type PrintResult } from "../actions";
 import type { ReceiptData } from "../receipt";
@@ -45,6 +46,13 @@ export function PrintFlow({ employeeNumber, paperWidthMm, mode, label, disabled,
   const router = useRouter();
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
   const [answering, setAnswering] = useState(false);
+
+  // Live updates wait while printing is in progress, so the question can't be swapped away.
+  const busyPrinting = phase.name !== "idle";
+  useEffect(() => {
+    if (!busyPrinting) return;
+    return holdRefresh();
+  }, [busyPrinting]);
 
   // Once the receipt is on the page, open the print dialog (it blocks until closed), then ask.
   useEffect(() => {

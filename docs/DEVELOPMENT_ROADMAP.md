@@ -14,9 +14,9 @@ and the production build, and updates these docs.
 | 6 | Menu from the database (206 items imported), search, categories | Done (pull request #6) |
 | 7 | Tickets saved, editable until printed | Done (pull request #7) |
 | 8 | Tax and ticket totals | Done (pull request #8) |
-| 9 | Thermal printing (browser print), reprint | **Done, awaiting approval** |
-| 10 | Live sync across devices, conflict handling | Next |
-| 11 | End-to-end tests and fixes | |
+| 9 | Thermal printing (browser print), reprint | Done (pull request #9) |
+| 10 | Live sync across devices, conflict handling | **Done, awaiting approval** |
+| 11 | End-to-end tests and fixes | Next |
 | 12 | Deployment and security review | |
 
 ## Phase 1 record
@@ -198,3 +198,28 @@ waiter's number only on the ticket (Oct 27, 2026); printing never clears the tab
 
 **Not in this phase:** a specific printer model or direct (silent) printing; that needs the printer
 details.
+
+## Phase 10 record
+
+**Objective:** every device shows the same restaurant, without reloading.
+
+**Built:** migration `live_sync` (a version per topic: floor, staff, menu, tickets; triggers that
+raise it on every change and send a private Supabase Realtime signal; a policy so only active
+administrator accounts can hear it). Each screen listens for the topics it shows and reloads its
+own data through the server when one changes; several changes close together become one reload.
+If the live connection drops, the screen checks `/api/changes` every 5 seconds, and once more
+after reconnecting, regaining focus, or coming back online. A status dot shows Live, Reconnecting,
+or Offline.
+
+**Conflict handling:** a ticket with unsaved changes is never overwritten by another device's save;
+the waiter sees "Someone else just saved a change to this ticket" and can **Show their version**.
+A ticket with no unsaved changes simply follows. The "Did it print?" question is never swept away
+by an update; updates wait until it's answered. Selections on the floor drop tables that were
+taken elsewhere (as before).
+
+**Also changed:** the build's secret scan now looks for a real key (prefix plus key characters,
+or the actual key value) instead of the bare prefix, because Supabase's Realtime code in the
+browser contains the prefix in a key-type check.
+
+**Not in this phase:** a Realtime test against the live project (this workspace can't reach
+supabase.co); check it on the first deployment (docs/DEPLOYMENT.md).
