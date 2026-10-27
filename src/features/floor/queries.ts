@@ -4,8 +4,9 @@ import { z } from "zod";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
-import { buildFloorMap, type FloorMap } from "./layout";
+import { buildFloorMap, type FloorMap, type SectionStaff } from "./layout";
 import {
+  assignmentLabelRowSchema,
   combinationRowSchema,
   floorAreaRowSchema,
   openVisitTableRowSchema,
@@ -17,12 +18,12 @@ import { visitsByTable } from "./visits";
 
 /**
  * Loads the floor for the signed-in floor screen: layout, who is seated where, and the rotation.
- * Server only. Six small reads run in parallel.
+ * Server only. Seven small reads run in parallel.
  */
 export async function loadFloorMap(): Promise<FloorMap> {
   const db = createAdminClient();
 
-  const [areas, sections, tables, combinations, openTables, rotation] = await Promise.all([
+  const [areas, sections, tables, combinations, openTables, rotation, assignments] = await Promise.all([
     db.from("floor_areas").select("code, name, floor_row, floor_col, row_span, col_span, sort_order"),
     db.from("sections").select("code, name, kind, rotation_order, is_open, open_to_all_waiters, sort_order"),
     db
@@ -36,9 +37,10 @@ export async function loadFloorMap(): Promise<FloorMap> {
       .select("table_id, visit_id, customer_visits!inner(id, version, guest_count, chips_status, cleared_at)")
       .is("released_at", null),
     db.from("rotation_state").select("next_section_code").maybeSingle(),
+    db.from("current_assignments").select("section_code, duty, full_name, employee_number"),
   ]);
 
-  for (const [name, result] of Object.entries({ areas, sections, tables, combinations, openTables, rotation })) {
+  for (const [name, result] of Object.entries({ areas, sections, tables, combinations, openTables, rotation, assignments })) {
     if (result.error) throw new Error(`Could not load the floor (${name}): ${result.error.message}`);
   }
 
@@ -53,6 +55,18 @@ export async function loadFloorMap(): Promise<FloorMap> {
     {
       visits: visitsByTable(z.array(openVisitTableRowSchema).parse(openTables.data), tableRows),
       nextSectionCode: rotation.data ? rotationRowSchema.parse(rotation.data).next_section_code : null,
+      staff: staffBySection(z.array(assignmentLabelRowSchema).parse(assignments.data)),
     },
   );
+}
+
+function staffBySection(rows: z.infer<typeof assignmentLabelRowSchema>[]): Record<string, SectionStaff> {
+  const staff: Record<string, SectionStaff> = {};
+  for (const row of rows) {
+    const entry = (staff[row.section_code] ??= { waiter: null, runner: null });
+    const label = `${row.full_name} (${row.employee_number})`;
+    if (row.duty === "waiter") entry.waiter = label;
+    else entry.runner = label;
+  }
+  return staff;
 }

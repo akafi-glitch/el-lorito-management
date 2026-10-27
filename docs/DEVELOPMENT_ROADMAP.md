@@ -8,9 +8,9 @@ and the production build, and updates these docs.
 | 0 | Architecture and database plan | Approved |
 | 1 | App shell, navigation, administrator sign-in | Done (pull request #1) |
 | 2 | Floor map from the database (sections, tables, combinations, capacities as data) | Done (pull request #2) |
-| 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | **Done, awaiting approval** |
-| 4 | Employees, shifts, section and runner assignments, administrator accounts page | Next |
-| 5 | Waiter number entry, assigned tables, other-section warning | |
+| 3 | Seating recommendations, manual and custom seating, chips, clearing, section open/close | Done (pull request #3) |
+| 4 | Employees, shifts, section and runner assignments, administrator accounts page | **Done, awaiting approval** |
+| 5 | Waiter number entry, assigned tables, other-section warning | Next |
 | 6 | Menu from the database (206 items imported), search, categories | |
 | 7 | Tickets saved, editable until printed | |
 | 8 | Tax and ticket totals | |
@@ -65,3 +65,18 @@ chips runner clears; anyone can join tables.
 **Not in this phase:** who is the waiter or chips runner (Phase 4); live updates on other screens
 without a refresh (Phase 10). Until then, another device's changes appear on the next action or reload,
 and the database still refuses every conflicting change.
+
+## Phase 4 record
+
+**Objective:** know who works where.
+
+**Built:** migration `staff` (roles, employees, shifts, assignments with history, current-assignments
+view, four database functions). Management now has three tabs: **Shift and sections** (start a shift,
+pick each section's waiter and chips runner), **Employees** (add, rename, change role, turn on/off),
+and **Sign-in accounts** (add, set new password, turn on/off). The floor shows each section's waiter
+and chips runner.
+
+**Decisions applied:** roles are waiter, chips runner, manager; Runner 2 covers X(1), X(2), P, Party;
+the Bar has no assigned waiter.
+
+**Not in this phase:** the Waiter Section using these assignments (Phase 5).
