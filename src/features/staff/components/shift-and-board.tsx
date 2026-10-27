@@ -110,7 +110,8 @@ export function ShiftAndBoard({ board }: { board: StaffBoard }) {
       {confirming ? (
         <Modal title="Start a new shift?" onClose={() => setConfirming(false)}>
           <p className="text-lg">
-            This ends the current shift and clears every assignment. Seated tables stay as they are.
+            This ends the current shift, clears every assignment, and starts the seating rotation again at
+            A. Seated tables stay as they are.
           </p>
           <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
             <button

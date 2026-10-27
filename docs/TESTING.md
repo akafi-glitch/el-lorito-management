@@ -15,7 +15,7 @@
 
 | # | Requirement | Unit | Database | Browser / race |
 | --- | --- | --- | --- | --- |
-| 1 | Section rotation | `recommend.test.ts` | `seating.test.sql` (rotation moves) | `floor.spec.ts` (suggestions) |
+| 1 | Section rotation | `recommend.test.ts` | `seating.test.sql` (rotation moves), `shift_rotation.test.sql` (new shift → A) | `floor.spec.ts` (suggestions), `live.spec.ts` (new shift → A on another device) |
 | 2 | Table availability | `recommend.test.ts` | `seating.test.sql` (`table_occupied`) | race 1; `floor.spec.ts` (taken on another device) |
 | 3 | Table-capacity matching | `recommend.test.ts` | `floor_layout.test.sql` (capacities) | |
 | 4 | Party seating priority | `recommend.test.ts` | | `floor.spec.ts` (14 guests → Party) |
@@ -131,6 +131,11 @@ checks re-run against the same database and still pass.
   X(1)); one waiter per section; runners can't wait and managers can do both; the Bar takes no
   waiter; Runner 2 covers X(1), X(2), P, Party; turning someone off ends their duty and blocks new
   ones; a role change ends duties that no longer fit; a new shift starts empty; browsers refused.
+- **Database (`shift_rotation.test.sql`):** a new shift puts the rotation back at A (and refreshes
+  the floor on every device only when it changed); the rotation moves as usual during the shift and
+  after the reset (Party doesn't move it, P wraps to A); tables seated in the old shift stay seated
+  with their chips status; no visits, seating history, tickets, shifts, assignments, or audit
+  events are deleted; the reset still points at A while A is closed; browsers can't start a shift.
 
 **Browser walkthrough** on real PostgREST and the database functions, with a stand-in for
 Supabase Auth's sign-in and admin API: 23 of 23 steps passed. Start shift; add five employees;

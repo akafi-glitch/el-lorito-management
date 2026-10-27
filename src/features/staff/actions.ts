@@ -44,7 +44,7 @@ export async function startShiftAction(): Promise<ActionResult> {
   const { error } = await createAdminClient().rpc("start_shift", { p_actor: user.userId });
   if (error) return { ok: false, message: staffErrorMessage(error) };
   refreshStaffPages();
-  return { ok: true, message: "New shift started. Assign waiters and chips runners." };
+  return { ok: true, message: "New shift started. The rotation starts at A. Assign waiters and chips runners." };
 }
 
 export async function assignDutyAction(input: AssignDutyInput): Promise<ActionResult> {
