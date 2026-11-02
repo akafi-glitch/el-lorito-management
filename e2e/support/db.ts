@@ -144,6 +144,26 @@ export async function openTicketsAt(tableCode: string) {
   return data;
 }
 
+/** The customer receipt of an open ticket, confirmed printed. */
+export async function finalizeTicket(ticketId: number, employeeId: number) {
+  const { data, error } = await db().from("tickets").select("version").eq("id", ticketId).single();
+  if (error) throw error;
+  const rows = await rpc<{ attempt_id: number }[]>("request_customer_receipt", {
+    p_ticket_id: ticketId,
+    p_expected_version: data.version,
+    p_employee_id: employeeId,
+    p_client_key: crypto.randomUUID(),
+    p_actor: null,
+  });
+  await rpc("record_print_outcome", { p_attempt_id: rows[0]!.attempt_id, p_printed: true, p_employee_id: employeeId, p_actor: null });
+}
+
+export async function cancelTicket(ticketId: number, employeeId: number) {
+  const { data, error } = await db().from("tickets").select("version").eq("id", ticketId).single();
+  if (error) throw error;
+  await rpc("cancel_order", { p_ticket_id: ticketId, p_expected_version: data.version, p_employee_id: employeeId, p_actor: null });
+}
+
 /** Cancels whatever earlier runs left open at these tables, so each starts with a fresh order. */
 export async function cancelOpenOrders(codes: string[]) {
   const staff = await employee("99", "Test cleanup", "waiter");

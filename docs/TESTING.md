@@ -57,11 +57,12 @@ database and runs every database test against it.
 | Kitchen receipt contents, large and bold, never prices; doesn't finalize; new orders only; no duplicates | `printing.test.ts` | `order_batches.test.sql` | `tickets.spec.ts`; races 5, 6, 9 |
 | Customer receipt: all orders, same ticket number, taxes, paper width | `printing.test.ts`, `tax.test.ts` | `order_batches.test.sql` | `tickets.spec.ts` |
 | Finalizing, failed or cancelled printing, reprints, nothing can change | | `order_batches.test.sql`, `tickets.test.sql` | `tickets.spec.ts`; races 7, 8 |
+| Shift Report: only sold tickets, right total, open tickets named apart, prints numbers and totals only | `history.test.ts` | | `shift-report.spec.ts` |
 | History: filters, sort, totals with tax, unchanged by menu prices | `history.test.ts` | `order_batches.test.sql` | `history.spec.ts` |
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 2, 2026:** 302 unit tests, 471 database checks, 10 race tests, 61 browser tests.
+**Results, Nov 2, 2026:** 307 unit tests, 471 database checks, 10 race tests, 65 browser tests.
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for

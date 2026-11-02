@@ -7,12 +7,12 @@ import { formatCents } from "@/features/menu/money";
 
 import { printableWidthMm, receiptAmount, type KitchenReceiptData, type ReceiptData } from "../receipt";
 
-function paperStyle(paperWidthMm: 58 | 80) {
+export function paperStyle(paperWidthMm: 58 | 80) {
   const width = printableWidthMm(paperWidthMm);
   return { width: `${paperWidthMm}mm`, padding: `2mm ${(paperWidthMm - width) / 2}mm 6mm` };
 }
 
-function PageRule({ paperWidthMm }: { paperWidthMm: 58 | 80 }) {
+export function PageRule({ paperWidthMm }: { paperWidthMm: 58 | 80 }) {
   return <style>{`@media print { @page { size: ${paperWidthMm}mm auto; margin: 0; } }`}</style>;
 }
 
@@ -30,25 +30,25 @@ export function Receipt({ receipt, paperWidthMm, isCopy }: { receipt: ReceiptDat
         {isCopy ? <div>COPY</div> : null}
       </div>
       <hr />
-      <Row left={`TICKET #${receipt.ticketNumber}`} right="" />
-      <Row left={`WAITER: ${receipt.waiterNumber}`} right="" />
-      <Row left={`TABLE: ${receipt.tables}`} right="" />
-      <Row left={`TIME: ${receipt.printedAt}`} right="" />
+      <ReceiptRow left={`TICKET #${receipt.ticketNumber}`} right="" />
+      <ReceiptRow left={`WAITER: ${receipt.waiterNumber}`} right="" />
+      <ReceiptRow left={`TABLE: ${receipt.tables}`} right="" />
+      <ReceiptRow left={`TIME: ${receipt.printedAt}`} right="" />
       <hr />
       {receipt.lines.map((line, index) => (
         <div key={index} className="receipt-line">
-          <Row left={`${line.quantity} × ${line.name}`} right={formatCents(line.totalCents)} />
+          <ReceiptRow left={`${line.quantity} × ${line.name}`} right={formatCents(line.totalCents)} />
           <div className="receipt-each">@ {receiptAmount(line.unitCents)} each</div>
         </div>
       ))}
       <hr />
-      <Row left="Food Subtotal" right={formatCents(receipt.totals.foodSubtotalCents)} />
-      <Row left="Liquor Subtotal" right={formatCents(receipt.totals.liquorSubtotalCents)} />
-      <Row left={`Food Tax (${formatRate(receipt.totals.rates.food)})`} right={formatCents(receipt.totals.foodTaxCents)} />
-      <Row left={`Liquor Tax (${formatRate(receipt.totals.rates.liquor)})`} right={formatCents(receipt.totals.liquorTaxCents)} />
+      <ReceiptRow left="Food Subtotal" right={formatCents(receipt.totals.foodSubtotalCents)} />
+      <ReceiptRow left="Liquor Subtotal" right={formatCents(receipt.totals.liquorSubtotalCents)} />
+      <ReceiptRow left={`Food Tax (${formatRate(receipt.totals.rates.food)})`} right={formatCents(receipt.totals.foodTaxCents)} />
+      <ReceiptRow left={`Liquor Tax (${formatRate(receipt.totals.rates.liquor)})`} right={formatCents(receipt.totals.liquorTaxCents)} />
       <hr />
       <div className="receipt-total">
-        <Row left="TOTAL" right={formatCents(receipt.totals.totalCents)} />
+        <ReceiptRow left="TOTAL" right={formatCents(receipt.totals.totalCents)} />
       </div>
       <hr />
       <div className="receipt-center receipt-thanks">THANK YOU!</div>
@@ -93,7 +93,7 @@ export function KitchenReceipts({ receipts, paperWidthMm }: { receipts: readonly
   );
 }
 
-function Row({ left, right }: { left: string; right: string }) {
+export function ReceiptRow({ left, right }: { left: string; right: string }) {
   return (
     <div className="receipt-row">
       <span>{left}</span>

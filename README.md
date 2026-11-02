@@ -18,7 +18,7 @@ Hosted on Vercel.
   the rotation and party size, seats by tap (including joined tables), marks chips served with one tap
   (with Undo), asks "Is the table cleaned?" to clear, and opens or closes sections.
 - **Management**: start shifts and set each shift's seating rotation, assign each section's waiter and
-  chips runner, manage employees and sign-in accounts. The floor shows who works each section.
+  chips runner, manage employees and sign-in accounts, and read or print a Shift Report of what a shift took. The floor shows who works each section.
 - **Waiter Section**: a waiter types their employee number on a big number pad, chooses any section, and taps a
   table in its list to go straight to the order page. Built for phones and tablets. It is separate from the Floor:
   it never asks whether a table is vacant or how many guests there are. A printed customer receipt resets the table.
