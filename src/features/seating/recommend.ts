@@ -3,8 +3,8 @@ import type { FloorCombination, FloorTable, SectionInfo } from "@/features/floor
 /**
  * Seating suggestions (owner rules, Oct 26, 2026). Pure code: same input, same answer, easy to test.
  *
- * 6 or fewer guests: follow the rotation (A, C, B, X(1), X(2), P) from the next section, skipping
- *   closed sections. In each section, the smallest free table that fits. One suggestion per section,
+ * 6 or fewer guests: follow this shift's rotation (the order the manager set) from the next section,
+ *   skipping closed sections. In each section, the smallest free table that fits. One suggestion per section,
  *   so the first suggestion follows the rotation and the others are the next sections' best tables.
  * 7 or more guests: Party areas first (capacity not confirmed: shown with a reminder to check), then
  *   approved combinations whose tables are all free and whose chairs fit. Over 12 guests, only
@@ -35,6 +35,8 @@ export type SeatingInput = {
   sections: readonly SectionInfo[];
   combinations: readonly FloorCombination[];
   nextSectionCode: string | null;
+  /** This shift's rotation: section codes in the order the manager set. */
+  rotation: readonly string[];
 };
 
 export type SeatingAdvice = { options: SeatingOption[]; message: string | null };
@@ -51,18 +53,16 @@ export function isFree(table: FloorTable): boolean {
   return table.visit === null && table.section.isOpen;
 }
 
-/** Dining sections in rotation order, starting at the next section, wrapping, open ones only. */
-export function rotationFrom(sections: readonly SectionInfo[], nextSectionCode: string | null): SectionInfo[] {
-  const rotation = sections
-    .filter((section) => section.rotationOrder !== null)
-    .sort((a, b) => (a.rotationOrder ?? 0) - (b.rotationOrder ?? 0));
+/** Sections in this shift's order, starting at the next section, wrapping, open ones only. */
+export function rotationFrom(sections: readonly SectionInfo[], order: readonly string[], nextSectionCode: string | null): SectionInfo[] {
+  const rotation = order.map((code) => sections.find((section) => section.code === code)).filter((section) => section !== undefined);
   const start = Math.max(0, rotation.findIndex((section) => section.code === nextSectionCode));
   return [...rotation.slice(start), ...rotation.slice(0, start)].filter((section) => section.isOpen);
 }
 
 function smallParty(input: SeatingInput, limit: number): SeatingOption[] {
   const options: SeatingOption[] = [];
-  for (const section of rotationFrom(input.sections, input.nextSectionCode)) {
+  for (const section of rotationFrom(input.sections, input.rotation, input.nextSectionCode)) {
     const best = input.tables
       .filter((table) => table.section.code === section.code && isFree(table))
       .filter((table) => table.capacity !== null && table.capacity >= input.guestCount)

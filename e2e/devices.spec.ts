@@ -1,10 +1,10 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-import { employee, seat } from "./support/db";
+import { employee, saveOrder, seat } from "./support/db";
 
 /** Every working screen on a phone, a tablet, and a computer: nothing runs off the side. */
-const PAGES = ["/", "/floor", "/waiter", "/waiter/01", "/waiter/01/tables/P5?continue=1", "/manage", "/manage/employees", "/manage/menu", "/manage/accounts"];
+const PAGES = ["/", "/floor", "/waiter", "/waiter/01", "/waiter/01/tables/P5", "/manage", "/manage/employees", "/manage/menu", "/manage/history", "/manage/accounts"];
 const SIZES = [
   { name: "phone", width: 390, height: 844 },
   { name: "tablet", width: 820, height: 1180 },
@@ -12,8 +12,8 @@ const SIZES = [
 ];
 
 test.beforeAll(async () => {
-  await employee("01", "Kafi", "waiter");
-  await seat(["P5"], 2);
+  const kafi = await employee("01", "Kafi", "waiter");
+  await saveOrder(await seat(["P5"], 2), kafi, [["Taco", 2], ["Domestic beer", 1]], "No onions");
 });
 
 for (const size of SIZES) {
@@ -30,8 +30,9 @@ for (const size of SIZES) {
 
 test("tap targets on the floor and the menu are at least 44 px", async ({ page }) => {
   await page.setViewportSize({ width: 820, height: 1180 });
-  for (const path of ["/floor", "/waiter/01/tables/P5?continue=1"]) {
+  for (const path of ["/floor", "/waiter/01", "/waiter/01/tables/P5"]) {
     await page.goto(path);
+    await page.waitForLoadState("networkidle").catch(() => {});
     const small = await page.$$eval("main button, main a", (elements) =>
       elements
         .filter((el) => {

@@ -7,6 +7,7 @@ const TABS = [
   { href: "/manage", label: "Shift and sections" },
   { href: "/manage/employees", label: "Employees" },
   { href: "/manage/menu", label: "Menu" },
+  { href: "/manage/history", label: "Order History" },
   { href: "/manage/accounts", label: "Sign-in accounts" },
 ] as const;
 
@@ -15,7 +16,7 @@ export function ManageTabs() {
   return (
     <nav aria-label="Management" className="flex flex-wrap gap-2 border-b border-glaze pb-4">
       {TABS.map((tab) => {
-        const current = pathname === tab.href;
+        const current = pathname === tab.href || (tab.href === "/manage/history" && pathname.startsWith("/manage/history/"));
         return (
           <Link
             key={tab.href}

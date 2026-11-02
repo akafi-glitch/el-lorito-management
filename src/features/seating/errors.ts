@@ -47,11 +47,24 @@ export function seatingErrorMessage(error: DbError): string {
   }
 }
 
+/** Undo says exactly why nothing changed: it must never look as if it had overwritten someone. */
+export function undoErrorMessage(error: DbError): string {
+  switch (error.message) {
+    case "stale_visit":
+    case "chips_not_served":
+      return "This table was changed on another device, so nothing was undone. The floor has been refreshed.";
+    case "visit_closed":
+      return "This table was already cleared, so nothing was undone.";
+    default:
+      return seatingErrorMessage(error);
+  }
+}
+
 /** Errors after which the screen is out of date and should reload the floor. */
 export function shouldRefresh(error: DbError): boolean {
   return (
     error.code === "23505" ||
-    ["table_occupied", "section_closed", "stale_visit", "visit_closed", "visit_not_found", "chips_already_served"].includes(
+    ["table_occupied", "section_closed", "stale_visit", "visit_closed", "visit_not_found", "chips_already_served", "chips_not_served"].includes(
       error.message ?? "",
     )
   );

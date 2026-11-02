@@ -6,7 +6,8 @@ import fixture from "../../../tests/fixtures/menu-rows.json";
 import { buildMenu } from "./build";
 import { menuErrorMessage } from "./errors";
 import { formatCents, lineTotalCents, parseDollars } from "./money";
-import { addItem, priceDraft, quantityOf, removeItem, setQuantity, type Draft } from "./order-draft";
+import { parseCustomItem } from "./custom-item";
+import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setQuantity, type Draft } from "./order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate, parseTimeOfDay, restaurantMinutes } from "./pricing";
 import { menuCategoryRowSchema, menuItemRowSchema, updateMenuItemSchema } from "./schema";
 import { normalizeText, searchMenu } from "./search";
@@ -229,5 +230,53 @@ describe("messages", () => {
     expect(menuErrorMessage({ message: "menu_item_not_found" })).toContain("no longer exists");
     expect(menuErrorMessage({ code: "23514", message: "x" })).toContain("isn't allowed");
     expect(menuErrorMessage({ message: "boom" })).toContain("couldn't be saved");
+  });
+});
+
+describe("custom items", () => {
+  const good = { name: " Birthday flan ", price: "4.50", quantity: "2", taxCategory: "food" };
+
+  it("read a name, a price in dollars, a quantity, and a tax type", () => {
+    expect(parseCustomItem(good)).toEqual({ ok: true, item: { name: "Birthday flan", priceCents: 450, taxCategory: "food" }, quantity: 2 });
+  });
+
+  it("allow $0.00, and keep money exact", () => {
+    expect(parseCustomItem({ ...good, price: "0" })).toMatchObject({ ok: true, item: { priceCents: 0 } });
+    expect(parseCustomItem({ ...good, price: "19.99" })).toMatchObject({ ok: true, item: { priceCents: 1999 } });
+  });
+
+  it("refuse negative, partial-cent, and non-number prices", () => {
+    for (const price of ["-1", "1.999", "abc", "", "1,50"]) {
+      expect(parseCustomItem({ ...good, price }).ok, price).toBe(false);
+    }
+  });
+
+  it("refuse quantities that aren't 1 to 99", () => {
+    for (const quantity of ["0", "100", "1.5", "-1", ""]) {
+      expect(parseCustomItem({ ...good, quantity }).ok, quantity).toBe(false);
+    }
+  });
+
+  it("refuse a blank or very long name", () => {
+    expect(parseCustomItem({ ...good, name: "  " }).ok).toBe(false);
+    expect(parseCustomItem({ ...good, name: "x".repeat(81) }).ok).toBe(false);
+  });
+
+  it("never guess the tax: a liquor item can't default to the food rate", () => {
+    expect(parseCustomItem({ ...good, taxCategory: "" })).toMatchObject({ ok: false, message: expect.stringContaining("tax type") });
+    expect(parseCustomItem({ ...good, taxCategory: "cocktail" })).toMatchObject({ ok: true, item: { taxCategory: "cocktail" } });
+  });
+
+  it("are lines of their own in the order, priced as typed", () => {
+    let draft: Draft = addItem([], 5);
+    draft = addCustomItem(draft, { name: "Flan", priceCents: 450, taxCategory: "food" }, 2);
+    draft = addCustomItem(draft, { name: "Shot", priceCents: 700, taxCategory: "cocktail" }, 1);
+    expect(new Set(draft.map((line) => line.itemId)).size).toBe(3);
+    const priced = priceDraft(draft, (itemId, line) => (line.custom ? { name: line.custom.name, unitCents: line.custom.priceCents } : { name: "Menu", unitCents: 100 }));
+    expect(priced.subtotalCents).toBe(100 + 900 + 700);
+    expect(priced.itemCount).toBe(4);
+    const shot = draft[2]!;
+    expect(removeItem(draft, shot.itemId)).toHaveLength(2);
+    expect(setQuantity(draft, shot.itemId, 3)[2]!.quantity).toBe(3);
   });
 });

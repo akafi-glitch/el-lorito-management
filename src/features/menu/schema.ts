@@ -47,3 +47,11 @@ export const updateMenuItemSchema = z.object({
 });
 
 export type UpdateMenuItemInput = z.input<typeof updateMenuItemSchema>;
+
+/** What a waiter chooses for a custom item. Beer and cocktails are taxed as liquor. */
+export const TAX_CATEGORY_LABEL: Record<(typeof TAX_CATEGORIES)[number], string> = {
+  food: "Food",
+  nonalcoholic: "Nonalcoholic drink",
+  beer: "Beer (liquor tax)",
+  cocktail: "Cocktail or wine (liquor tax)",
+};

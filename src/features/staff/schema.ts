@@ -31,6 +31,15 @@ export const assignDutySchema = z.object({
   employeeId: z.number().int().positive().nullable(),
 });
 
+const rotation = z
+  .array(z.string().regex(/^[A-Z0-9-]{1,8}$/))
+  .min(1, "Put the sections in order first.")
+  .max(20)
+  .refine((codes) => new Set(codes).size === codes.length, "Each section can appear once.");
+
+export const startShiftSchema = z.object({ rotation, firstName: z.string().min(1).max(20) });
+export const setRotationSchema = z.object({ rotation, nextSection: z.string().regex(/^[A-Z0-9-]{1,8}$/).nullable() });
+
 // Supabase Auth hashes passwords with bcrypt, which reads at most 72 bytes.
 const password = z
   .string()
@@ -55,6 +64,8 @@ export const setPasswordSchema = z
 
 export const accountActiveSchema = z.object({ userId: z.guid(), isActive: z.boolean() });
 
+export type StartShiftInput = z.input<typeof startShiftSchema>;
+export type SetRotationInput = z.input<typeof setRotationSchema>;
 export type AddEmployeeInput = z.input<typeof addEmployeeSchema>;
 export type UpdateEmployeeInput = z.input<typeof updateEmployeeSchema>;
 export type AssignDutyInput = z.input<typeof assignDutySchema>;

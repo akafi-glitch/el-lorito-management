@@ -6,13 +6,15 @@ type ModalProps = {
   title: string;
   onClose: () => void;
   children: React.ReactNode;
+  /** A question that must not vanish on a stray tap (a double-tap's second tap lands outside the box). */
+  keepOnOutsideTap?: boolean;
 };
 
 /**
  * A focused dialog built on the browser's own <dialog>: it traps keyboard focus, closes with Escape,
  * and returns focus to the button that opened it.
  */
-export function Modal({ title, onClose, children }: ModalProps) {
+export function Modal({ title, onClose, children, keepOnOutsideTap = false }: ModalProps) {
   const ref = useRef<HTMLDialogElement>(null);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ export function Modal({ title, onClose, children }: ModalProps) {
         onClose();
       }}
       onClick={(event) => {
-        if (event.target === ref.current) onClose(); // tap outside the box
+        if (event.target === ref.current && !keepOnOutsideTap) onClose(); // tap outside the box
       }}
       className="m-auto w-[min(28rem,calc(100vw-2rem))] rounded-2xl border border-glaze bg-paper p-0 text-ink backdrop:bg-ink/50"
     >

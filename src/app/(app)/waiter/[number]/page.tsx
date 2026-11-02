@@ -3,15 +3,16 @@ import Link from "next/link";
 
 import { SectionShell } from "@/components/section-shell";
 import { buttonClasses } from "@/components/ui/button";
+import { loadFloorMap } from "@/features/floor/queries";
 import { ROLE_LABEL, employeeLabel } from "@/features/staff/rules";
-import { WaiterRefused } from "@/features/waiter/components/waiter-refused";
-import { WaiterTables } from "@/features/waiter/components/waiter-tables";
 import { loadVersions } from "@/features/sync/queries";
-import { loadWaiterScreen } from "@/features/waiter/queries";
+import { TablePicker } from "@/features/waiter/components/table-picker";
+import { WaiterRefused } from "@/features/waiter/components/waiter-refused";
+import { loadWaitersBySection } from "@/features/waiter/queries";
 import { resolveWaiter } from "@/features/waiter/resolve";
-import { waiterPath } from "@/features/waiter/rules";
+import { assignedSections, pickerSections, waiterPath } from "@/features/waiter/rules";
 
-export const metadata: Metadata = { title: "Your tables" };
+export const metadata: Metadata = { title: "Choose a table" };
 
 type Props = { params: Promise<{ number: string }> };
 
@@ -29,20 +30,27 @@ export default async function WaiterTablesPage({ params }: Props) {
 
   const me = result.employee;
   const versions = await loadVersions(); // before the data: see floor/page.tsx
-  const { view } = await loadWaiterScreen(me);
+  const [floor, waiters] = await Promise.all([loadFloorMap(), loadWaitersBySection()]);
+  const sections = pickerSections(floor);
+  const mine = assignedSections(sections, me, waiters);
 
   return (
     <SectionShell
       title={employeeLabel(me)}
-      description={`${ROLE_LABEL[me.role]}. Choose a table with seated guests.`}
+      description={`${ROLE_LABEL[me.role]}. Any waiter can open any table.`}
       live={{ watch: ["floor", "staff"], versions }}
     >
-      <div className="mb-6">
-        <Link href="/waiter" className={buttonClasses("secondary")}>
-          Not you? Change number
-        </Link>
+      <div className="flex flex-col gap-6">
+        <TablePicker sections={sections} basePath={waiterPath(me)} initialSection={mine[0]?.code ?? null} menuVersion={versions.menu} />
+        <p className="text-center text-base text-muted">
+          {mine.length > 0 ? `Assigned this shift: ${mine.map((section) => section.name).join(", ")}` : "No section assigned this shift."}
+        </p>
+        <div className="flex justify-center">
+          <Link href="/waiter" className={buttonClasses("secondary")}>
+            Not you? Change number
+          </Link>
+        </div>
       </div>
-      <WaiterTables view={view} basePath={waiterPath(me)} />
     </SectionShell>
   );
 }

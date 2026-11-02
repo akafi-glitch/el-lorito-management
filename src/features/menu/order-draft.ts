@@ -1,13 +1,18 @@
 import { lineTotalCents } from "./money";
+import type { TaxCategory } from "./types";
 
 /**
  * The order a waiter is building on screen. Pure functions, so the screen and the tests share them.
- * Phase 7 saves it as a ticket.
+ * Saving it adds one order to the table's ticket.
  */
 
 export const MAX_QUANTITY = 99;
 
-export type DraftLine = { itemId: number; quantity: number };
+/** An item typed by the waiter: saved only on this order, never added to the menu. */
+export type CustomItem = { name: string; priceCents: number; taxCategory: TaxCategory };
+
+/** itemId is the menu item, or a negative number that only identifies a custom line on this screen. */
+export type DraftLine = { itemId: number; quantity: number; custom?: CustomItem };
 export type Draft = readonly DraftLine[];
 
 /** Adds one; a new item goes to the end of the order. */
@@ -15,6 +20,12 @@ export function addItem(draft: Draft, itemId: number): Draft {
   const existing = draft.find((line) => line.itemId === itemId);
   if (!existing) return [...draft, { itemId, quantity: 1 }];
   return setQuantity(draft, itemId, existing.quantity + 1);
+}
+
+/** Adds a custom item as its own line. */
+export function addCustomItem(draft: Draft, custom: CustomItem, quantity: number): Draft {
+  const itemId = Math.min(0, ...draft.map((line) => line.itemId)) - 1;
+  return [...draft, { itemId, quantity: Math.min(MAX_QUANTITY, Math.max(1, Math.trunc(quantity))), custom }];
 }
 
 /** Sets a quantity between 1 and 99 (use removeItem to take a line off). */
@@ -37,11 +48,11 @@ export type PricedLine<T extends { name: string; unitCents: number } = { name: s
 /** Prices each line with the given lookup (which may add more, such as the tax group); lines whose item vanished are dropped. */
 export function priceDraft<T extends { name: string; unitCents: number }>(
   draft: Draft,
-  lookup: (itemId: number) => T | undefined,
+  lookup: (itemId: number, line: DraftLine) => T | undefined,
 ): { lines: PricedLine<T>[]; itemCount: number; subtotalCents: number } {
   const lines: PricedLine<T>[] = [];
   for (const line of draft) {
-    const item = lookup(line.itemId);
+    const item = lookup(line.itemId, line);
     if (!item) continue;
     lines.push({ ...item, ...line, totalCents: lineTotalCents(item.unitCents, line.quantity) });
   }

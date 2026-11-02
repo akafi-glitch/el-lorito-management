@@ -8,7 +8,8 @@ import { GuestCountField } from "./guest-count-field";
 type NewPartyPanelProps = {
   guestCount: number | null;
   onGuestCountChange: (value: number | null) => void;
-  nextSectionName: string | null;
+  /** This shift's rotation, in order, with the next section marked. */
+  rotation: { code: string; name: string; isNext: boolean; isOpen: boolean }[];
   advice: SeatingAdvice | null;
   onFind: () => void;
   onSeat: (option: SeatingOption) => void;
@@ -19,13 +20,14 @@ type NewPartyPanelProps = {
 export function NewPartyPanel({
   guestCount,
   onGuestCountChange,
-  nextSectionName,
+  rotation,
   advice,
   onFind,
   onSeat,
   busy,
 }: NewPartyPanelProps) {
   const ready = guestCount !== null && guestCount >= 1;
+  const nextSectionName = rotation.find((section) => section.isNext)?.name ?? null;
 
   return (
     <section aria-labelledby="new-party-heading" className="rounded-2xl border border-glaze bg-paper p-4">
@@ -39,6 +41,19 @@ export function NewPartyPanel({
           </p>
         ) : null}
       </div>
+      <ol aria-label="Seating rotation for this shift" className="mt-2 flex flex-wrap items-center gap-1 text-sm text-muted">
+        {rotation.map((section, index) => (
+          <li key={section.code} className="flex items-center gap-1">
+            {index > 0 ? <span aria-hidden="true">→</span> : null}
+            <span
+              aria-current={section.isNext ? "step" : undefined}
+              className={`rounded px-1.5 py-0.5 ${section.isNext ? "bg-leaf font-bold text-white" : ""} ${section.isOpen ? "" : "line-through opacity-60"}`}
+            >
+              {section.name}
+            </span>
+          </li>
+        ))}
+      </ol>
 
       <form
         className="mt-3 flex flex-col gap-3"

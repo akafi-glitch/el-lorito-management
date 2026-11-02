@@ -10,6 +10,8 @@ import { assignDutyAction, startShiftAction } from "../actions";
 import type { StaffBoard } from "../queries";
 import { DUTY_LABEL, eligibleFor, employeeLabel, type Duty, type EmployeeRef } from "../rules";
 
+import { RotationEditor, RotationList, useRotationOrder } from "./rotation-editor";
+
 const selectClass =
   "min-h-12 w-full rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none disabled:opacity-60";
 
@@ -20,6 +22,12 @@ export function ShiftAndBoard({ board }: { board: StaffBoard }) {
   const waiters = eligibleFor("waiter", board.employees);
   const runners = eligibleFor("chips_runner", board.employees);
   const noShift = board.shift === null;
+  const startOrder = useRotationOrder(board.rotation);
+  const firstName = board.rotation.find((section) => section.code === startOrder.order[0])?.name ?? "";
+
+  function startShift() {
+    run(() => startShiftAction({ rotation: startOrder.order, firstName }), () => setConfirming(false));
+  }
 
   function assign(sectionCode: string, duty: Duty, value: string) {
     run(() => assignDutyAction({ sectionCode, duty, employeeId: value === "" ? null : Number(value) }));
@@ -42,13 +50,15 @@ export function ShiftAndBoard({ board }: { board: StaffBoard }) {
           <button
             type="button"
             disabled={busy}
-            onClick={() => (noShift ? run(() => startShiftAction()) : setConfirming(true))}
+            onClick={() => setConfirming(true)}
             className={buttonClasses(noShift ? "primary" : "secondary")}
           >
             {noShift ? "Start shift" : "Start new shift"}
           </button>
         </div>
       </section>
+
+      {noShift ? null : <RotationEditor sections={board.rotation} nextSection={board.nextSection} />}
 
       <section aria-labelledby="board-heading" className="rounded-2xl border border-glaze bg-paper p-5">
         <h2 id="board-heading" className="text-xl font-bold text-ink">
@@ -108,19 +118,18 @@ export function ShiftAndBoard({ board }: { board: StaffBoard }) {
       </section>
 
       {confirming ? (
-        <Modal title="Start a new shift?" onClose={() => setConfirming(false)}>
-          <p className="text-lg">
-            This ends the current shift, clears every assignment, and starts the seating rotation again at
-            A. Seated tables stay as they are.
+        <Modal title={noShift ? "Start the shift" : "Start a new shift?"} onClose={() => setConfirming(false)}>
+          <p className="text-base">
+            {noShift ? "" : "This ends the current shift and clears every assignment. "}
+            Put the sections in the order seating should follow. The shift starts at number 1. Seated tables and orders
+            stay as they are.
           </p>
+          <div className="mt-4">
+            <RotationList sections={board.rotation} order={startOrder.order} onMove={startOrder.move} disabled={busy} />
+          </div>
           <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
-            <button
-              type="button"
-              disabled={busy}
-              className={buttonClasses("primary", "flex-1")}
-              onClick={() => run(() => startShiftAction(), () => setConfirming(false))}
-            >
-              Start new shift
+            <button type="button" disabled={busy} className={buttonClasses("primary", "flex-1")} onClick={startShift}>
+              {busy ? "Starting…" : noShift ? "Start shift" : "Start new shift"}
             </button>
             <button type="button" className={buttonClasses("secondary", "flex-1")} onClick={() => setConfirming(false)}>
               Cancel

@@ -7,6 +7,8 @@ export function staffErrorMessage(error: DbError): string {
   switch (error.message) {
     case "no_open_shift":
       return "Start a shift first, then assign staff.";
+    case "invalid_rotation":
+      return "The rotation must include every dining section exactly once. The page has been refreshed.";
     case "section_not_found":
       return "That section isn't on the floor plan.";
     case "bar_open_to_all":

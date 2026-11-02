@@ -10,7 +10,7 @@ import fixture from "../../../tests/fixtures/floor-rows.json";
 import { GuestCountError, recommendSeating, rotationFrom } from "./recommend";
 
 /** The real layout, with some tables seated and some sections closed. */
-function floor(options: { seated?: string[]; closed?: string[]; next?: string; capacities?: Record<string, number> } = {}): FloorMap {
+function floor(options: { seated?: string[]; closed?: string[]; next?: string; capacities?: Record<string, number>; rotation?: string[] } = {}): FloorMap {
   const rows: FloorRows = {
     areas: z.array(floorAreaRowSchema).parse(fixture.areas),
     sections: z.array(sectionRowSchema).parse(fixture.sections).map((section) => ({
@@ -29,7 +29,7 @@ function floor(options: { seated?: string[]; closed?: string[]; next?: string; c
     if (!table) throw new Error(`no table ${code}`);
     visits.set(table.id, { visitId: index + 1, version: 1, guestCount: 2, chipsServed: false, tableLabels: [code] });
   }
-  return buildFloorMap(rows, { visits, nextSectionCode: options.next ?? "A" });
+  return buildFloorMap(rows, { visits, nextSectionCode: options.next ?? "A", ...(options.rotation ? { rotation: options.rotation } : {}) });
 }
 
 function suggest(guestCount: number, map: FloorMap) {
@@ -39,6 +39,7 @@ function suggest(guestCount: number, map: FloorMap) {
     sections: map.sections,
     combinations: map.combinations,
     nextSectionCode: map.nextSectionCode,
+    rotation: map.rotation,
   });
 }
 
@@ -46,17 +47,55 @@ const labels = (guestCount: number, map: FloorMap) => suggest(guestCount, map).o
 
 describe("section rotation", () => {
   it("follows A, C, B, X(1), X(2), P from the next section", () => {
-    expect(rotationFrom(floor().sections, "B").map((s) => s.name)).toEqual(["B", "X(1)", "X(2)", "P", "A", "C"]);
+    const map = floor();
+    expect(rotationFrom(map.sections, map.rotation, "B").map((s) => s.name)).toEqual(["B", "X(1)", "X(2)", "P", "A", "C"]);
   });
 
   it("skips closed sections", () => {
-    expect(rotationFrom(floor({ closed: ["C"] }).sections, "A").map((s) => s.name)).toEqual(["A", "B", "X(1)", "X(2)", "P"]);
+    const map = floor({ closed: ["C"] });
+    expect(rotationFrom(map.sections, map.rotation, "A").map((s) => s.name)).toEqual(["A", "B", "X(1)", "X(2)", "P"]);
   });
 
   it("never includes Party or Bar", () => {
-    const names = rotationFrom(floor().sections, "A").map((s) => s.name);
+    const map = floor();
+    const names = rotationFrom(map.sections, map.rotation, "A").map((s) => s.name);
     expect(names).not.toContain("Party");
     expect(names).not.toContain("Bar");
+  });
+
+  describe("the order the manager set for the shift", () => {
+    const evening = ["X-2", "X-1", "A", "B", "C", "P"];
+
+    it("is what suggestions follow", () => {
+      expect(suggest(3, floor({ rotation: evening, next: "X-2" })).options.map((o) => o.where)).toEqual(["Section X(2)", "Section X(1)", "Section A"]);
+    });
+
+    it("wraps from the last section to this shift's first", () => {
+      const map = floor({ rotation: evening, next: "P" });
+      expect(rotationFrom(map.sections, map.rotation, "P").map((s) => s.name)).toEqual(["P", "X(2)", "X(1)", "A", "B", "C"]);
+    });
+
+    it("a mid-shift change applies at once: same next section, new order after it", () => {
+      expect(suggest(3, floor({ rotation: ["P", "C", "A", "B", "X-1", "X-2"], next: "A" })).options.map((o) => o.where)).toEqual(["Section A", "Section B", "Section X(1)"]);
+    });
+
+    it("still falls through to the next section when one has no suitable table", () => {
+      const seated = ["X1", "X2", "X3", "X10", "X11", "X12"]; // all of X(2)
+      expect(suggest(2, floor({ rotation: evening, next: "X-2", seated })).options[0]?.where).toBe("Section X(1)");
+    });
+
+    it("still skips closed sections", () => {
+      expect(suggest(2, floor({ rotation: evening, next: "X-2", closed: ["X-2"] })).options[0]?.where).toBe("Section X(1)");
+    });
+
+    it("keeps Party first for more than six guests, whatever the order", () => {
+      expect(suggest(7, floor({ rotation: evening, next: "X-2" })).options[0]?.where).toBe("Party");
+    });
+
+    it("keeps X6 + X7 + X8 for parties over twelve when Party is full", () => {
+      const seated = ["PARTY-1", "PARTY-2", "PARTY-3"];
+      expect(suggest(14, floor({ rotation: evening, next: "X-2", seated })).options.map((o) => o.label)).toEqual(["X6 + X7 + X8"]);
+    });
   });
 
   it("first suggestion is in the next section, then one per following section", () => {
@@ -75,12 +114,12 @@ describe("table size matching (6 or fewer guests)", () => {
     expect(labels(6, floor())).toEqual(["A4", "C1", "B4"]);
   });
 
-  it("gives 2 guests a 2-chair table when X(2) is next", () => {
-    expect(labels(2, floor({ next: "X-2" }))[0]).toBe("X13");
+  it("gives 2 guests a 2-chair table when X(1) is next", () => {
+    expect(labels(2, floor({ next: "X-1" }))[0]).toBe("X13");
   });
 
   it("never suggests an occupied table", () => {
-    expect(labels(5, floor({ seated: ["A4"] }))).toEqual(["C1", "B4", "X10"]);
+    expect(labels(5, floor({ seated: ["A4"] }))).toEqual(["C1", "B4", "X6"]);
   });
 
   it("never suggests a table in a closed section", () => {

@@ -62,6 +62,8 @@ export const openVisitTableRowSchema = z.object({
 
 export const rotationRowSchema = z.object({ next_section_code: z.string() });
 
+export const rotationPositionRowSchema = z.object({ section_code: z.string(), section_position: z.number().int().positive() });
+
 export const assignmentLabelRowSchema = z.object({
   section_code: z.string(),
   duty: z.enum(["waiter", "chips_runner"]),

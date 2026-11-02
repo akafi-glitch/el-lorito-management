@@ -18,12 +18,24 @@ export function ticketErrorMessage(error: DbError): string {
       return "This table has been cleared, so its tickets can't be changed. The page has been refreshed.";
     case "ticket_not_found":
       return "That ticket isn't on this table. The page has been refreshed.";
+    case "ticket_finalized":
+      return `${ticket} is finalized: the customer receipt was printed, so nothing more can be added or changed.`;
+    case "invalid_custom_item":
+      return "Check the custom item: it needs a name, a price of $0.00 or more, and a tax type.";
+    case "invalid_notes":
+      return "That note is too long. Use 500 characters or fewer.";
+    case "invalid_changes":
+    case "missing_client_key":
+      return "The order couldn't be read. Reload the page and try again.";
+    case "line_not_found":
+    case "batch_not_found":
+      return "That item is no longer on this ticket. The page has been refreshed.";
     case "ticket_printed":
       return `${ticket} is printed, so it can't be changed. Start a new ticket instead.`;
     case "ticket_cancelled":
       return `${ticket} was cancelled. Start a new ticket instead.`;
     case "stale_ticket":
-      return "Someone else just changed this ticket. The page shows their version now; make your change again.";
+      return "Someone else just changed this ticket. The page shows the latest version now; make your change again.";
     case "menu_item_not_found":
       return "An item is no longer on the menu. The page has been refreshed.";
     case "item_unavailable":
@@ -40,6 +52,9 @@ export function shouldReload(error: DbError): boolean {
     "visit_closed",
     "ticket_not_found",
     "ticket_printed",
+    "ticket_finalized",
+    "line_not_found",
+    "batch_not_found",
     "ticket_cancelled",
     "stale_ticket",
     "menu_item_not_found",

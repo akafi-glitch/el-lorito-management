@@ -64,6 +64,16 @@ export function buildBoard(
   }));
 }
 
+/** Moves a section up (-1) or down (+1) in the rotation; at either end it stays where it is. */
+export function moveInRotation(order: readonly string[], code: string, delta: -1 | 1): string[] {
+  const next = [...order];
+  const from = next.indexOf(code);
+  const to = from + delta;
+  if (from < 0 || to < 0 || to >= next.length) return next;
+  [next[from], next[to]] = [next[to]!, next[from]!];
+  return next;
+}
+
 /** Active employees who may take a duty, sorted by number. */
 export function eligibleFor(duty: Duty, employees: readonly EmployeeRef[]): EmployeeRef[] {
   return employees

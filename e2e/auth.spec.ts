@@ -30,6 +30,11 @@ test.describe("sign-in protects every page", () => {
     expect([302, 303, 307, 401]).toContain(response.status());
   });
 
+  test("the menu needs a signed-in account", async ({ request }) => {
+    const response = await request.get("/api/menu?v=1", { maxRedirects: 0 });
+    expect(response.ok()).toBe(false);
+  });
+
   test("the health check is public and shows no settings", async ({ request }) => {
     const response = await request.get("/api/health");
     expect(response.ok()).toBe(true);

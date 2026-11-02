@@ -188,6 +188,38 @@ describe("live updates on one screen", () => {
     expect(h.refresh).toHaveBeenCalledTimes(1);
   });
 
+  it("a change on this device reloads straight away, and its own signal doesn't reload again", async () => {
+    const h = harness();
+    h.live.refreshNow();
+    expect(h.refresh).toHaveBeenCalledTimes(1);
+    h.signal("floor", 11);
+    await vi.advanceTimersByTimeAsync(300);
+    expect(h.refresh).toHaveBeenCalledTimes(1); // still loading: waits for the drawing
+    h.live.drawn({ ...V0, floor: 11 });
+    await vi.advanceTimersByTimeAsync(300);
+    expect(h.refresh).toHaveBeenCalledTimes(1); // the drawing already shows it
+  });
+
+  it("runs one reload at a time, and one more if something newer came meanwhile", async () => {
+    const h = harness();
+    h.live.refreshNow();
+    h.signal("floor", 12);
+    h.signal("floor", 13);
+    await vi.advanceTimersByTimeAsync(300);
+    expect(h.refresh).toHaveBeenCalledTimes(1);
+    h.live.drawn({ ...V0, floor: 11 });
+    await vi.advanceTimersByTimeAsync(300);
+    expect(h.refresh).toHaveBeenCalledTimes(2);
+  });
+
+  it("a reload that never reports back doesn't block the next one", async () => {
+    const h = harness();
+    h.live.refreshNow();
+    h.signal("floor", 12);
+    await vi.advanceTimersByTimeAsync(4500);
+    expect(h.refresh).toHaveBeenCalledTimes(2);
+  });
+
   it("stops cleanly: disconnects and never refreshes afterwards", async () => {
     const h = harness();
     h.connect(true);

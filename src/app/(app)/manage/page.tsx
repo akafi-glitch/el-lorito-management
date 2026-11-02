@@ -12,7 +12,7 @@ export default async function ManagePage() {
   const board = await loadStaffBoard();
   return (
     <>
-      <LiveSync watch={["staff"]} versions={versions} />
+      <LiveSync watch={["staff", "floor"]} versions={versions} />
       <ShiftAndBoard board={board} />
     </>
   );

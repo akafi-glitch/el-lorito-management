@@ -1,72 +1,91 @@
-import { lineTotalCents } from "@/features/menu/money";
 import type { Totals } from "@/features/billing/tax";
+import { formatCents } from "@/features/menu/money";
 
-import type { ReceiptRow } from "./schema";
+import type { CustomerSnapshot, KitchenBatchRow } from "./schema";
 
-/** Everything printed on a customer ticket. Built from the database after printing is recorded. */
+/** Everything printed on a customer bill. Comes from the bill the database stored for the attempt. */
 export type ReceiptData = {
   restaurantName: string;
-  restaurantSubtitle: string;
   ticketNumber: number;
   /** "X2", or "X6 + X7 + X8" for joined tables. */
   tables: string;
   /** Owner decision: the waiter's number only. */
   waiterNumber: string;
-  /** When the ticket was first printed, in the restaurant's time zone. */
+  /** In the restaurant's time zone. */
   printedAt: string;
   lines: { name: string; quantity: number; unitCents: number; totalCents: number }[];
   totals: Totals;
 };
 
-export const RESTAURANT = { name: "EL LORITO", subtitle: "Mexican Restaurant" } as const;
-
-export type ReceiptSource = {
+/** Everything printed for the kitchen. Deliberately has no place for a price. */
+export type KitchenReceiptData = {
+  title: string;
   ticketNumber: number;
-  tableLabels: string[];
+  orderNumber: number;
+  tables: string;
   waiterNumber: string;
-  printedAt: string;
-  lines: { name: string; quantity: number; unitCents: number }[];
-  totals: Totals;
+  time: string;
+  /** Another copy of an order already requested: the kitchen must not cook it twice. */
+  isReprint: boolean;
+  lines: { name: string; quantity: number }[];
+  notes: string | null;
 };
 
-export function buildReceipt(source: ReceiptSource): ReceiptData {
-  return {
-    restaurantName: RESTAURANT.name,
-    restaurantSubtitle: RESTAURANT.subtitle,
-    ticketNumber: source.ticketNumber,
-    tables: source.tableLabels.join(" + "),
-    waiterNumber: source.waiterNumber,
-    printedAt: source.printedAt,
-    lines: source.lines.map((line) => ({ ...line, totalCents: lineTotalCents(line.unitCents, line.quantity) })),
-    totals: source.totals,
-  };
-}
+export const RESTAURANT = { name: "EL LORITO", kitchenTitle: "EL LORITO — KITCHEN" } as const;
 
 /** Printable width inside the paper's margins: 80 mm paper -> 72 mm, 58 mm paper -> 48 mm. */
 export function printableWidthMm(paperWidthMm: 58 | 80): number {
   return paperWidthMm === 80 ? 72 : 48;
 }
 
-/** Database row -> receipt: tables in floor order, lines in ticket order, frozen totals. */
-export function receiptFromRow(row: ReceiptRow, formatTime: (iso: string) => string): ReceiptData {
-  return buildReceipt({
-    ticketNumber: row.ticket_number,
-    tableLabels: [...row.visit.visit_tables]
+/** Stored bill -> receipt. Nothing is worked out again: this is what the database kept. */
+export function receiptFromSnapshot(snapshot: CustomerSnapshot, formatTime: (iso: string) => string): ReceiptData {
+  return {
+    restaurantName: RESTAURANT.name,
+    ticketNumber: snapshot.ticket_number,
+    tables: snapshot.tables,
+    waiterNumber: snapshot.waiter_number,
+    printedAt: formatTime(snapshot.printed_at),
+    lines: snapshot.lines.map((line) => ({
+      name: line.name,
+      quantity: line.quantity,
+      unitCents: line.unit_cents,
+      totalCents: line.total_cents,
+    })),
+    totals: {
+      foodSubtotalCents: snapshot.totals.food_subtotal_cents,
+      liquorSubtotalCents: snapshot.totals.liquor_subtotal_cents,
+      foodTaxCents: snapshot.totals.food_tax_cents,
+      liquorTaxCents: snapshot.totals.liquor_tax_cents,
+      totalCents: snapshot.totals.total_cents,
+      rates: { food: snapshot.totals.food_rate_bp, liquor: snapshot.totals.liquor_rate_bp },
+    },
+  };
+}
+
+/** One order -> one kitchen receipt: only this order's items, capitals for reading across a kitchen. */
+export function kitchenReceiptFromRow(row: KitchenBatchRow, isReprint: boolean, time: string): KitchenReceiptData {
+  return {
+    title: RESTAURANT.kitchenTitle,
+    ticketNumber: row.ticket.ticket_number,
+    orderNumber: row.batch_no,
+    tables: [...row.ticket.visit.visit_tables]
       .map((vt) => vt.restaurant_tables)
-      .sort((a, b) => a.sort_order - b.sort_order)
-      .map((table) => table.label),
-    waiterNumber: row.maker.employee_number,
-    printedAt: formatTime(row.printed_at),
+      .sort((a, b) => a.label.localeCompare(b.label, "en", { numeric: true }))
+      .map((table) => table.label)
+      .join(" + ")
+      .toUpperCase(),
+    waiterNumber: row.waiter.employee_number,
+    time,
+    isReprint,
     lines: [...row.ticket_lines]
       .sort((a, b) => a.line_no - b.line_no)
-      .map((line) => ({ name: line.item_name, quantity: line.quantity, unitCents: line.unit_price_cents })),
-    totals: {
-      foodSubtotalCents: row.food_subtotal_cents,
-      liquorSubtotalCents: row.liquor_subtotal_cents,
-      foodTaxCents: row.food_tax_cents,
-      liquorTaxCents: row.liquor_tax_cents,
-      totalCents: row.total_cents,
-      rates: { food: row.food_rate_bp, liquor: row.liquor_rate_bp },
-    },
-  });
+      .map((line) => ({ name: line.item_name.toUpperCase(), quantity: line.quantity })),
+    notes: row.notes?.toUpperCase() ?? null,
+  };
+}
+
+/** The amount printed in a receipt's right column, without the dollar sign. */
+export function receiptAmount(cents: number): string {
+  return formatCents(cents).replace("$", "");
 }

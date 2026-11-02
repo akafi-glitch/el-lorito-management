@@ -1,7 +1,10 @@
 import "server-only";
 
+import { unstable_cache } from "next/cache";
 import { z } from "zod";
 
+import { loadTaxSetup } from "@/features/billing/queries";
+import type { TaxSetup } from "@/features/billing/setup";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import { buildMenu } from "./build";
@@ -19,3 +22,19 @@ export async function loadMenu(): Promise<Menu> {
   if (items.error) throw new Error(`Could not load the menu: ${items.error.message}`);
   return buildMenu(z.array(menuCategoryRowSchema).parse(categories.data), z.array(menuItemRowSchema).parse(items.data));
 }
+
+export type MenuData = { menu: Menu; tax: TaxSetup };
+
+/**
+ * The menu and tax setup for ordering screens, read once per menu version: any change to items,
+ * prices, availability, or tax rates raises the version, so the next request reads them again.
+ */
+export const loadMenuData = unstable_cache(
+  async (version: number): Promise<MenuData> => {
+    void version; // only part of the cache key
+    const [menu, tax] = await Promise.all([loadMenu(), loadTaxSetup()]);
+    return { menu, tax };
+  },
+  ["menu-data-v1"],
+  { revalidate: 3600 },
+);

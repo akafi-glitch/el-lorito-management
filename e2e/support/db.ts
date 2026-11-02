@@ -22,8 +22,8 @@ async function rpc<T = unknown>(name: string, args: Record<string, unknown>): Pr
   return data as T;
 }
 
-export async function startShift(): Promise<number> {
-  return rpc<number>("start_shift", { p_actor: null });
+export async function startShift(rotation?: string[]): Promise<number> {
+  return rpc<number>("start_shift", { p_actor: null, ...(rotation ? { p_rotation: rotation } : {}) });
 }
 
 /** An employee with this number, active, with this name and role (added the first time). */
@@ -60,18 +60,39 @@ export async function freeTables(codes: string[]): Promise<void> {
     .is("released_at", null);
   if (openError) throw openError;
   for (const visitId of new Set((open ?? []).map((row) => row.visit_id as number))) {
-    let { data: visit } = await db().from("customer_visits").select("version, chips_status").eq("id", visitId).single();
-    if (visit?.chips_status === "needed") {
+    let visit = await visitRow(visitId);
+    if (visit.chips_status === "needed") {
       await rpc("mark_chips_served", { p_visit_id: visitId, p_expected_version: visit.version, p_actor: null });
-      ({ data: visit } = await db().from("customer_visits").select("version, chips_status").eq("id", visitId).single());
+      visit = await visitRow(visitId);
     }
-    await rpc("clear_visit", { p_visit_id: visitId, p_expected_version: visit!.version, p_actor: null });
+    await rpc("clear_visit", { p_visit_id: visitId, p_expected_version: visit.version, p_actor: null });
   }
 }
 
-export async function seat(codes: string[], guests: number): Promise<number> {
+export async function visitRow(visitId: number): Promise<{ version: number; chips_status: "needed" | "served"; cleared_at: string | null }> {
+  const { data, error } = await db().from("customer_visits").select("version, chips_status, cleared_at").eq("id", visitId).single();
+  if (error) throw error;
+  return data;
+}
+
+export async function seat(codes: string[], guests: number, combination?: string): Promise<number> {
   await freeTables(codes);
-  return rpc<number>("seat_party", { p_table_codes: codes, p_guest_count: guests, p_actor: null });
+  return rpc<number>("seat_party", { p_table_codes: codes, p_guest_count: guests, p_actor: null, ...(combination ? { p_combination_code: combination } : {}) });
+}
+
+/** What another employee's device does. */
+export async function serveChips(visitId: number): Promise<number> {
+  return rpc<number>("mark_chips_served", { p_visit_id: visitId, p_expected_version: (await visitRow(visitId)).version, p_actor: null });
+}
+
+export async function clearVisit(visitId: number): Promise<number> {
+  return rpc<number>("clear_visit", { p_visit_id: visitId, p_expected_version: (await visitRow(visitId)).version, p_actor: null });
+}
+
+export async function audit(visitId: number): Promise<string[]> {
+  const { data, error } = await db().from("audit_events").select("event_type").eq("visit_id", visitId).order("id");
+  if (error) throw error;
+  return data.map((row) => row.event_type as string);
 }
 
 export async function itemId(name: string): Promise<number> {
@@ -90,15 +111,15 @@ export async function menuItem(name: string): Promise<{ price_cents: number; is_
   return data;
 }
 
-/** Saves a ticket the way a second device would. */
-export async function saveTicket(visitId: number, employeeId: number, lines: [string, number][], ticket?: { id: number; version: number }) {
+/** Saves an order the way a second device would. */
+export async function saveOrder(visitId: number, employeeId: number, lines: [string, number][], notes: string | null = null) {
   const items = await Promise.all(lines.map(async ([name, quantity]) => ({ item_id: await itemId(name), quantity })));
-  const rows = await rpc<{ ticket_id: number; ticket_number: number; version: number }[]>("save_ticket", {
+  const rows = await rpc<{ ticket_id: number; ticket_number: number; version: number; batch_id: number; batch_no: number }[]>("save_order", {
     p_visit_id: visitId,
-    p_ticket_id: ticket?.id ?? null,
-    p_expected_version: ticket?.version ?? null,
     p_employee_id: employeeId,
+    p_client_key: crypto.randomUUID(),
     p_lines: items,
+    p_notes: notes,
     p_time_zone: "America/Chicago",
     p_actor: null,
   });
@@ -106,13 +127,29 @@ export async function saveTicket(visitId: number, employeeId: number, lines: [st
 }
 
 export async function ticketByNumber(number: number) {
-  const { data, error } = await db().from("tickets").select("id, status, version, total_cents, visit_id").eq("ticket_number", number).single();
+  const { data, error } = await db().from("tickets").select("id, status, version, total_cents, visit_id, employee_id, final_receipt").eq("ticket_number", number).single();
   if (error) throw error;
   return data;
 }
 
-export async function printAttempts(ticketId: number) {
-  const { data, error } = await db().from("print_attempts").select("attempt_no, kind, outcome").eq("ticket_id", ticketId).order("attempt_no");
+export async function ticketOfVisit(visitId: number) {
+  const { data, error } = await db().from("tickets").select("id, ticket_number, status, version, total_cents, employee_id").eq("visit_id", visitId);
+  if (error) throw error;
+  return data;
+}
+
+export async function batchesOf(ticketId: number) {
+  const { data, error } = await db()
+    .from("ticket_batches")
+    .select("id, batch_no, notes, employee_id, kitchen_printed_at, ticket_lines(item_name, quantity, unit_price_cents, tax_category_code, tax_group_code, is_custom, menu_item_id)")
+    .eq("ticket_id", ticketId)
+    .order("batch_no");
+  if (error) throw error;
+  return data;
+}
+
+export async function printAttempts(ticketId: number, kind: "customer" | "kitchen" = "customer") {
+  const { data, error } = await db().from("print_attempts").select("attempt_no, kind, outcome").eq("ticket_id", ticketId).eq("receipt_kind", kind).order("id");
   if (error) throw error;
   return data;
 }
@@ -124,7 +161,15 @@ export async function ticketTotal(number: number): Promise<number> {
 }
 
 export async function visitCleared(visitId: number): Promise<boolean> {
-  const { data, error } = await db().from("customer_visits").select("cleared_at").eq("id", visitId).single();
+  return (await visitRow(visitId)).cleared_at !== null;
+}
+
+export async function currentRotation(): Promise<string[]> {
+  const rows = await rpc<{ section_code: string; section_position: number }[]>("current_rotation", {});
+  return rows.sort((a, b) => a.section_position - b.section_position).map((row) => row.section_code);
+}
+
+export async function setTaxRate(group: "food" | "liquor", rateBp: number): Promise<void> {
+  const { error } = await db().from("tax_groups").update({ rate_bp: rateBp }).eq("code", group);
   if (error) throw error;
-  return data.cleared_at !== null;
 }

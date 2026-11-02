@@ -7,10 +7,12 @@ import type { TaxSetup } from "@/features/billing/setup";
 import { computeTotals, type TaxGroup } from "@/features/billing/tax";
 
 import { formatCents } from "../money";
-import { addItem, priceDraft, quantityOf, removeItem, setQuantity, MAX_QUANTITY, type Draft } from "../order-draft";
+import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setQuantity, MAX_QUANTITY, type Draft } from "../order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate } from "../pricing";
 import { searchMenu } from "../search";
 import type { Menu, MenuCategory, MenuItem } from "../types";
+
+import { CustomItemDialog } from "./custom-item-dialog";
 
 type MenuScreenProps = {
   menu: Menu;
@@ -20,11 +22,9 @@ type MenuScreenProps = {
   /** The order being built; the parent owns it (it may come from a saved ticket). */
   draft: Draft;
   onDraftChange: (update: (current: Draft) => Draft) => void;
-  /** Lines already saved on the ticket keep their saved name and price. */
-  savedLines?: ReadonlyMap<number, { name: string; unitCents: number; taxGroup: TaxGroup }>;
   /** Tax rates and groups from the database, for the totals preview. */
   tax: TaxSetup;
-  /** Heading of the order panel, e.g. "New ticket" or "Ticket #1001". */
+  /** Heading of the order panel, e.g. "New order for ticket #1001". */
   orderTitle: string;
   /** Buttons and status under the order total (save, cancel...). */
   orderFooter: ReactNode;
@@ -37,7 +37,6 @@ export function MenuScreen({
   nowIso,
   draft,
   onDraftChange: setDraft,
-  savedLines,
   tax,
   orderTitle,
   orderFooter,
@@ -45,6 +44,7 @@ export function MenuScreen({
   const [now, setNow] = useState(() => new Date(nowIso));
   const [categoryId, setCategoryId] = useState<number | null>(menu.categories[0]?.id ?? null);
   const [query, setQuery] = useState("");
+  const [addingCustom, setAddingCustom] = useState(false);
 
   // Re-check the clock every 30 seconds so lunch prices change at 3:00 PM without a reload.
   useEffect(() => {
@@ -59,9 +59,8 @@ export function MenuScreen({
   }, [menu]);
 
   const priceOf = (item: MenuItem, category: MenuCategory) => currentPriceCents(item.priceCents, category.late, now, timeZone);
-  const order = priceDraft(draft, (itemId) => {
-    const saved = savedLines?.get(itemId);
-    if (saved) return saved;
+  const order = priceDraft<{ name: string; unitCents: number; taxGroup: TaxGroup }>(draft, (itemId, line) => {
+    if (line.custom) return { name: line.custom.name, unitCents: line.custom.priceCents, taxGroup: tax.groupOf[line.custom.taxCategory] };
     const found = lookup.get(itemId);
     return found
       ? { name: found.item.name, unitCents: priceOf(found.item, found.category), taxGroup: tax.groupOf[found.item.taxCategory] }
@@ -105,6 +104,14 @@ export function MenuScreen({
             ) : null}
           </div>
         </div>
+
+        <button
+          type="button"
+          onClick={() => setAddingCustom(true)}
+          className="min-h-12 self-start rounded-lg border-2 border-dashed border-leaf bg-paper px-4 font-semibold text-leaf hover:bg-tile active:scale-95"
+        >
+          Add Custom Item
+        </button>
 
         <nav aria-label="Menu categories" className="-mx-1 overflow-x-auto px-1 pb-1">
           <ul className="flex w-max gap-2 lg:w-auto lg:flex-wrap">
@@ -180,7 +187,10 @@ export function MenuScreen({
             {order.lines.map((line) => (
               <li key={line.itemId} className="flex flex-col gap-2 py-3">
                 <div className="flex items-start justify-between gap-3">
-                  <span className="font-semibold text-ink">{line.name}</span>
+                  <span className="font-semibold text-ink">
+                    {line.name}
+                    {line.custom ? <span className="ml-2 rounded bg-tile px-1.5 py-0.5 text-xs font-semibold text-muted">Custom</span> : null}
+                  </span>
                   <span className="font-semibold tabular-nums text-ink">{formatCents(line.totalCents)}</span>
                 </div>
                 <div className="flex items-center justify-between gap-3">
@@ -227,6 +237,13 @@ export function MenuScreen({
         <div className="mt-4">{orderFooter}</div>
       </section>
 
+      {addingCustom ? (
+        <CustomItemDialog
+          onAdd={(item, quantity) => setDraft((current) => addCustomItem(current, item, quantity))}
+          onClose={() => setAddingCustom(false)}
+        />
+      ) : null}
+
       {order.itemCount > 0 ? (
         <a
           href="#current-order"
@@ -261,7 +278,7 @@ function ItemButton({
       disabled={!item.isAvailable}
       onClick={onAdd}
       aria-label={`Add ${item.name}, ${formatCents(priceCents)}${inOrder > 0 ? `, ${inOrder} in order` : ""}${item.isAvailable ? "" : ", not available"}`}
-      className={`flex h-full min-h-20 w-full flex-col gap-1 rounded-xl border-2 p-3 text-left ${
+      className={`flex h-full min-h-20 w-full flex-col gap-1 rounded-xl border-2 p-3 text-left transition-transform active:scale-[0.98] ${
         inOrder > 0 ? "border-leaf bg-leaf/5" : "border-glaze bg-paper hover:border-leaf"
       } disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-60`}
     >

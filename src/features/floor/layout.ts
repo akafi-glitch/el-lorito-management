@@ -26,6 +26,8 @@ export type FloorTable = {
   status: TableStatus;
   /** The group seated here, or null when the table is free. */
   visit: VisitSnapshot | null;
+  /** This device has asked for a change the server hasn't answered yet. */
+  pending?: boolean;
 };
 
 export type FloorArea = {
@@ -56,6 +58,8 @@ export type FloorMap = {
   tableCount: number;
   /** Section the rotation will suggest next. */
   nextSectionCode: string | null;
+  /** This shift's rotation: section codes in the order the manager set. */
+  rotation: string[];
   /** Current shift's waiter and chips runner per section code. */
   staff: Record<string, SectionStaff>;
 };
@@ -67,6 +71,8 @@ export type FloorState = {
   /** Open visits, keyed by table id. */
   visits?: ReadonlyMap<string, VisitSnapshot>;
   nextSectionCode?: string | null;
+  /** The open shift's rotation. Without one, the sections' default order. */
+  rotation?: readonly string[];
   /** Current shift's assignments, keyed by section code. */
   staff?: Readonly<Record<string, SectionStaff>>;
 };
@@ -186,6 +192,12 @@ export function buildFloorMap(rows: FloorRows, state: FloorState = {}): FloorMap
     counts,
     tableCount: activeTables.length,
     nextSectionCode: state.nextSectionCode ?? null,
+    rotation: state.rotation
+      ? [...state.rotation]
+      : sortedSections
+          .filter((section) => section.rotation_order !== null)
+          .sort((a, b) => (a.rotation_order ?? 0) - (b.rotation_order ?? 0))
+          .map((section) => section.code),
     staff: { ...(state.staff ?? {}) },
   };
 }
