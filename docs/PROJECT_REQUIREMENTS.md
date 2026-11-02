@@ -23,14 +23,14 @@ service, waiter assignments, food tickets, and printing, on several devices shar
 | A | A1–A6 |
 | B | B1–B6 |
 | C | C1–C6 |
-| X(1) | X1, X2, X3, X9, X10, X11, X12 |
-| X(2) | X4, X5, X6, X7, X8, X13, X14 |
+| X(1) | X4, X5, X6, X7, X8, X9, X13, X14 |
+| X(2) | X1, X2, X3, X10, X11, X12 |
 | P | P1–P5 and P10 (**decided**; P6–P9 do not exist) |
 | Party | Party 1, Party 2, Party 3 (capacities unknown, **decided**) |
 | Bar | Bar 1–4. **Decided:** tracked as tables with status colors and chips; never in the rotation; capacities unknown |
 
-- Rotation: A → C → B → X(1) → X(2) → P, advancing after each party is seated. **Decided:** seating
-  by tapping a table moves it too.
+- Rotation: set by the manager for each shift (A → C → B → X(1) → X(2) → P until changed), advancing
+  after each party is seated. **Decided:** seating by tapping a table moves it too.
 - **Decided:** closed sections can't be seated; the host opens the section first.
 - Groups of 7+: Party areas first, then approved combinations. Above 12 guests only X6 + X7 + X8.
 - Approved combinations: A3 + A4, B3 + B4, C3 + C4, A4 + B4, X6 + X7 + X8.
@@ -54,9 +54,9 @@ list, alongside their assigned tables.
 
 ## Tickets
 
-- A ticket can be changed until printed. **Decided:** printing locks it for good; every printed
-  ticket is kept as printed and never voided. A waiter may print any number of tickets for the same
-  table; changes after printing mean a new ticket.
+- **Replaced Nov 2, 2026 (see BUSINESS_RULES.md):** one ticket per group, with any number of orders on it.
+  Kitchen receipts never lock anything. A ticket can be changed until the customer receipt is confirmed
+  printed, which finalizes it for good.
 - Ticket shows: restaurant name, table, waiter number (and name, pending), ticket number, date and
   time, items, quantities, prices, food subtotal, liquor subtotal, food tax 8.5%, liquor tax 10.5%, total.
 - Item names and prices are copied onto the ticket, so later menu price changes never alter it.

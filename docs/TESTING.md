@@ -7,7 +7,7 @@
 | Types | TypeScript | `npm run typecheck` | |
 | Lint | ESLint (Next.js rules) | `npm run lint` | |
 | Secret scan | `scripts/check-no-secrets.mjs` | runs after `npm run build` | |
-| Race tests | two real database connections at once | `bash scripts/db-race-test.sh <local db url>` | `scripts/db-race-test.sh` |
+| Race tests (9) | two real database connections at once | `bash scripts/db-race-test.sh <local db url>` | `scripts/db-race-test.sh` |
 | Browser (end-to-end) | Playwright + axe | `npm run e2e` (needs `npx supabase start` and `npm run build`) | `e2e/*.spec.ts` |
 | CI | GitHub Actions | every push and pull request | `.github/workflows/ci.yml` |
 
@@ -38,6 +38,35 @@
 
 Database migrations are tested on every pull request: CI applies all of them to a fresh Supabase
 database and runs every database test against it.
+
+## Upgrade of Nov 2, 2026: where each requirement is tested
+
+| Requirement | Unit | Database | Browser / race |
+| --- | --- | --- | --- |
+| Custom rotation, changed mid-shift, new shift starts at its first section, history per shift | `recommend.test.ts`, `staff.test.ts` | `shift_rotation.test.sql` | `rotation.spec.ts` |
+| X(1) = X4–X9, X13, X14; X(2) = X1–X3, X10–X12 | `layout.test.ts`, `waiter.test.ts` | `floor_layout.test.sql` | `floor.spec.ts`, `waiter.spec.ts` |
+| Yellow to red with no popup; a tap shows at once | `optimistic.test.ts` | `seating.test.sql` | `floor.spec.ts` (server held back 1.5 s, tile red within 0.4 s) |
+| Undo restores; refuses to overwrite newer changes; joined tables | `actions-support.test.ts`, `optimistic.test.ts` | `seating.test.sql` | `floor.spec.ts` |
+| Seating combinations still work | `recommend.test.ts` | `seating.test.sql` | `floor.spec.ts` |
+| Any waiter, any section; dropdowns filter | `waiter.test.ts` | | `waiter.spec.ts` |
+| Ordering from a phone-sized screen | | | `tickets.spec.ts` (Pixel 7, touch), `devices.spec.ts` |
+| Menu items, custom items, notes, waiter attribution | `tickets.test.ts`, `menu.test.ts` | `order_batches.test.sql` | `tickets.spec.ts`, `waiter.spec.ts` |
+| Kitchen receipt contents, large and bold, never prices; doesn't finalize; new orders only; no duplicates | `printing.test.ts` | `order_batches.test.sql` | `tickets.spec.ts`; races 5, 6, 9 |
+| Customer receipt: all orders, same ticket number, taxes, paper width | `printing.test.ts`, `tax.test.ts` | `order_batches.test.sql` | `tickets.spec.ts` |
+| Finalizing, failed or cancelled printing, reprints, nothing can change | | `order_batches.test.sql`, `tickets.test.sql` | `tickets.spec.ts`; races 7, 8 |
+| History: filters, sort, totals with tax, unchanged by menu prices | `history.test.ts` | `order_batches.test.sql` | `history.spec.ts` |
+| Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
+| Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
+
+**Results, Nov 2, 2026:** 298 unit tests, 436 database checks, 9 race tests, 61 browser tests.
+
+**How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
+live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for
+Supabase Auth; never the live project (`e2e/support/env.ts` refuses it). Real Supabase, real Auth, and Realtime
+run in CI on the pull request.
+
+**Not tested anywhere:** a physical thermal printer. The print layout was checked in print mode, at the configured
+width. Please print one kitchen receipt and one customer receipt on the real printer before relying on it.
 
 ## Phase 1 tests (48 unit tests, 10 database checks)
 
