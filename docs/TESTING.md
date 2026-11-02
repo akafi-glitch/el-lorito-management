@@ -50,6 +50,7 @@ database and runs every database test against it.
 | Seating combinations still work | `recommend.test.ts` | `seating.test.sql` | `floor.spec.ts` |
 | Any waiter, any section; the table list follows the section | `waiter.test.ts` | | `waiter.spec.ts` |
 | Waiter Section separate from the Floor: no guest question, orders don't seat anyone, clearing leaves orders alone | `waiter.test.ts` | `orders_by_table.test.sql` | `waiter.spec.ts`; race 4b |
+| Kitchen receipt marker: blue with its label once confirmed printed, normal again after the customer receipt | `waiter.test.ts`, `tickets.test.ts` | | `tickets.spec.ts` |
 | A confirmed customer receipt resets the table: next order is a new ticket | `tickets.test.ts` | `orders_by_table.test.sql` | `tickets.spec.ts`; race 7 |
 | Ordering from a phone-sized screen | | | `tickets.spec.ts` (Pixel 7, touch), `devices.spec.ts` |
 | Menu items, custom items, notes, waiter attribution | `tickets.test.ts`, `menu.test.ts` | `order_batches.test.sql` | `tickets.spec.ts`, `waiter.spec.ts` |
@@ -60,7 +61,7 @@ database and runs every database test against it.
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 2, 2026:** 299 unit tests, 471 database checks, 10 race tests, 61 browser tests.
+**Results, Nov 2, 2026:** 302 unit tests, 471 database checks, 10 race tests, 61 browser tests.
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for

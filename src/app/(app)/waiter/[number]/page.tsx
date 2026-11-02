@@ -8,7 +8,7 @@ import { ROLE_LABEL, employeeLabel } from "@/features/staff/rules";
 import { loadVersions } from "@/features/sync/queries";
 import { TablePicker } from "@/features/waiter/components/table-picker";
 import { WaiterRefused } from "@/features/waiter/components/waiter-refused";
-import { loadWaitersBySection } from "@/features/waiter/queries";
+import { loadKitchenPrintedTables, loadWaitersBySection } from "@/features/waiter/queries";
 import { resolveWaiter } from "@/features/waiter/resolve";
 import { assignedSections, pickerSections, waiterPath } from "@/features/waiter/rules";
 
@@ -30,15 +30,15 @@ export default async function WaiterTablesPage({ params }: Props) {
 
   const me = result.employee;
   const versions = await loadVersions(); // before the data: see floor/page.tsx
-  const [floor, waiters] = await Promise.all([loadFloorMap(), loadWaitersBySection()]);
-  const sections = pickerSections(floor);
+  const [floor, waiters, printed] = await Promise.all([loadFloorMap(), loadWaitersBySection(), loadKitchenPrintedTables()]);
+  const sections = pickerSections(floor, printed);
   const mine = assignedSections(sections, me, waiters);
 
   return (
     <SectionShell
       title={employeeLabel(me)}
       description={`${ROLE_LABEL[me.role]}. Any waiter can open any table.`}
-      live={{ watch: ["staff"], versions }}
+      live={{ watch: ["staff", "tickets"], versions }}
     >
       <div className="flex flex-col gap-6">
         <TablePicker sections={sections} basePath={waiterPath(me)} initialSection={mine[0]?.code ?? null} menuVersion={versions.menu} />
