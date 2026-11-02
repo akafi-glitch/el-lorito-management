@@ -5,6 +5,7 @@ import { isTopic, movedTopics, newest, type Topic, type Versions } from "./topic
  * without a browser:
  * - a live signal for a watched topic, newer than what the screen shows, triggers one refresh
  *   (several signals close together become one refresh);
+ * - only one refresh runs at a time; anything newer that arrives meanwhile causes one more, after it;
  * - while the live connection is down, the server's versions are checked every few seconds;
  * - after reconnecting, regaining focus, or coming back online, they are checked once;
  * - while something on screen must not be interrupted (a print question), refreshes wait.
@@ -26,6 +27,8 @@ export type LiveSyncDeps = {
   isHeld: () => boolean;
   pollMs?: number;
   debounceMs?: number;
+  /** A refresh that never reports back (lost connection) stops blocking the next one after this long. */
+  refreshTimeoutMs?: number;
 };
 
 export type LiveSync = {
@@ -33,6 +36,8 @@ export type LiveSync = {
   drawn: (versions: Versions) => void;
   /** Check the server now (focus, back online). */
   check: () => void;
+  /** This device changed something: reload the screen now. */
+  refreshNow: () => void;
   /** A hold on refreshes was released: refresh if something arrived meanwhile. */
   released: () => void;
   stop: () => void;
@@ -41,12 +46,16 @@ export type LiveSync = {
 export function startLiveSync(deps: LiveSyncDeps): LiveSync {
   const pollMs = deps.pollMs ?? 5000;
   const debounceMs = deps.debounceMs ?? 250;
+  const refreshTimeoutMs = deps.refreshTimeoutMs ?? 4000;
   let known: Versions = deps.initial;
   let connected = false;
   let stopped = false;
   let pending = false;
+  /** This device changed something while a reload was running: that reload may not include it. */
+  let again = false;
   let refreshTimer: unknown = null;
   let pollTimer: unknown = null;
+  let inFlightTimer: unknown = null;
   let status: LiveStatus = "connecting";
 
   const setStatus = (next: LiveStatus) => {
@@ -55,16 +64,28 @@ export function startLiveSync(deps: LiveSyncDeps): LiveSync {
     deps.onStatus(next);
   };
 
+  function finishRefresh() {
+    if (inFlightTimer !== null) deps.clearTimer(inFlightTimer);
+    inFlightTimer = null;
+  }
+
+  function fire() {
+    if (stopped || !pending || deps.isHeld() || inFlightTimer !== null) return;
+    pending = false;
+    inFlightTimer = deps.setTimer(() => {
+      inFlightTimer = null;
+      if (pending) refreshSoon();
+    }, refreshTimeoutMs);
+    deps.refresh();
+  }
+
   function refreshSoon() {
     if (stopped) return;
     pending = true;
     if (deps.isHeld() || refreshTimer !== null) return;
     refreshTimer = deps.setTimer(() => {
       refreshTimer = null;
-      if (stopped || !pending) return;
-      if (deps.isHeld()) return; // released() will pick it up
-      pending = false;
-      deps.refresh();
+      fire(); // held or already running: released() or drawn() will pick it up
     }, debounceMs);
   }
 
@@ -121,10 +142,25 @@ export function startLiveSync(deps: LiveSyncDeps): LiveSync {
 
   return {
     drawn(versions) {
+      finishRefresh();
+      // Refresh again only if something newer arrived while this drawing was being made.
+      pending = again || movedTopics(versions, known, deps.watched).length > 0;
+      again = false;
       known = newest(known, versions);
+      if (pending) refreshSoon();
     },
     check() {
       void check();
+    },
+    refreshNow() {
+      if (stopped) return;
+      pending = true;
+      if (inFlightTimer !== null) again = true;
+      if (refreshTimer !== null) {
+        deps.clearTimer(refreshTimer);
+        refreshTimer = null;
+      }
+      fire();
     },
     released() {
       if (pending) refreshSoon();
@@ -134,6 +170,7 @@ export function startLiveSync(deps: LiveSyncDeps): LiveSync {
       unsubscribe();
       if (refreshTimer !== null) deps.clearTimer(refreshTimer);
       if (pollTimer !== null) deps.clearTimer(pollTimer);
+      finishRefresh();
     },
   };
 }

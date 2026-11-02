@@ -1,49 +1,55 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { buttonClasses } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
 import { holdRefresh } from "@/features/sync/hold";
 
-import { printTicketAction, recordPrintOutcomeAction, reprintTicketAction, type PrintResult } from "../actions";
-import type { ReceiptData } from "../receipt";
+import { recordPrintOutcomeAction } from "../actions";
+import type { KitchenReceiptData, ReceiptData } from "../receipt";
 
-import { Receipt } from "./receipt";
+import { KitchenReceipts, Receipt } from "./receipt";
 
-/** What the first print needs: a saved ticket at its current version. */
-export type PrintTarget = { visitId: number; ticketId: number; version: number; ticketNumber: number };
+/** A print the database has recorded, ready for the dialog. */
+export type PrintJob = {
+  attemptIds: number[];
+  /** "ticket #1042" or "order 2": named in the questions. */
+  title: string;
+  /** The question's extra sentence, for example what Yes will do. */
+  question: string;
+  content: { kind: "kitchen"; receipts: KitchenReceiptData[] } | { kind: "customer"; receipt: ReceiptData; isCopy: boolean };
+};
+
+export type PrintStart = { job: PrintJob } | { message: string };
 
 type PrintFlowProps = {
   employeeNumber: string;
   paperWidthMm: 58 | 80;
-  /** "first": save if needed, lock, print. "reprint": another copy of a printed ticket. */
-  mode: { kind: "first"; prepare: () => Promise<PrintTarget | null> } | { kind: "reprint"; ticketId: number; ticketNumber: number };
   label: string;
   disabled?: boolean;
   className?: string;
+  /** Records the print (saving first if needed) and returns what to print. Null: the caller has said why not. */
+  start: () => Promise<PrintStart | null>;
   onError: (message: string) => void;
-  /** Where to go after "Back to the ticket" (the page then shows the printed, locked ticket). */
-  ticketHref: (ticketNumber: number) => string;
+  /** The waiter answered, or left the question. printed is null when they left without answering. */
+  onDone: (printed: boolean | null) => void;
 };
 
 type Phase =
   | { name: "idle" }
   | { name: "working" }
-  | { name: "printing"; receipt: ReceiptData; attemptId: number; ticketId: number }
-  | { name: "asking"; receipt: ReceiptData; attemptId: number; ticketId: number }
-  | { name: "failed"; receipt: ReceiptData; ticketId: number };
+  | { name: "printing"; job: PrintJob }
+  | { name: "asking"; job: PrintJob }
+  | { name: "failed"; job: PrintJob };
 
 const OFFLINE = "Couldn't reach the server, so nothing was printed. Check the connection and try again.";
 
 /**
- * The print workflow: the database records the print first (and locks the ticket the first time),
- * then the browser's print dialog opens, then the waiter says whether paper came out. "Yes" goes
- * back to the home page; "No" offers to print again. Nothing claims a ticket printed by itself.
+ * The print workflow: the database records the print first, then the browser's print dialog opens,
+ * then the waiter says whether paper came out. Nothing claims a receipt printed by itself.
  */
-export function PrintFlow({ employeeNumber, paperWidthMm, mode, label, disabled, className, onError, ticketHref }: PrintFlowProps) {
-  const router = useRouter();
+export function PrintFlow({ employeeNumber, paperWidthMm, label, disabled, className, start, onError, onDone }: PrintFlowProps) {
   const [phase, setPhase] = useState<Phase>({ name: "idle" });
   const [answering, setAnswering] = useState(false);
 
@@ -59,49 +65,26 @@ export function PrintFlow({ employeeNumber, paperWidthMm, mode, label, disabled,
     if (phase.name !== "printing") return;
     const frame = requestAnimationFrame(() => {
       window.print();
-      setPhase({ name: "asking", receipt: phase.receipt, attemptId: phase.attemptId, ticketId: phase.ticketId });
+      setPhase({ name: "asking", job: phase.job });
     });
     return () => cancelAnimationFrame(frame);
   }, [phase]);
 
-  function show(result: PrintResult, ticketId: number) {
-    if (result.ok) setPhase({ name: "printing", receipt: result.receipt, attemptId: result.attemptId, ticketId });
-    else {
-      setPhase({ name: "idle" });
-      onError(result.message);
-    }
-  }
-
-  async function start() {
+  async function begin() {
     setPhase({ name: "working" });
     try {
-      if (mode.kind === "reprint") {
-        show(await reprintTicketAction({ employeeNumber, ticketId: mode.ticketId }), mode.ticketId);
-        return;
-      }
-      const target = await mode.prepare();
-      if (!target) {
+      const result = await start();
+      if (result === null) {
         setPhase({ name: "idle" });
-        return;
+      } else if ("job" in result) {
+        setPhase({ name: "printing", job: result.job });
+      } else {
+        setPhase({ name: "idle" });
+        onError(result.message);
       }
-      show(
-        await printTicketAction({ employeeNumber, visitId: target.visitId, ticketId: target.ticketId, version: target.version }),
-        target.ticketId,
-      );
     } catch {
       setPhase({ name: "idle" });
       onError(OFFLINE);
-    }
-  }
-
-  async function printAgain(ticketId: number) {
-    setPhase({ name: "working" });
-    try {
-      show(await reprintTicketAction({ employeeNumber, ticketId }), ticketId);
-    } catch {
-      setPhase({ name: "idle" });
-      onError(OFFLINE);
-      router.refresh();
     }
   }
 
@@ -109,65 +92,70 @@ export function PrintFlow({ employeeNumber, paperWidthMm, mode, label, disabled,
     if (phase.name !== "asking") return;
     setAnswering(true);
     try {
-      const result = await recordPrintOutcomeAction({ employeeNumber, attemptId: phase.attemptId, printed });
-      if (!result.ok) onError(result.message);
+      const result = await recordPrintOutcomeAction({ employeeNumber, attemptIds: phase.job.attemptIds, printed });
+      if (!result.ok) {
+        onError(result.message);
+        setPhase({ name: "idle" });
+        onDone(null);
+        return;
+      }
     } catch {
-      onError("Couldn't save your answer (no connection). The ticket itself is saved and locked.");
+      onError("Couldn't save your answer (no connection). Nothing was finalized. Try again.");
+      return;
     } finally {
       setAnswering(false);
     }
     if (printed) {
-      router.push("/"); // the print workflow ends on the home page
-      return;
+      setPhase({ name: "idle" });
+      onDone(true);
+    } else {
+      setPhase({ name: "failed", job: phase.job });
     }
-    setPhase({ name: "failed", receipt: phase.receipt, ticketId: phase.ticketId });
   }
 
-  function backToTicket(ticketNumber: number) {
+  function leave(printed: boolean | null) {
     setPhase({ name: "idle" });
-    router.replace(ticketHref(ticketNumber));
-    router.refresh();
+    onDone(printed);
   }
 
-  const receipt = phase.name === "printing" || phase.name === "asking" || phase.name === "failed" ? phase.receipt : null;
+  const job = phase.name === "printing" || phase.name === "asking" ? phase.job : null;
 
   return (
     <>
       <button
         type="button"
         disabled={disabled || phase.name !== "idle"}
-        onClick={start}
+        onClick={begin}
         className={className ?? buttonClasses("primary", "min-h-14 w-full text-lg")}
       >
-        {phase.name === "working" ? "Preparing the ticket…" : label}
+        {phase.name === "working" ? "Preparing…" : label}
       </button>
 
-      {receipt && phase.name !== "failed" ? <Receipt receipt={receipt} paperWidthMm={paperWidthMm} /> : null}
+      {job?.content.kind === "kitchen" ? <KitchenReceipts receipts={job.content.receipts} paperWidthMm={paperWidthMm} /> : null}
+      {job?.content.kind === "customer" ? <Receipt receipt={job.content.receipt} isCopy={job.content.isCopy} paperWidthMm={paperWidthMm} /> : null}
 
       {phase.name === "asking" ? (
-        <Modal title={`Did ticket #${phase.receipt.ticketNumber} print?`} onClose={() => backToTicket(phase.receipt.ticketNumber)}>
-          <p className="text-lg text-ink">Check the printer. Answer Yes only if the paper came out.</p>
+        <Modal title={`Did ${phase.job.title} print?`} onClose={() => leave(null)} keepOnOutsideTap>
+          <p className="text-lg text-ink">Check the printer. Answer Yes only if the paper came out. {phase.job.question}</p>
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button type="button" disabled={answering} className={buttonClasses("secondary")} onClick={() => answer(false)}>
               No, it didn&apos;t print
             </button>
             <button type="button" disabled={answering} className={buttonClasses("primary")} onClick={() => answer(true)}>
-              Yes, it printed
+              {answering ? "Saving…" : "Yes, it printed"}
             </button>
           </div>
         </Modal>
       ) : null}
 
       {phase.name === "failed" ? (
-        <Modal title={`Ticket #${phase.receipt.ticketNumber} didn't print`} onClose={() => backToTicket(phase.receipt.ticketNumber)}>
-          <p className="text-lg text-ink">
-            Check the printer&apos;s paper and power, then print again. The ticket is saved and can&apos;t be changed.
-          </p>
+        <Modal title={`${phase.job.title[0]?.toUpperCase()}${phase.job.title.slice(1)} didn't print`} onClose={() => leave(false)} keepOnOutsideTap>
+          <p className="text-lg text-ink">Check the printer&apos;s paper and power, then print again. Everything is still saved.</p>
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-            <button type="button" className={buttonClasses("secondary")} onClick={() => backToTicket(phase.receipt.ticketNumber)}>
-              Back to the ticket
+            <button type="button" className={buttonClasses("secondary")} onClick={() => leave(false)}>
+              Back
             </button>
-            <button type="button" className={buttonClasses("primary")} onClick={() => printAgain(phase.ticketId)}>
+            <button type="button" className={buttonClasses("primary")} onClick={begin}>
               Print again
             </button>
           </div>

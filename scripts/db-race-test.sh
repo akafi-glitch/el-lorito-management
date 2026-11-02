@@ -105,4 +105,91 @@ else
   echo "  FAIL"; cat "$work/seventh.out" "$work/eighth.out"; fail=1
 fi
 
+# The upgrade's order operations -------------------------------------------------------------------
+ORDER_LINE() { echo "[{\"item_id\": $("${PSQL[@]}" -c "select id from public.menu_items where name = '$1' order by id limit 1"), \"quantity\": $2}]"; }
+SAVE() { echo "select * from public.save_order($1, $EMP, '$2'::uuid, '$(ORDER_LINE "$3" 1)', null, 'America/Chicago', null)"; }
+
+echo "Race 5: two waiters send the first order at one table at the same moment"
+reset_tables "C5"
+VISIT=$("${PSQL[@]}" -c "select public.seat_party(array['C5'], 2, null)")
+K1=$("${PSQL[@]}" -c "select gen_random_uuid()"); K2=$("${PSQL[@]}" -c "select gen_random_uuid()")
+( "${PSQL[@]}" -c "begin; $(SAVE "$VISIT" "$K1" Taco); select pg_sleep(1); commit;" >"$work/o1.out" 2>&1; echo $? >"$work/o1.code" ) &
+sleep 0.3
+( "${PSQL[@]}" -c "$(SAVE "$VISIT" "$K2" Horchata);" >"$work/o2.out" 2>&1; echo $? >"$work/o2.code" ) &
+wait
+if [ "$(cat "$work/o1.code")" = 0 ] && [ "$(cat "$work/o2.code")" = 0 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.tickets where visit_id = $VISIT")" = 1 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id where t.visit_id = $VISIT")" = 2 ]; then
+  echo "  PASS: one ticket, two orders; nothing overwritten"
+else
+  echo "  FAIL"; cat "$work/o1.out" "$work/o2.out"; fail=1
+fi
+
+echo "Race 6: the same order is pressed twice at the same moment"
+K3=$("${PSQL[@]}" -c "select gen_random_uuid()")
+( "${PSQL[@]}" -c "begin; $(SAVE "$VISIT" "$K3" Taco); select pg_sleep(1); commit;" >"$work/d1.out" 2>&1; echo $? >"$work/d1.code" ) &
+sleep 0.3
+( "${PSQL[@]}" -c "$(SAVE "$VISIT" "$K3" Taco);" >"$work/d2.out" 2>&1; echo $? >"$work/d2.code" ) &
+wait
+if [ "$(cat "$work/d1.code")" = 0 ] && [ "$(cat "$work/d2.code")" = 0 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where client_key = '$K3'")" = 1 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id where t.visit_id = $VISIT")" = 3 ]; then
+  echo "  PASS: saved once; the second press got the same order back"
+else
+  echo "  FAIL"; cat "$work/d1.out" "$work/d2.out"; fail=1
+fi
+
+echo "Race 7: a waiter adds an order while the customer receipt is confirmed"
+TID=$("${PSQL[@]}" -c "select id from public.tickets where visit_id = $VISIT")
+ATT=$("${PSQL[@]}" -c "select attempt_id from public.request_customer_receipt($TID, (select version from public.tickets where id = $TID), $EMP, null, null)")
+K4=$("${PSQL[@]}" -c "select gen_random_uuid()")
+( "${PSQL[@]}" -c "begin; select public.record_print_outcome($ATT, true, $EMP, null); select pg_sleep(1); commit;" >"$work/f1.out" 2>&1; echo $? >"$work/f1.code" ) &
+sleep 0.3
+( "${PSQL[@]}" -c "$(SAVE "$VISIT" "$K4" Taco);" >"$work/f2.out" 2>&1; echo $? >"$work/f2.code" ) &
+wait
+if [ "$(cat "$work/f1.code")" = 0 ] && grep -q "ticket_finalized" "$work/f2.out" \
+   && [ "$("${PSQL[@]}" -c "select status from public.tickets where id = $TID")" = finalized ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where ticket_id = $TID")" = 3 ]; then
+  echo "  PASS: finalized first; the late order waited and was refused"
+else
+  echo "  FAIL"; cat "$work/f1.out" "$work/f2.out"; fail=1
+fi
+
+echo "Race 8: two devices confirm the same customer receipt at the same moment"
+reset_tables "C4"
+VISIT=$("${PSQL[@]}" -c "select public.seat_party(array['C4'], 2, null)")
+K5=$("${PSQL[@]}" -c "select gen_random_uuid()")
+"${PSQL[@]}" -c "$(SAVE "$VISIT" "$K5" Taco)" >/dev/null
+TID=$("${PSQL[@]}" -c "select id from public.tickets where visit_id = $VISIT")
+ATT=$("${PSQL[@]}" -c "select attempt_id from public.request_customer_receipt($TID, (select version from public.tickets where id = $TID), $EMP, null, null)")
+( "${PSQL[@]}" -c "begin; select public.record_print_outcome($ATT, true, $EMP, null); select pg_sleep(1); commit;" >"$work/g1.out" 2>&1; echo $? >"$work/g1.code" ) &
+sleep 0.3
+( "${PSQL[@]}" -c "select public.record_print_outcome($ATT, true, $EMP, null);" >"$work/g2.out" 2>&1; echo $? >"$work/g2.code" ) &
+wait
+if [ "$(cat "$work/g1.code")" = 0 ] && [ "$(cat "$work/g2.code")" = 0 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.audit_events where event_type = 'ticket_finalized' and details ->> 'ticket' = (select ticket_number::text from public.tickets where id = $TID)")" = 1 ]; then
+  echo "  PASS: finalized exactly once; the second answer changed nothing"
+else
+  echo "  FAIL"; cat "$work/g1.out" "$work/g2.out"; fail=1
+fi
+
+echo "Race 9: a save and a kitchen print at the same moment (deadlock check)"
+reset_tables "C3"
+VISIT=$("${PSQL[@]}" -c "select public.seat_party(array['C3'], 2, null)")
+K6=$("${PSQL[@]}" -c "select gen_random_uuid()"); K7=$("${PSQL[@]}" -c "select gen_random_uuid()")
+"${PSQL[@]}" -c "$(SAVE "$VISIT" "$K6" Taco)" >/dev/null
+TID=$("${PSQL[@]}" -c "select id from public.tickets where visit_id = $VISIT")
+( "${PSQL[@]}" -c "begin; $(SAVE "$VISIT" "$K7" Horchata); select pg_sleep(1); commit;" >"$work/h1.out" 2>&1; echo $? >"$work/h1.code" ) &
+sleep 0.3
+( "${PSQL[@]}" -c "select * from public.request_kitchen_print($TID, null, $EMP, null, null);" >"$work/h2.out" 2>&1; echo $? >"$work/h2.code" ) &
+wait
+if grep -q "deadlock" "$work"/h*.out; then
+  echo "  FAIL: deadlock"; cat "$work"/h*.out; fail=1
+elif [ "$(cat "$work/h1.code")" = 0 ] && [ "$(cat "$work/h2.code")" = 0 ]; then
+  echo "  PASS: both finished, one after the other; no deadlock"
+else
+  echo "  FAIL"; cat "$work"/h*.out; fail=1
+fi
+
 exit $fail
+

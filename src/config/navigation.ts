@@ -14,7 +14,7 @@ export const primaryDestinations: readonly NavDestination[] = [
   {
     href: "/waiter",
     label: "Waiter Section",
-    description: "Enter your number, choose a table, print a ticket.",
+    description: "Enter your number, choose a table, take the order.",
   },
 ];
 
@@ -22,7 +22,7 @@ export const primaryDestinations: readonly NavDestination[] = [
 export const managementDestination: NavDestination = {
   href: "/manage",
   label: "Management",
-  description: "Sections, staff, shifts, and accounts.",
+  description: "Sections, staff, shifts, order history, and accounts.",
 };
 
 export const allDestinations: readonly NavDestination[] = [...primaryDestinations, managementDestination];

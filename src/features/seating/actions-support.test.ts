@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { visitsByTable } from "@/features/floor/visits";
 
-import { seatingErrorMessage, shouldRefresh } from "./errors";
+import { seatingErrorMessage, shouldRefresh, undoErrorMessage } from "./errors";
 import { seatPartySchema, sectionOpenSchema, visitChangeSchema } from "./schema";
 
 describe("seating input checks", () => {
@@ -85,5 +85,14 @@ describe("grouping seated tables by party", () => {
     );
     expect(map.get(ids[0])).toEqual({ visitId: 5, version: 2, guestCount: 9, chipsServed: true, tableLabels: ["A3", "A4"] });
     expect(map.get(ids[1])?.tableLabels).toEqual(["A3", "A4"]);
+  });
+});
+
+describe("undo chips served", () => {
+  it("says nothing was undone when someone else changed the table", () => {
+    expect(undoErrorMessage({ message: "stale_visit" })).toContain("nothing was undone");
+    expect(undoErrorMessage({ message: "chips_not_served" })).toContain("nothing was undone");
+    expect(undoErrorMessage({ message: "visit_closed" })).toContain("already cleared");
+    expect(shouldRefresh({ message: "chips_not_served" })).toBe(true);
   });
 });

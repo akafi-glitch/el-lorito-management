@@ -438,7 +438,7 @@
             "layout_col": 3,
             "layout_row": 1,
             "sort_order": 1,
-            "section_code": "X-1"
+            "section_code": "X-2"
         },
         {
             "id": "c92952c1-d1ff-469a-95df-4ba66769a8ec",
@@ -450,7 +450,7 @@
             "layout_col": 3,
             "layout_row": 2,
             "sort_order": 2,
-            "section_code": "X-1"
+            "section_code": "X-2"
         },
         {
             "id": "89c022ee-da70-4185-93c1-2aa24b450c89",
@@ -462,7 +462,7 @@
             "layout_col": 3,
             "layout_row": 3,
             "sort_order": 3,
-            "section_code": "X-1"
+            "section_code": "X-2"
         },
         {
             "id": "fc8997c8-c6a6-41de-bed6-de46a33f0eea",
@@ -473,7 +473,7 @@
             "is_active": true,
             "layout_col": 1,
             "layout_row": 5,
-            "sort_order": 4,
+            "sort_order": 6,
             "section_code": "X-1"
         },
         {
@@ -485,8 +485,8 @@
             "is_active": true,
             "layout_col": 1,
             "layout_row": 4,
-            "sort_order": 5,
-            "section_code": "X-1"
+            "sort_order": 4,
+            "section_code": "X-2"
         },
         {
             "id": "6aef1698-68ab-4bcc-9495-bc2fd865e129",
@@ -497,8 +497,8 @@
             "is_active": true,
             "layout_col": 1,
             "layout_row": 3,
-            "sort_order": 6,
-            "section_code": "X-1"
+            "sort_order": 5,
+            "section_code": "X-2"
         },
         {
             "id": "0017584b-7789-4990-8a96-75e7b1b34ae9",
@@ -509,8 +509,8 @@
             "is_active": true,
             "layout_col": 1,
             "layout_row": 2,
-            "sort_order": 7,
-            "section_code": "X-1"
+            "sort_order": 6,
+            "section_code": "X-2"
         },
         {
             "id": "18a3e374-31bb-48db-8283-a44c76ba983f",
@@ -522,7 +522,7 @@
             "layout_col": 3,
             "layout_row": 4,
             "sort_order": 1,
-            "section_code": "X-2"
+            "section_code": "X-1"
         },
         {
             "id": "e624cfe4-bf07-4b08-af5a-53b9ce629ce3",
@@ -534,7 +534,7 @@
             "layout_col": 3,
             "layout_row": 5,
             "sort_order": 2,
-            "section_code": "X-2"
+            "section_code": "X-1"
         },
         {
             "id": "3c24029d-fe5a-4ba7-9643-fbede5049a1b",
@@ -546,7 +546,7 @@
             "layout_col": 2,
             "layout_row": 5,
             "sort_order": 3,
-            "section_code": "X-2"
+            "section_code": "X-1"
         },
         {
             "id": "c316a029-b23c-4871-ad76-504760cbf6fc",
@@ -558,7 +558,7 @@
             "layout_col": 2,
             "layout_row": 4,
             "sort_order": 4,
-            "section_code": "X-2"
+            "section_code": "X-1"
         },
         {
             "id": "0fe1e4c4-f78d-4b08-a491-061919c844eb",
@@ -570,7 +570,7 @@
             "layout_col": 2,
             "layout_row": 3,
             "sort_order": 5,
-            "section_code": "X-2"
+            "section_code": "X-1"
         },
         {
             "id": "068432d7-7df6-4bf2-a22c-92380d36d717",
@@ -581,8 +581,8 @@
             "is_active": true,
             "layout_col": 2,
             "layout_row": 2,
-            "sort_order": 6,
-            "section_code": "X-2"
+            "sort_order": 7,
+            "section_code": "X-1"
         },
         {
             "id": "fdecc599-5626-44e7-b35a-db52d0296b7d",
@@ -593,8 +593,8 @@
             "is_active": true,
             "layout_col": 2,
             "layout_row": 1,
-            "sort_order": 7,
-            "section_code": "X-2"
+            "sort_order": 8,
+            "section_code": "X-1"
         }
     ],
     "sections": [

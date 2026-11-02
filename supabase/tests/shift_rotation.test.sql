@@ -1,8 +1,8 @@
--- Database tests: a new shift starts the seating rotation again at A, and keeps everything else.
+-- Database tests: each shift has its own seating rotation, starts at its first section, and keeps everything else.
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(24);
+select plan(51);
 
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000cc', 'shiftmgr@staff.ellorito-management.com');
 insert into public.app_users (user_id, username, display_name) values ('00000000-0000-0000-0000-0000000000cc', 'shiftmgr', 'Shift Manager');
@@ -38,7 +38,7 @@ select is(pg_temp.next_section(), 'A', 'the rotation starts at A');
 select pg_temp.snap();
 insert into ids select 'shift1', public.start_shift(pg_temp.actor());
 select is(pg_temp.next_section(), 'A', 'starting a shift with the rotation at A leaves it at A');
-select is(pg_temp.floor_version(), pg_temp.was('floor'), '... and doesn''t refresh the floor screens for nothing');
+select ok(pg_temp.floor_version() > pg_temp.was('floor'), '... and every floor screen hears about the new shift''s rotation');
 
 -- During the shift the rotation moves as usual ----------------------------------------------------
 insert into ids select 'kafi', public.add_employee('01', 'Kafi', 'waiter', pg_temp.actor());
@@ -90,9 +90,75 @@ select public.start_shift(pg_temp.actor());
 select is(pg_temp.next_section(), 'A', 'the reset points at A even while A is closed');
 select public.set_section_open('A', true, pg_temp.actor());
 
-select ok(not has_function_privilege('anon', 'public.start_shift(uuid)', 'execute')
-          and not has_function_privilege('authenticated', 'public.start_shift(uuid)', 'execute'),
-  'browsers still can''t start a shift');
+-- The manager sets the order -------------------------------------------------------------------------
+create function pg_temp.rotation(p bigint) returns text language sql as $$
+  select string_agg(section_code, ',' order by position) from public.shift_rotation_sections where shift_id = p $$;
+create function pg_temp.open_shift() returns bigint language sql as $$ select id from public.shifts where ended_at is null $$;
+create function pg_temp.current() returns text language sql as $$ select string_agg(section_code, ',' order by section_position) from public.current_rotation() $$;
+create function pg_temp.free(p_codes text[]) returns void language plpgsql as $f$
+declare v bigint;
+begin
+  for v in select distinct vt.visit_id from public.visit_tables vt join public.restaurant_tables t on t.id = vt.table_id
+            where t.code = any (p_codes) and vt.released_at is null loop
+    if (select chips_status from public.customer_visits where id = v) = 'needed' then
+      perform public.mark_chips_served(v, (select version from public.customer_visits where id = v), pg_temp.actor());
+    end if;
+    perform public.clear_visit(v, (select version from public.customer_visits where id = v), pg_temp.actor());
+  end loop;
+end $f$;
+select pg_temp.free(array['A1','A2','A3','A4','A5','A6','B1','B4','C5','P1','P2','X5','X10','X11','X12','PARTY-1']);
+
+insert into ids select 'morning', public.start_shift(pg_temp.actor(), array['A','C','B','X-1','X-2','P']);
+select is(pg_temp.rotation(pg_temp.id('morning')), 'A,C,B,X-1,X-2,P', 'the morning shift saves its rotation');
+select is(pg_temp.next_section(), 'A', 'a new shift starts at its first section');
+insert into ids select 'free_x2', public.seat_party(array['X10'], 2, pg_temp.actor());
+select is(pg_temp.next_section(), 'P', 'seating in X(2) moves to the next section in this shift''s order');
+select public.clear_visit(pg_temp.id('free_x2'), public.mark_chips_served(pg_temp.id('free_x2'), 1, pg_temp.actor()), pg_temp.actor());
+
+insert into ids select 'evening', public.start_shift(pg_temp.actor(), array['X-2','X-1','A','B','C','P']);
+select is(pg_temp.rotation(pg_temp.id('evening')), 'X-2,X-1,A,B,C,P', 'the evening shift has its own order');
+select is(pg_temp.rotation(pg_temp.id('morning')), 'A,C,B,X-1,X-2,P', 'the earlier shift''s rotation stays in the history');
+select is(pg_temp.next_section(), 'X-2', 'the new shift begins at the first section of ITS rotation');
+select is(pg_temp.current(), 'X-2,X-1,A,B,C,P', 'recommendations read the open shift''s rotation');
+
+insert into ids select 'x2_table', public.seat_party(array['X11'], 2, pg_temp.actor());
+select is(pg_temp.next_section(), 'X-1', 'seating follows the shift''s order: X(2) then X(1)');
+insert into ids select 'x1_table', public.seat_party(array['X5'], 2, pg_temp.actor());
+select is(pg_temp.next_section(), 'A', 'then A');
+insert into ids select 'combo', public.seat_party(array['A4', 'B4'], 12, pg_temp.actor(), 'A4+B4');
+select is(pg_temp.next_section(), 'C', 'tables in two sections move past the later one in this shift''s order (B, then C)');
+select public.seat_party(array['P2'], 2, pg_temp.actor());
+select is(pg_temp.next_section(), 'X-2', 'after the last section it wraps to this shift''s first section');
+
+-- Changing it during the shift ----------------------------------------------------------------------------
+select pg_temp.snap();
+select is(public.set_shift_rotation(array['P','A','B','C','X-1','X-2'], null, pg_temp.actor()), 'X-2', 'a change keeps the next section');
+select is(pg_temp.rotation(pg_temp.open_shift()), 'P,A,B,C,X-1,X-2', 'the new order is saved');
+select ok(pg_temp.floor_version() > pg_temp.was('floor'), 'every floor screen hears about it');
+select is((select count(*) from public.audit_events), pg_temp.was('audit') + 1, 'the change is in the history');
+select public.seat_party(array['X12'], 2, pg_temp.actor());
+select is(pg_temp.next_section(), 'P', 'the next seating follows the new order at once');
+select is(public.set_shift_rotation(array['P','A','B','C','X-1','X-2'], 'B', pg_temp.actor()), 'B', 'the manager can pick the next section');
+select is(pg_temp.next_section(), 'B', '... and it takes effect');
+select pg_temp.snap();
+select is(public.set_shift_rotation(array['P','A','B','C','X-1','X-2'], null, pg_temp.actor()), 'B', 'saving the same order changes nothing');
+select is((select count(*) from public.audit_events), pg_temp.was('audit'), '... and adds no history');
+
+-- Refusals ---------------------------------------------------------------------------------------------------
+select throws_ok($$ select public.start_shift(pg_temp.actor(), array['A','B','C']) $$, 'P0001', 'invalid_rotation', 'every dining section must be in the order');
+select throws_ok($$ select public.start_shift(pg_temp.actor(), array['A','A','B','C','X-1','X-2']) $$, 'P0001', 'invalid_rotation', 'no section twice');
+select throws_ok($$ select public.start_shift(pg_temp.actor(), array['A','B','C','X-1','X-2','P','PARTY']) $$, 'P0001', 'invalid_rotation', 'Party isn''t in the rotation');
+select throws_ok($$ select public.set_shift_rotation(array['A','B','C','X-1','X-2','NOPE'], null, pg_temp.actor()) $$, 'P0001', 'invalid_rotation', 'unknown sections are refused');
+select throws_ok($$ select public.set_shift_rotation(array['A','B','C','X-1','X-2','P'], 'BAR', pg_temp.actor()) $$, 'P0001', 'invalid_rotation', 'the next section must be in the order');
+select is(pg_temp.next_section(), 'B', 'a refused change leaves everything as it was');
+select ok((select count(*) from public.visit_tables vt join public.restaurant_tables t on t.id = vt.table_id where t.code in ('X11','X5','A4','B4','P2') and vt.released_at is null) = 5,
+  'starting shifts and changing the rotation never clear seated tables');
+
+select ok(not has_function_privilege('anon', 'public.start_shift(uuid, text[])', 'execute')
+          and not has_function_privilege('authenticated', 'public.start_shift(uuid, text[])', 'execute')
+          and not has_function_privilege('authenticated', 'public.set_shift_rotation(text[], text, uuid)', 'execute')
+          and not has_table_privilege('authenticated', 'public.shift_rotation_sections', 'select'),
+  'browsers still can''t start a shift or change the rotation');
 
 select * from finish();
 rollback;

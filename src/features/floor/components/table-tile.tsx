@@ -45,6 +45,7 @@ export function TableTile({ table, showSection, wrapOnPhone, selected, disabled,
     detail,
     partners.length > 0 ? `joined with ${partners.join(" and ")}` : null,
     selected ? "selected" : status,
+    table.status === "chips-needed" ? "tap to mark chips served" : null,
   ]
     .filter(Boolean)
     .join(", ");
@@ -56,7 +57,7 @@ export function TableTile({ table, showSection, wrapOnPhone, selected, disabled,
       aria-pressed={table.status === "vacant" ? selected : undefined}
       disabled={disabled}
       onClick={() => onPress(table)}
-      className={`flex min-h-[4.75rem] flex-col items-center justify-center rounded-xl border-2 px-2 py-2 text-center transition-shadow disabled:cursor-wait ${placement} ${STATUS_TILE[table.status]} ${ring}`}
+      className={`flex min-h-[4.75rem] flex-col items-center justify-center rounded-xl border-2 px-2 py-2 text-center transition-transform active:scale-95 disabled:cursor-wait ${placement} ${STATUS_TILE[table.status]} ${ring}`}
       style={position}
     >
       {showSection ? (

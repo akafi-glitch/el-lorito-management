@@ -266,3 +266,13 @@ was bought or switched on.
 **Still open:** printer model and paper width (setting `RECEIPT_PAPER_WIDTH_MM`, 80 by default);
 first live check of Realtime after deployment; custom domain later.
 
+## Upgrade of Nov 2, 2026: floor, mobile ordering, receipts, history, speed
+
+**Built:** a seating rotation the manager sets per shift; corrected X(1) and X(2); one tap for chips with Undo;
+section and table dropdowns open to every waiter; one ticket per group with any number of orders; custom items and
+order notes; kitchen receipts (large, bold, no prices); customer receipts with finalizing after confirmation, enforced
+in the database; Management → Order History; and much faster responses to a tap.
+
+**For the owner to decide:** a waiter opening a vacant table can seat the group there (see BUSINESS_RULES.md).
+**Still open:** first print on the real thermal printer.
+

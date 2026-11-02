@@ -39,10 +39,10 @@ select set_eq(
   array['C1','C2','C3','C4','C5','C6'], 'Section C has C1-C6');
 select set_eq(
   $$ select code from public.restaurant_tables where section_code = 'X-1' $$,
-  array['X1','X2','X3','X9','X10','X11','X12'], 'X(1) has X1-X3 and X9-X12');
+  array['X4','X5','X6','X7','X8','X9','X13','X14'], 'X(1) has exactly X4-X9, X13, X14');
 select set_eq(
   $$ select code from public.restaurant_tables where section_code = 'X-2' $$,
-  array['X4','X5','X6','X7','X8','X13','X14'], 'X(2) has X4-X8, X13, X14');
+  array['X1','X2','X3','X10','X11','X12'], 'X(2) has exactly X1-X3, X10-X12');
 select set_eq(
   $$ select code from public.restaurant_tables where section_code = 'P' $$,
   array['P1','P2','P3','P4','P5','P10'], 'Section P has P1-P5 and P10 (no P6-P9)');
@@ -63,7 +63,7 @@ select set_eq(
   array['X13','X14'], 'X13 and X14 have 2 chairs');
 select is(
   (select count(*)::int from public.restaurant_tables where capacity = 4), 25,
-  '25 tables have 4 chairs (A 5, B 5, C 3, X(1) 4, X(2) 2, P 6)');
+  '25 tables have 4 chairs (A 5, B 5, C 3, X(1) 3, X(2) 3, P 6)');
 select is(
   (select count(*)::int from public.restaurant_tables where capacity is null), 7,
   'Party and Bar capacities stay unknown (7 tables)');

@@ -8,29 +8,17 @@ import type { SavedTicket } from "../types";
 type TicketListProps = {
   tickets: SavedTicket[];
   selected: number | null;
-  /** Table page link (keeps the "continue" confirmation). */
   tableHref: string;
 };
 
-/** Every ticket of this group, plus "New ticket". Tap one to open it. */
+/** Other tickets of this group (cancelled, or from before one group meant one ticket). Tap one to open it. */
 export function TicketList({ tickets, selected, tableHref }: TicketListProps) {
   return (
     <nav aria-labelledby="tickets-heading" className="rounded-2xl border border-glaze bg-paper p-4">
       <h2 id="tickets-heading" className="text-lg font-bold text-ink">
-        Tickets for this table {tickets.length > 0 ? `(${tickets.length})` : ""}
+        Other tickets for this table
       </h2>
       <ul className="mt-3 flex flex-wrap gap-2">
-        <li>
-          <Link
-            href={withTicket(tableHref, null)}
-            aria-current={selected === null ? "page" : undefined}
-            className={`flex min-h-14 items-center rounded-xl px-4 font-semibold ${
-              selected === null ? "bg-leaf text-white" : "border-2 border-dashed border-glaze text-leaf hover:border-leaf"
-            }`}
-          >
-            + New ticket
-          </Link>
-        </li>
         {tickets.map((ticket) => {
           const current = ticket.number === selected;
           return (
@@ -47,7 +35,7 @@ export function TicketList({ tickets, selected, tableHref }: TicketListProps) {
                   #{ticket.number} · {formatCents(ticket.totals.totalCents)}
                 </span>
                 <span className={`text-xs ${current ? "text-white/85" : "text-muted"}`}>
-                  {ticket.maker.name} · {ticket.createdTime} · {ticket.status === "open" ? "not printed" : ticket.status}
+                  {ticket.maker.name} · {ticket.createdTime} · {ticket.status}
                 </span>
               </Link>
             </li>

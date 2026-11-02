@@ -92,7 +92,7 @@ export function FloorAreaCard({ area, staff, selectedCodes, busy, onTablePress, 
             showSection={mixedSections}
             wrapOnPhone={wrapOnPhone}
             selected={selectedCodes.has(table.code)}
-            disabled={busy}
+            disabled={table.pending === true}
             onPress={onTablePress}
           />
         ))}

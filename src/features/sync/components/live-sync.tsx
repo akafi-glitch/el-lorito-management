@@ -10,6 +10,7 @@ import { createBrowserSupabaseClient } from "@/lib/supabase/browser";
 
 import { startLiveSync, type LiveStatus, type LiveSync as Controller } from "../controller";
 import { isRefreshHeld, onHoldReleased } from "../hold";
+import { setRefreshHandler } from "../refresh";
 import { versionsSchema, type Topic, type Versions } from "../topics";
 
 type LiveSyncProps = {
@@ -91,6 +92,7 @@ export function LiveSync({ watch, versions }: LiveSyncProps) {
       isHeld: isRefreshHeld,
     });
     controller.current = live;
+    setRefreshHandler(() => live.refreshNow());
 
     const check = () => live.check();
     const onVisible = () => {
@@ -104,6 +106,7 @@ export function LiveSync({ watch, versions }: LiveSyncProps) {
     return () => {
       live.stop();
       controller.current = null;
+      setRefreshHandler(null);
       stopHold();
       window.removeEventListener("online", check);
       window.removeEventListener("focus", check);

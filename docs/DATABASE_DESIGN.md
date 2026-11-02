@@ -84,7 +84,8 @@ The app turns each refusal into plain words (`src/features/seating/errors.ts`).
 
 | Function | Does | Refuses with |
 | --- | --- | --- |
-| `start_shift(actor)` | Ends the open shift and its assignments, opens a new one, and puts the rotation back at A | — |
+| `start_shift(actor, rotation?)` | Ends the open shift and its assignments, opens a new one with this rotation, and points at its first section | `invalid_rotation` |
+| `set_shift_rotation(rotation, next section?, actor)` | Changes the open shift's order; the next section stays unless another is picked | `no_open_shift`, `invalid_rotation` |
 | `assign_duty(section, duty, employee or null, actor)` | Sets or clears a section's waiter or runner; keeps history | `no_open_shift`, `bar_open_to_all`, `employee_inactive`, `role_mismatch`, `employee_not_found` |
 | `add_employee(number, name, role, actor)` | Adds an employee | `employee_number_taken` |
 | `update_employee(id, name, role, active, actor)` | Renames, changes role, turns on/off; ends duties that no longer fit | `employee_not_found` |
@@ -167,8 +168,47 @@ A failed signal never blocks a change (the version still moves, so screens catch
 - `hardening.test.sql` fails any change that leaves a table without RLS, or any table, view,
   counter, or function in `public` usable by a browser.
 
+### Upgrade of Nov 2, 2026 (`20261102*`)
+
+Additive: no table or column is dropped, no row is deleted, and tickets printed before it keep their numbers,
+lines, totals, and `updated_at` (tested against a copy of the old schema with data).
+
+| File | Does |
+| --- | --- |
+| `…010000_ticket_finalized_status` | Adds ticket status `finalized`. Alone in its file: Postgres can't use a new enum value in the transaction that adds it |
+| `…020000_x_section_mapping` | Moves X tables to the corrected sections (`section_code`, `sort_order` only; IDs unchanged). Adds the new audit event types. Records the change once; running it again changes nothing |
+| `…030000_shift_rotation` | `shift_rotation_sections` (one order per shift, history kept; earlier shifts get the order they used). `current_rotation()`. `start_shift` takes a rotation; `set_shift_rotation`; `seat_party` moves along the shift's order. `sections.rotation_order` is now the starting suggestion and the order when no shift is open |
+| `…040000_chips_undo` | `undo_chips_served(visit, version, actor)`: refused unless the visit is exactly as the screen saw it |
+| `…050000_order_batches` | Orders, custom items, notes, kitchen and customer receipts, finalizing, history (below) |
+
+| Object | Purpose | Key rules |
+| --- | --- | --- |
+| `ticket_batches` | Each submitted order: `batch_no`, `client_key`, waiter, one note, `kitchen_printed_at` | Unique key means the same press never saves twice |
+| `ticket_lines` (changed) | Now belongs to a batch. `menu_item_id` may be null for a custom item (`is_custom`) | A foreign key on both columns keeps a line in its own ticket's batch; tax category always required |
+| `tickets` (new columns) | `shift_id`, `legacy_single_order`, `finalized_at`, `finalized_by_employee_id`, `final_receipt` | At most one active and one finalized ticket per visit (unique indexes). Finalized needs the bill and all totals |
+| `print_attempts` (new columns) | `receipt_kind` customer or kitchen, `batch_id`, `ticket_version`, `receipt_snapshot`, `client_key` | Attempts number separately per customer receipt and per order |
+| `ticket_history` (view) | One row per ticket for Management: number, time, shift, waiter number, tables, saved total | No food items |
+| Lock triggers | `refuse_change_to_locked_ticket`, `refuse_change_to_locked_order` | Finalized and old printed tickets, their orders, and their lines refuse every direct update and delete (`ticket_finalized`) |
+
+| Function | Does | Refuses with |
+| --- | --- | --- |
+| `save_order(visit, employee, key, lines, notes, time zone, actor)` | Adds one order, starting the ticket if needed. Same key: returns the first result | `invalid_lines`, `invalid_custom_item`, `invalid_notes`, `ticket_finalized`, `visit_closed`, `item_unavailable` |
+| `change_ticket(ticket, version, employee, changes, actor)` | Quantity, remove, or note, from the version the screen saw | `stale_ticket`, `ticket_finalized`, `line_not_found`, `visit_closed` |
+| `customer_receipt_snapshot(ticket, at)` | The bill as data: all orders, same item merged | |
+| `request_customer_receipt(ticket, version, employee, key, actor)` | Records an attempt with the exact bill; never finalizes. Locked ticket: a copy of the kept bill | `stale_ticket`, `empty_ticket`, `ticket_cancelled` |
+| `request_kitchen_print(ticket, batches or null, employee, key, actor)` | Records one attempt per order; null means every order not yet printed | `nothing_to_print`, `empty_batch`, `ticket_finalized` |
+| `record_print_outcome(attempt, printed?, employee, actor)` | The waiter's answer. Yes on a customer receipt of an open ticket finalizes it in this transaction. The same answer again changes nothing | `stale_ticket`, `outcome_already_recorded` |
+| `clear_visit` (changed) | Also freezes the totals of tickets left unfinalized | |
+
+Every function takes the visit lock before the ticket lock, so a save, a print, and clearing can't deadlock.
+
+`save_ticket`, `print_ticket`, and `reprint_ticket` stay, working on this schema, only so the previous app
+build keeps working between the migration and the new deployment, and after a rollback. Nothing in the new app
+calls them; remove them in a later migration.
+
 ## Testing
 
 `supabase/tests/*.test.sql` (pgTAP) runs with `npm run test:db` locally and in GitHub Actions on
 every push. `scripts/db-race-test.sh` opens two real connections at once to prove two hosts can't
-seat the same table, and that joining the same tables in opposite order can't deadlock.
+seat the same table, that joining the same tables in opposite order can't deadlock, and (races 5 to 9) that
+orders and finalizing stay correct when two devices act at the same moment.

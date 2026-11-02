@@ -15,23 +15,24 @@ Hosted on Vercel.
 - Every page requires an administrator username and password. There is no sign-up page.
 - Home page with **Floor Management** and **Waiter Section**, plus a **Management** link.
 - **Floor Management**: all 45 tables placed like the restaurant's floor plan. Suggests tables by
-  the rotation and party size, seats by tap (including joined tables), marks chips served, asks "Is
-  the table cleaned?" to clear, and opens or closes sections.
-- **Management**: start shifts, assign each section's waiter and chips runner, manage employees and
-  sign-in accounts. The floor shows who works each section.
-- **Waiter Section**: a waiter types their employee number on a big number pad and sees their
-  sections' tables plus the Bar. Other sections can be opened after a warning that names the
-  assigned waiter. Choosing a table opens the menu.
+  the rotation and party size, seats by tap (including joined tables), marks chips served with one tap
+  (with Undo), asks "Is the table cleaned?" to clear, and opens or closes sections.
+- **Management**: start shifts and set each shift's seating rotation, assign each section's waiter and
+  chips runner, manage employees and sign-in accounts. The floor shows who works each section.
+- **Waiter Section**: a waiter types their employee number on a big number pad, then chooses any section and
+  any table from two dropdowns. Built for phones and tablets. Choosing a table opens the ticket and the menu.
 - **Menu**: all 206 items from the restaurant's menu (plus 4 cheese-dip add-ons) in 26 categories,
   with search, quantities, and a running order. Lunch items cost $1.00 more from 3:00 PM. Management
   can change prices and turn items off.
-- **Tickets**: the order is saved as a numbered ticket (from #1001) for the seated group, can be
-  changed or cancelled until printed, and keeps its prices even if the menu changes. Each ticket
-  shows food and liquor subtotals, food tax (8.5%), liquor tax (10.5%), and the total.
-- **Printing**: **Print ticket** (or **Save and print**) saves, locks the ticket, opens the browser's
-  print dialog with a thermal-receipt layout, then asks "Did it print?". Yes returns to the home
-  page; No offers **Print again**. Printed tickets can be printed again any number of times.
-  See [a sample receipt](docs/receipt-sample.png).
+- **Tickets**: each group has one numbered ticket (from #1001) with any number of orders on it, including
+  custom items and notes. Orders can change until the customer receipt is confirmed, and keep their prices even
+  if the menu changes.
+- **Printing**: **Print Kitchen Receipt** saves and prints only the new orders, large and bold, with no prices.
+  **Print Customer Receipt** prints the whole bill, then asks whether it printed: Yes finalizes the ticket for
+  good, No offers **Print again**. A finalized receipt can be printed again any number of times.
+- **Order History**: under Management, every ticket by shift and waiter, with its saved total.
+  See the [kitchen receipt](docs/screenshots/receipt-kitchen.png) and the
+  [customer receipt](docs/screenshots/receipt-customer.png).
 - **Live updates**: when a table, ticket, assignment, or menu item changes on one device, every
   other screen showing it updates by itself, usually within a second. A small dot under each page
   title says **Live**, **Reconnecting** (then it checks every few seconds), or **Offline**.

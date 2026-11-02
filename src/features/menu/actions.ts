@@ -1,7 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import { requireActiveUser } from "@/features/auth/session";
 import type { ActionResult } from "@/lib/action-result";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -24,11 +22,8 @@ export async function updateMenuItemAction(input: UpdateMenuItemInput): Promise<
     p_actor: user.userId,
   });
   if (error) {
-    revalidatePath("/manage/menu");
     return { ok: false, message: menuErrorMessage(error) };
   }
-  revalidatePath("/manage/menu");
-  revalidatePath("/waiter", "layout");
   const name = typeof data === "string" ? data : "Item";
   return { ok: true, message: `${name}: ${formatCents(price)}, ${isAvailable ? "available" : "turned off"}.` };
 }

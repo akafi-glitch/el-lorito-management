@@ -1,23 +1,18 @@
-import Link from "next/link";
-
-import { buttonClasses } from "@/components/ui/button";
 import { TotalsBlock } from "@/features/billing/components/totals-block";
 import { formatCents } from "@/features/menu/money";
 
 import { staffLabel, STATUS_TEXT } from "../rules";
 import type { SavedTicket } from "../types";
 
-/** A ticket that can't be changed any more (printed, cancelled, or the table was cleared). */
+/** A ticket shown read-only (cancelled, printed the old way, or from the history). */
 export function TicketView({
   ticket,
   reason,
-  newTicketHref,
   actions,
 }: {
   ticket: SavedTicket;
   reason: string;
-  newTicketHref: string | null;
-  /** Extra buttons, such as "Print again" on a printed ticket. */
+  /** Extra buttons, such as printing a copy. */
   actions?: React.ReactNode;
 }) {
   return (
@@ -29,25 +24,32 @@ export function TicketView({
         {staffLabel(ticket.maker)} · {ticket.createdAt} · {STATUS_TEXT[ticket.status]}
       </p>
       <p className="mt-3 rounded-lg bg-tile px-3 py-2 text-base font-semibold text-ink">{reason}</p>
-      <ul className="mt-4 flex flex-col divide-y divide-glaze">
-        {ticket.lines.map((line) => (
-          <li key={line.itemId} className="flex justify-between gap-3 py-2">
-            <span className="text-ink">
-              {line.quantity} × {line.name} <span className="text-sm text-muted">({formatCents(line.unitCents)})</span>
-            </span>
-            <span className="font-semibold tabular-nums text-ink">{formatCents(line.totalCents)}</span>
-          </li>
+      {ticket.batches
+        .filter((batch) => batch.lines.length > 0)
+        .map((batch) => (
+          <div key={batch.id} className="mt-4">
+            {ticket.batches.length > 1 ? (
+              <h3 className="text-sm font-bold text-muted">
+                Order {batch.no} · Waiter {batch.waiterNumber} · {batch.time}
+              </h3>
+            ) : null}
+            <ul className="flex flex-col divide-y divide-glaze">
+              {batch.lines.map((line) => (
+                <li key={line.lineId} className="flex justify-between gap-3 py-2">
+                  <span className="text-ink">
+                    {line.quantity} × {line.name} <span className="text-sm text-muted">({formatCents(line.unitCents)})</span>
+                  </span>
+                  <span className="font-semibold tabular-nums text-ink">{formatCents(line.totalCents)}</span>
+                </li>
+              ))}
+            </ul>
+            {batch.notes ? <p className="mt-1 text-sm font-semibold text-ink">Note: {batch.notes}</p> : null}
+          </div>
         ))}
-      </ul>
       <div className="mt-3 border-t-2 border-ink/20 pt-3">
         <TotalsBlock totals={ticket.totals} />
       </div>
       {actions ? <div className="mt-5">{actions}</div> : null}
-      {newTicketHref ? (
-        <Link href={newTicketHref} className={buttonClasses(actions ? "secondary" : "primary", "mt-3 w-full")}>
-          Start a new ticket
-        </Link>
-      ) : null}
     </section>
   );
 }

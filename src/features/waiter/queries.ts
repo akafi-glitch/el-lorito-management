@@ -2,11 +2,10 @@ import "server-only";
 
 import { z } from "zod";
 
-import { loadFloorMap } from "@/features/floor/queries";
 import { employeeNumberKey, ROLES, type EmployeeRef } from "@/features/staff/rules";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-import { buildWaiterView, type WaiterBySection, type WaiterView } from "./rules";
+import type { WaiterBySection } from "./rules";
 
 const employeeRow = z.object({
   id: z.number().int().positive(),
@@ -49,16 +48,4 @@ export async function loadWaitersBySection(): Promise<WaiterBySection> {
       .parse(data)
       .map((row) => [row.section_code, { id: row.employee_id, name: row.full_name, number: row.employee_number }]),
   );
-}
-
-export type WaiterScreen = {
-  view: WaiterView;
-  waiters: WaiterBySection;
-  floor: Awaited<ReturnType<typeof loadFloorMap>>;
-};
-
-/** Everything the "your tables" screen needs, read in parallel. */
-export async function loadWaiterScreen(me: Pick<EmployeeRef, "id">): Promise<WaiterScreen> {
-  const [floor, waiters] = await Promise.all([loadFloorMap(), loadWaitersBySection()]);
-  return { view: buildWaiterView(floor, me, waiters), waiters, floor };
 }

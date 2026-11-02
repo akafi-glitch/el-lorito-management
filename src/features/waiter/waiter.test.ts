@@ -1,58 +1,31 @@
 import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
-import fixture from "../../../tests/fixtures/floor-rows.json";
-import { buildFloorMap, allTables } from "@/features/floor/layout";
-import { combinationRowSchema, floorAreaRowSchema, sectionRowSchema, tableRowSchema, type FloorRows } from "@/features/floor/schema";
+import { buildFloorMap } from "@/features/floor/layout";
+import { combinationRowSchema, floorAreaRowSchema, sectionRowSchema, tableRowSchema } from "@/features/floor/schema";
 import type { VisitSnapshot } from "@/features/floor/status";
 import type { EmployeeRef } from "@/features/staff/rules";
 
-import {
-  buildWaiterView,
-  cleanTypedNumber,
-  crossSectionWarning,
-  lookupResult,
-  openTableProblem,
-  tableAccess,
-  tablePath,
-  waiterPath,
-  type WaiterBySection,
-} from "./rules";
+import fixture from "../../../tests/fixtures/floor-rows.json";
+
+import { assignedSections, cleanTypedNumber, lookupResult, pickerSections, tablePath, waiterPath, type WaiterBySection } from "./rules";
 import { employeeNumberSchema, tableCodeSchema } from "./schema";
 
-function realRows(): FloorRows {
-  return {
-    areas: z.array(floorAreaRowSchema).parse(fixture.areas),
-    sections: z.array(sectionRowSchema).parse(fixture.sections),
-    tables: z.array(tableRowSchema).parse(fixture.tables),
-    combinations: z.array(combinationRowSchema).parse(fixture.combinations),
-  };
-}
+const rows = {
+  areas: z.array(floorAreaRowSchema).parse(fixture.areas),
+  sections: z.array(sectionRowSchema).parse(fixture.sections),
+  tables: z.array(tableRowSchema).parse(fixture.tables),
+  combinations: z.array(combinationRowSchema).parse(fixture.combinations),
+};
 
 const kafi: EmployeeRef = { id: 1, number: "01", name: "Kafi", role: "waiter", isActive: true };
 const musfika: EmployeeRef = { id: 2, number: "02", name: "Musfika", role: "waiter", isActive: true };
-const rahim: EmployeeRef = { id: 3, number: "03", name: "Rahim", role: "waiter", isActive: true };
 
-/** Kafi on X(1), Musfika on B and A. */
-const waiters: WaiterBySection = new Map([
-  ["X-1", kafi],
-  ["B", musfika],
-  ["A", musfika],
+const visits = new Map<string, VisitSnapshot>([
+  [rows.tables.find((t) => t.code === "X2")!.id, { visitId: 1, version: 1, guestCount: 4, chipsServed: false, tableLabels: ["X2"] }],
 ]);
-
-function floorWith(seated: Record<string, number> = {}) {
-  const rows = realRows();
-  const visits = new Map<string, VisitSnapshot>();
-  let id = 1;
-  for (const [code, guests] of Object.entries(seated)) {
-    const table = rows.tables.find((t) => t.code === code)!;
-    visits.set(table.id, { visitId: id, version: 1, guestCount: guests, chipsServed: false, tableLabels: [table.label] });
-    id += 1;
-  }
-  return buildFloorMap(rows, { visits });
-}
-
-const table = (map: ReturnType<typeof floorWith>, code: string) => allTables(map).find((t) => t.code === code)!;
+const sections = pickerSections(buildFloorMap(rows, { visits }));
+const tablesOf = (code: string) => sections.find((section) => section.code === code)?.tables.map((table) => table.code);
 
 describe("employee lookup", () => {
   it("accepts an active employee", () => {
@@ -64,110 +37,83 @@ describe("employee lookup", () => {
   });
 
   it("refuses a turned-off employee by name", () => {
-    const result = lookupResult("4", { id: 9, number: "04", name: "Luis", role: "waiter", isActive: false });
-    expect(result.ok).toBe(false);
-    if (!result.ok) expect(result.message).toBe("Luis (04) is turned off. Ask a manager to turn the number back on.");
+    expect(lookupResult("01", { ...kafi, isActive: false })).toEqual({
+      ok: false,
+      message: "Kafi (01) is turned off. Ask a manager to turn the number back on.",
+    });
   });
 
   it("validates typed numbers: digits only, 1 to 6 of them", () => {
-    expect(employeeNumberSchema.safeParse(" 01 ").data).toBe("01");
+    expect(employeeNumberSchema.safeParse(" 01 ").success).toBe(true);
     expect(employeeNumberSchema.safeParse("").success).toBe(false);
-    expect(employeeNumberSchema.safeParse("1a").success).toBe(false);
+    expect(employeeNumberSchema.safeParse("abc").success).toBe(false);
     expect(employeeNumberSchema.safeParse("1234567").success).toBe(false);
   });
 
   it("the number pad keeps digits only and stops at six", () => {
-    expect(cleanTypedNumber("0 1-x")).toBe("01");
+    expect(cleanTypedNumber("a0-1")).toBe("01");
     expect(cleanTypedNumber("12345678")).toBe("123456");
   });
 });
 
-describe("which tables a waiter sees", () => {
-  it("shows the waiter's own section first, then the Bar, then other sections", () => {
-    const view = buildWaiterView(floorWith(), kafi, waiters);
-    expect(view.mySections.map((s) => s.name)).toEqual(["X(1)"]);
-    expect(view.mine[0]?.tables.map((t) => t.code)).toEqual(["X1", "X2", "X3", "X9", "X10", "X11", "X12"]);
-    expect(view.bar.map((g) => g.section.code)).toEqual(["BAR"]);
-    expect(view.bar[0]?.tables).toHaveLength(4);
-    expect(view.others.map((g) => g.section.code)).toEqual(["A", "B", "C", "X-2", "P", "PARTY"]);
+describe("the section and table dropdowns", () => {
+  it("offer every section in floor order", () => {
+    expect(sections.map((section) => section.name)).toEqual(["A", "B", "C", "X(1)", "X(2)", "P", "Party", "Bar"]);
   });
 
-  it("names the assigned waiter on other sections, or nobody", () => {
-    const view = buildWaiterView(floorWith(), kafi, waiters);
-    const assigned = Object.fromEntries(view.others.map((g) => [g.section.code, g.assignedTo]));
-    expect(assigned.B).toBe("Musfika (02)");
-    expect(assigned.C).toBeNull();
+  it("X(1) lists exactly X4, X5, X6, X7, X8, X9, X13, X14", () => {
+    expect(tablesOf("X-1")).toEqual(["X4", "X5", "X6", "X7", "X8", "X9", "X13", "X14"]);
   });
 
-  it("a waiter on two sections sees both as theirs", () => {
-    const view = buildWaiterView(floorWith(), musfika, waiters);
-    expect(view.mySections.map((s) => s.code)).toEqual(["A", "B"]);
+  it("X(2) lists exactly X1, X2, X3, X10, X11, X12", () => {
+    expect(tablesOf("X-2")).toEqual(["X1", "X2", "X3", "X10", "X11", "X12"]);
   });
 
-  it("an unassigned waiter has no sections of their own, but still sees the Bar and everything else", () => {
-    const view = buildWaiterView(floorWith(), rahim, waiters);
-    expect(view.mine).toEqual([]);
-    expect(view.bar).toHaveLength(1);
-    expect(view.others.flatMap((g) => g.tables)).toHaveLength(45 - 4);
+  it("every table of the floor can be chosen, one section each", () => {
+    const listed = sections.flatMap((section) => section.tables.map((table) => table.code));
+    expect(listed).toHaveLength(45);
+    expect(new Set(listed).size).toBe(45);
   });
 
-  it("follows the latest assignment: moving Kafi from X(1) to B moves his tables", () => {
-    const moved: WaiterBySection = new Map([["B", kafi]]);
-    const view = buildWaiterView(floorWith(), kafi, moved);
-    expect(view.mySections.map((s) => s.code)).toEqual(["B"]);
+  it("each table says whether anyone is seated there", () => {
+    expect(sections.find((s) => s.code === "X-2")?.tables[1]).toEqual({ code: "X2", label: "X2", detail: "4 seated" });
+    expect(sections.find((s) => s.code === "X-2")?.tables[0]).toEqual({ code: "X1", label: "X1", detail: "vacant" });
+  });
+
+  it("use the same table codes as the Floor", () => {
+    const floorCodes = rows.tables.map((table) => table.code).sort();
+    expect(sections.flatMap((section) => section.tables.map((table) => table.code)).sort()).toEqual(floorCodes);
   });
 });
 
-describe("cross-section warning", () => {
-  const map = floorWith({ B3: 4, X2: 2, "BAR-1": 1, C1: 3 });
+describe("section assignments", () => {
+  const waiters: WaiterBySection = new Map([
+    ["X-1", kafi],
+    ["B", musfika],
+    ["A", musfika],
+  ]);
 
-  it("warns with the owner's exact words for another waiter's table", () => {
-    const access = tableAccess(table(map, "B3"), kafi, waiters);
-    expect(access).toEqual({ kind: "other", sectionName: "B", assignedTo: "Musfika (02)" });
-    expect(crossSectionWarning(access)).toBe("This table is assigned to Musfika (02). Do you want to continue?");
+  it("are shown to the waiter, for information", () => {
+    expect(assignedSections(sections, kafi, waiters).map((section) => section.name)).toEqual(["X(1)"]);
+    expect(assignedSections(sections, musfika, waiters).map((section) => section.name)).toEqual(["A", "B"]);
   });
 
-  it("does not warn for the waiter's own table", () => {
-    expect(crossSectionWarning(tableAccess(table(map, "X2"), kafi, waiters))).toBeNull();
-  });
-
-  it("never warns for the Bar", () => {
-    const access = tableAccess(table(map, "BAR-1"), kafi, waiters);
-    expect(access).toEqual({ kind: "bar" });
-    expect(crossSectionWarning(access)).toBeNull();
-  });
-
-  it("warns for a section with no waiter, naming the section", () => {
-    expect(crossSectionWarning(tableAccess(table(map, "C1"), kafi, waiters))).toBe(
-      "This table is in section C, which isn't assigned to you. Do you want to continue?",
-    );
-  });
-
-  it("warns an unassigned waiter on every table except the Bar", () => {
-    const warned = allTables(map).filter((t) => crossSectionWarning(tableAccess(t, rahim, waiters)) !== null);
-    expect(warned).toHaveLength(45 - 4);
+  it("a waiter with no section still gets every table", () => {
+    expect(assignedSections(sections, { id: 99 }, waiters)).toEqual([]);
+    expect(sections.length).toBe(8);
   });
 });
 
-describe("opening a table", () => {
-  const map = floorWith({ X2: 4 });
-
-  it("opens a table with seated guests", () => {
-    expect(openTableProblem(table(map, "X2"))).toBeNull();
-  });
-
-  it("refuses a table with nobody seated", () => {
-    expect(openTableProblem(table(map, "X3"))).toBe("No guests are seated at X3. Seat them on the Floor first.");
-  });
-
-  it("builds links for the waiter and the table, with the confirmation flag", () => {
+describe("links", () => {
+  it("are built for the waiter and the table, with no other-section confirmation", () => {
     expect(waiterPath(kafi)).toBe("/waiter/01");
-    expect(tablePath("/waiter/01", { code: "BAR-2" }, false)).toBe("/waiter/01/tables/BAR-2");
-    expect(tablePath("/waiter/01", { code: "B3" }, true)).toBe("/waiter/01/tables/B3?continue=1");
+    expect(tablePath("/waiter/01", "BAR-2")).toBe("/waiter/01/tables/BAR-2");
   });
 
-  it("accepts real table codes in links and nothing else", () => {
-    for (const code of ["A1", "X10", "BAR-4", "PARTY-2"]) expect(tableCodeSchema.safeParse(code).success).toBe(true);
-    for (const code of ["", "a1", "A1;drop", "../x"]) expect(tableCodeSchema.safeParse(code).success).toBe(false);
+  it("accept real table codes and nothing else", () => {
+    expect(tableCodeSchema.safeParse("X10").success).toBe(true);
+    expect(tableCodeSchema.safeParse("BAR-2").success).toBe(true);
+    expect(tableCodeSchema.safeParse("x10").success).toBe(false);
+    expect(tableCodeSchema.safeParse("../etc").success).toBe(false);
   });
 });

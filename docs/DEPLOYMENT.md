@@ -139,8 +139,11 @@ If you change an environment variable in Vercel, **redeploy** (Deployments → �
   Supabase **Site URL**.
 - **Rolling back the app:** Vercel → Deployments → pick the last good one → **Promote to
   Production**. Database changes are not rolled back by this; they need a new migration.
-- **Backups:** on Supabase Free there are no daily backups. Either upgrade to Pro, or regularly
-  download a backup (Database → Backups, or `supabase db dump` with the database password).
+- **Backups:** on Supabase Free there are no daily backups. Either upgrade to Pro, or regularly run
+  `scripts/backup-live-db.ps1`. It only reads, needs no Docker (`supabase db dump` does), and saves to
+  `Documents\el-lorito-backups`, outside the repository. It uses `pg_dump` 17 or newer from
+  `%USERPROFILE%\el-lorito-tools\pgsql-17\bin` (or pass `-PgBin`) and asks for the database password,
+  which isn't saved. The password is under Project Settings → Database.
 - **Silent printing** (no print dialog) is out of scope for now; it needs a dedicated set-up per
   device and the printer model.
 
@@ -173,6 +176,8 @@ The app refuses to show pages if a value is missing, if the keys are swapped, or
 | `20261027100000_printing` | Applied Oct 27, 2026, when pull request #9 was merged |
 | `20261027110000_live_sync` | Applied Oct 27, 2026, when pull request #10 was merged |
 | `20261027120000_hardening` | Applied Oct 27, 2026, when pull request #12 was merged |
+| `20261028010000_shift_rotation_reset` | Applied |
+| `20261102010000` to `20261102050000` (upgrade of Nov 2, 2026) | **Not applied.** They apply when that pull request is merged |
 
 **Merging applies migrations.** Supabase's GitHub integration applies a migration to the live
 project as soon as its pull request is merged into `main` (the history shows these with no
@@ -182,6 +187,42 @@ checked.
 **Live data added on the owner's request (Oct 27, 2026):** 16 employees, all as waiters: Rene 1,
 Alex 2, Sofia 3, Ali 4, Maria 5, Lalo 6, Elizabeth 7, Cin 8, Abdullah 9, Isa 10, Gabi 11, Liz 12,
 Chuy 13, Ashley 17, Deirha 18, Alvaro 20. No sign-in accounts, visits, or tickets exist yet.
+
+## Releasing the upgrade of Nov 2, 2026
+
+**Merging the pull request is the release:** Supabase applies the migrations to the live database and Vercel
+deploys the new app, on their own, within minutes. Merge at a quiet time, not during service.
+
+Before merging:
+
+1. All three CI checks are green on the pull request.
+2. **Take a backup.** The Supabase Free plan has no daily backups: run `scripts/backup-live-db.ps1` (see "Backups"
+   above) and keep the file, or upgrade first if you prefer (your decision). If orders were taken since the last
+   backup, take a new one.
+3. Check `RECEIPT_PAPER_WIDTH_MM` on Vercel matches the printer (80 by default).
+
+After merging, in this order:
+
+1. Supabase → Database → Migrations shows the five new migrations.
+2. Vercel shows the new deployment as ready.
+3. Management → Shift and sections: the rotation panel shows the shift's order. **Check the X waiters:** tables moved
+   between X(1) and X(2), so a waiter assigned to X(1) now covers X(1)'s new tables. Reassign if needed.
+4. Seat a test table, serve chips, undo, order from a phone, and print one kitchen and one customer receipt on the real
+   printer. Finalizing is permanent, so use a small real order or a clearly marked test ticket.
+5. Management → Order History shows the old tickets with their old totals.
+
+Between the migrations and the new deployment the old app keeps working: its database functions are kept for
+exactly this. New-app pages can fail for a moment if Vercel finishes first; a refresh after the migrations fixes it.
+
+**Rolling back**
+
+- **The app:** Vercel → Deployments → promote the previous one. Everything keeps working, with these limits: tickets
+  finalized by the new app, or with custom items, can't be shown by the old app's table page (it doesn't know them),
+  and it refuses to edit a ticket with several orders rather than lose them.
+- **The database:** the migrations are additive, so there is normally nothing to undo, and it is safe to leave them in
+  place under the old app. Undoing them isn't recommended once real orders use the new tables. To put only the X
+  mapping back, reverse the `update` in `20261102020000_x_section_mapping.sql` with the old lists from
+  `20261027040000_floor_layout.sql`. It touches no visits or tickets.
 
 ## Live updates (Supabase Realtime), technical notes
 

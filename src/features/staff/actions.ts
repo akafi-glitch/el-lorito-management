@@ -1,7 +1,5 @@
 "use server";
 
-import { revalidatePath } from "next/cache";
-
 import { requireActiveUser } from "@/features/auth/session";
 import { usernameToEmail } from "@/features/auth/username";
 import type { ActionResult } from "@/lib/action-result";
@@ -16,12 +14,16 @@ import {
   addEmployeeSchema,
   assignDutySchema,
   setPasswordSchema,
+  setRotationSchema,
+  startShiftSchema,
   updateEmployeeSchema,
   type AccountActiveInput,
   type AddAccountInput,
   type AddEmployeeInput,
   type AssignDutyInput,
   type SetPasswordInput,
+  type SetRotationInput,
+  type StartShiftInput,
   type UpdateEmployeeInput,
 } from "./schema";
 
@@ -34,17 +36,26 @@ function firstIssue(issues: { message: string }[]): ActionResult {
   return { ok: false, message: issues[0]?.message ?? "Check the details and try again." };
 }
 
-function refreshStaffPages() {
-  revalidatePath("/manage", "layout");
-  revalidatePath("/floor");
+export async function startShiftAction(input: StartShiftInput): Promise<ActionResult> {
+  const user = await requireActiveUser();
+  const parsed = startShiftSchema.safeParse(input);
+  if (!parsed.success) return firstIssue(parsed.error.issues);
+  const { error } = await createAdminClient().rpc("start_shift", { p_actor: user.userId, p_rotation: parsed.data.rotation });
+  if (error) return { ok: false, message: staffErrorMessage(error) };
+  return { ok: true, message: `New shift started. The rotation starts at ${parsed.data.firstName}. Assign waiters and chips runners.` };
 }
 
-export async function startShiftAction(): Promise<ActionResult> {
+export async function setRotationAction(input: SetRotationInput): Promise<ActionResult> {
   const user = await requireActiveUser();
-  const { error } = await createAdminClient().rpc("start_shift", { p_actor: user.userId });
+  const parsed = setRotationSchema.safeParse(input);
+  if (!parsed.success) return firstIssue(parsed.error.issues);
+  const { error } = await createAdminClient().rpc("set_shift_rotation", {
+    p_rotation: parsed.data.rotation,
+    p_next_section: parsed.data.nextSection,
+    p_actor: user.userId,
+  });
   if (error) return { ok: false, message: staffErrorMessage(error) };
-  refreshStaffPages();
-  return { ok: true, message: "New shift started. The rotation starts at A. Assign waiters and chips runners." };
+  return { ok: true, message: "Rotation saved. New suggestions follow it now." };
 }
 
 export async function assignDutyAction(input: AssignDutyInput): Promise<ActionResult> {
@@ -59,7 +70,6 @@ export async function assignDutyAction(input: AssignDutyInput): Promise<ActionRe
     p_employee_id: employeeId,
     p_actor: user.userId,
   });
-  refreshStaffPages();
   if (error) return { ok: false, message: staffErrorMessage(error) };
   return { ok: true, message: employeeId === null ? "Assignment removed." : "Assignment saved." };
 }
@@ -77,7 +87,6 @@ export async function addEmployeeAction(input: AddEmployeeInput): Promise<Action
     p_actor: user.userId,
   });
   if (error) return { ok: false, message: staffErrorMessage(error) };
-  refreshStaffPages();
   return { ok: true, message: `${name} (${number}) added.` };
 }
 
@@ -94,7 +103,6 @@ export async function updateEmployeeAction(input: UpdateEmployeeInput): Promise<
     p_is_active: isActive,
     p_actor: user.userId,
   });
-  refreshStaffPages();
   if (error) return { ok: false, message: staffErrorMessage(error) };
   return { ok: true, message: `${name} saved.` };
 }
@@ -133,7 +141,6 @@ export async function addAccountAction(input: AddAccountInput): Promise<ActionRe
   }
 
   await recordAccountEvent(user.userId, "account_added", { account: created.user.id, username });
-  revalidatePath("/manage/accounts");
   return { ok: true, message: `Account "${username}" added. They can sign in now.` };
 }
 
@@ -155,7 +162,6 @@ export async function setAccountActiveAction(input: AccountActiveInput): Promise
   if (error) return { ok: false, message: "The account couldn't be saved. Try again." };
 
   await recordAccountEvent(user.userId, "account_changed", { account: target.userId, active: parsed.data.isActive });
-  revalidatePath("/manage/accounts");
   return {
     ok: true,
     message: parsed.data.isActive ? `"${target.username}" can sign in again.` : `"${target.username}" is turned off.`,

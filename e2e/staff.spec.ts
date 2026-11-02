@@ -36,7 +36,7 @@ test.describe.serial("shifts, employees, and assignments", () => {
     await page.selectOption("select[aria-label='Waiter for B']", String(kafi));
     await expect(page.getByText("Assignment saved.")).toBeVisible();
     await page.goto("/waiter/01");
-    await expect(page.locator("main")).toContainText("Your sections: A, B");
+    await expect(page.locator("main")).toContainText("Assigned this shift: A, B");
   });
 
   test("the Bar takes no waiter (any waiter can bill it)", async ({ page }) => {

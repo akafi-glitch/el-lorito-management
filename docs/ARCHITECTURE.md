@@ -4,7 +4,8 @@
 
 The app is **server-first**. Pages load data on the server. Every change is a Server Action that
 validates input with Zod and calls one database function. The database enforces the rules that
-protect data, so a bug in a screen still can't break the data.
+protect data, so a bug in a screen still can't break the data. Screens show a tap's result at once and
+reload in the background (see "Fast responses").
 
 ```
 Restaurant devices ──calls──▶ Next.js on Vercel ──RPC──▶ Supabase Postgres
@@ -81,7 +82,7 @@ docs/                     these documents
 Each floor action calls one database function. The database decides: a table can hold one open
 visit (unique index), tables are locked in a fixed order (no deadlocks), and every visit change
 carries the version the screen saw (stale changes are refused). After any action the floor page
-reloads its data. Live push updates to other screens come in Phase 10.
+reloads its data in the background.
 
 ## Design
 
@@ -94,37 +95,36 @@ are at least 48 px. Layouts are checked at phone (390 px), tablet (820 px), and 
 The employee number travels in the link (`/waiter/01`, `/waiter/01/tables/B3`) rather than in a
 cookie. Nothing is remembered between waiters on a shared tablet, and "Not you? Change number" or
 Home starts over. Every page checks the number again on the server (unknown or turned-off numbers
-are refused), so a stale link stops working as soon as someone is turned off. Opening another
-section's table needs `?continue=1`, which the warning's Continue button adds; a typed link without
-it shows the warning first. The number identifies the waiter; the administrator sign-in is what
-protects the app. Pure rules live in `features/waiter/rules.ts` and are unit tested.
+are refused), so a stale link stops working as soon as someone is turned off. Any waiter can open any
+table through the section and table dropdowns. The number identifies the waiter; the administrator sign-in is
+what protects the app. Pure rules live in `features/waiter/rules.ts` and are unit tested.
 
 ## Menu and money
 
-The menu (about 210 items) is read once per table page in two parallel queries and searched on the
-device, so typing in the search box makes no database requests. Money is whole cents end to end
+The menu (about 210 items) is read once per menu version and searched on the device, so typing in the
+search box makes no requests. Money is whole cents end to end
 (`features/menu/money.ts`); dollars appear only on screen and in the Management price box, which is
 read as text, not as a floating-point number. Lunch's 3:00 PM price comes from data on the Lunch
 category and the restaurant's time zone (`APP_TIME_ZONE`), so a tablet set to another time zone
-still shows the right price. The order being built is kept on the device until Phase 7 saves it.
+still shows the right price.
 
 ## Tickets
 
-The table page lists the group's tickets and opens one with `?ticket=1001` (no number means a new
-ticket). The order being built stays on the device until **Save**; the server action checks the
-signed-in account and the waiter's number, then calls `save_ticket`, which sets every price in
-the database (the device's prices are only a preview). Each ticket has a version: a save based
-on an older version is refused and the page reloads the newer one, so two tablets can never
-silently overwrite each other.
+A table's page shows the group's one ticket with its orders, and the new order being built. That order stays
+on the device until **Save Order**; the server action checks the signed-in account and the waiter's number, then
+calls `save_order`, which sets every menu price in the database (the device's prices are only a preview). Each
+order carries a key, so a repeated press saves once. Changes to saved lines carry the ticket's version: a change
+based on an older version is refused and the page reloads the newer one, so two tablets can never silently
+overwrite each other.
 
 ## Printing
 
 Browser printing, no printer driver code: the receipt is a small block placed directly under
 `<body>` that is hidden on screen; in print mode `globals.css` hides everything else and an
-`@page` rule sets the paper width. The order is always: the server records the print in the
-database (locking the ticket and freezing its totals the first time), the receipt is built from
-what the database stored, then `window.print()` opens the dialog, then the waiter answers "Did it
-print?". The print actions don't refresh the page, so the question stays on screen; the page
+`@page` rule sets the paper width. The order is always: the server records the attempt in the
+database, the receipt is built from what the database stored, then `window.print()` opens the dialog, then
+the waiter answers "Did it print?". Only a Yes to a customer receipt finalizes the ticket, in the database, using
+that attempt's stored bill. The print actions don't refresh the page, so the question stays on screen; the page
 refreshes when the waiter is done.
 
 ## Live updates
@@ -140,7 +140,32 @@ The browser never receives restaurant data from the database directly. Instead:
    reconnect, focus, or back online), so nothing is missed. Reading versions first means a change
    during a page load causes one extra refresh, never a missed one.
 4. Things that must not be interrupted hold refreshes (`features/sync/hold.ts`): the print
-   question. The ticket editor keeps unsaved changes and shows a warning instead of overwriting them.
+   question. The new order on screen is the device's own, so a refresh never touches it.
+
+## Fast responses
+
+A tap must answer at once, however long the network takes. The causes of the old delay, and what replaced them:
+
+- **Actions no longer re-render the page.** `revalidatePath` inside a Server Action made its answer wait
+  for the whole screen to be rebuilt, and Next.js runs one action at a time per device, so taps queued up
+  behind each other. Actions now answer as soon as the database has, and the screen reloads in the background.
+- **The floor shows a tap immediately** (`features/floor/optimistic.ts`): chips, undo, clearing, and seating
+  appear in about 10 to 40 ms, and only the table being changed is busy, not the whole floor. The server's floor
+  takes over once it shows the change, and a refused change goes back with a message. Saved quantities on a
+  ticket work the same way, sent in order.
+- **One reload, not two.** An action's own refresh and its live signal used to both reload the screen. Refreshes
+  now go through `LiveSync` (`features/sync/refresh.ts`), which runs one at a time and one more only if something
+  newer arrived. So a busy restaurant doesn't stack up reloads on every device.
+- **The menu isn't sent again on every reload.** About 39 KB went to every open ordering screen whenever anything
+  changed anywhere. It is now fetched once per menu version from `/api/menu` and kept on the device
+  (`features/menu/use-menu-data.ts`), and fetched before the waiter reaches the table.
+- **Rarely changing data is cached on the server:** the floor's blocks, tables, and combinations for a minute;
+  the menu per menu version. What changes during service (who is seated, sections, the rotation) is always read live.
+- **One database client** per server instance, instead of a new one for each read.
+- **Phones don't wait for a double-tap zoom** (`touch-action: manipulation`), and buttons react to the press.
+
+Vercel and Supabase are both in us-east, so distance isn't the cause. What remains is a serverless cold start
+(about 1.4 s measured on the first request after a quiet period), which a tap on the floor no longer waits for.
 
 ## Security headers
 

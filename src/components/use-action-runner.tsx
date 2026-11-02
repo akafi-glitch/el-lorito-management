@@ -1,7 +1,9 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 
+import { requestRefresh } from "@/features/sync/refresh";
 import type { ActionResult } from "@/lib/action-result";
 
 export type Notice = { tone: "ok" | "error"; text: string };
@@ -9,10 +11,11 @@ export type Notice = { tone: "ok" | "error"; text: string };
 const OFFLINE = "Couldn't reach the server. Check the connection, then try again.";
 
 /**
- * Runs a Server Action with a busy state and a message for staff. Success messages fade after five
- * seconds; errors stay until the next action.
+ * Runs a Server Action with a busy state and a message for staff, then reloads the screen's data in
+ * the background. Success messages fade after five seconds; errors stay until the next action.
  */
 export function useActionRunner() {
+  const router = useRouter();
   const [notice, setNotice] = useState<Notice | null>(null);
   const [busy, startTransition] = useTransition();
 
@@ -28,6 +31,7 @@ export function useActionRunner() {
         const result = await action();
         setNotice({ tone: result.ok ? "ok" : "error", text: result.message });
         if (result.ok) onSuccess?.();
+        if (!requestRefresh()) router.refresh();
       } catch {
         setNotice({ tone: "error", text: OFFLINE });
       }

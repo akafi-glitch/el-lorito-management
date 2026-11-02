@@ -7,6 +7,12 @@ export function printErrorMessage(error: DbError): string {
   switch (error.message) {
     case "ticket_printed":
       return "This ticket is already printed. Use Print again for another copy.";
+    case "nothing_to_print":
+      return "Nothing new to send to the kitchen. Use Reprint on an order for another copy.";
+    case "empty_batch":
+      return "That order has no items left, so there's nothing to print.";
+    case "stale_ticket":
+      return "The ticket changed, so it was not finalized. Check the items, then print the customer receipt again.";
     case "ticket_not_printed":
       return "This ticket hasn't been printed yet, so it can't be printed again.";
     case "print_attempt_not_found":

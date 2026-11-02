@@ -1,26 +1,46 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-import { withTicket } from "@/features/tickets/rules";
+import { requestRefresh } from "@/features/sync/refresh";
 
-import { PrintFlow } from "./print-flow";
+import { printCustomerAction } from "../actions";
 
-/** "Print again" on a printed ticket, with its own error message. */
+import { PrintFlow, type PrintStart } from "./print-flow";
+
+/**
+ * Another copy of a locked customer receipt, with its own message. On Management nobody has typed a
+ * number yet, so employeeNumber can come from a field there.
+ */
 export function ReprintButton({
   employeeNumber,
   paperWidthMm,
   ticketId,
-  ticketNumber,
-  tableHref,
+  disabled,
 }: {
   employeeNumber: string;
   paperWidthMm: 58 | 80;
   ticketId: number;
-  ticketNumber: number;
-  tableHref: string;
+  disabled?: boolean;
 }) {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+
+  async function start(): Promise<PrintStart> {
+    setError(null);
+    const result = await printCustomerAction({ employeeNumber, ticketId, version: null, clientKey: crypto.randomUUID() });
+    if (!result.ok) return { message: result.message };
+    return {
+      job: {
+        attemptIds: [result.attemptId],
+        title: "the copy of the receipt",
+        question: "",
+        content: { kind: "customer", receipt: result.receipt, isCopy: result.isCopy },
+      },
+    };
+  }
+
   return (
     <div className="flex flex-col gap-3">
       {error ? (
@@ -31,10 +51,13 @@ export function ReprintButton({
       <PrintFlow
         employeeNumber={employeeNumber}
         paperWidthMm={paperWidthMm}
-        mode={{ kind: "reprint", ticketId, ticketNumber }}
-        label="Print again"
+        label="Reprint Customer Receipt"
+        disabled={disabled}
+        start={start}
         onError={setError}
-        ticketHref={(number) => withTicket(tableHref, number)}
+        onDone={() => {
+          if (!requestRefresh()) router.refresh();
+        }}
       />
     </div>
   );

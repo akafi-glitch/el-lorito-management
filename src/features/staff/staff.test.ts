@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 
+import { moveInRotation } from "./rules";
+
 import { accountErrorMessage, staffErrorMessage } from "./errors";
 import {
   accountChangeProblem,
@@ -157,5 +159,34 @@ describe("messages", () => {
     expect(accountErrorMessage({ code: "email_exists" })).toBe("That username is already used.");
     expect(accountErrorMessage({ code: "weak_password" })).toMatch(/too weak/);
     expect(accountErrorMessage({ status: 500 })).toMatch(/couldn't be saved/);
+  });
+});
+
+describe("arranging the rotation", () => {
+  const order = ["A", "C", "B", "X-1", "X-2", "P"];
+
+  it("moves a section up or down one place", () => {
+    expect(moveInRotation(order, "C", -1)).toEqual(["C", "A", "B", "X-1", "X-2", "P"]);
+    expect(moveInRotation(order, "C", 1)).toEqual(["A", "B", "C", "X-1", "X-2", "P"]);
+  });
+
+  it("stays put at either end, and ignores a section that isn't there", () => {
+    expect(moveInRotation(order, "A", -1)).toEqual(order);
+    expect(moveInRotation(order, "P", 1)).toEqual(order);
+    expect(moveInRotation(order, "BAR", 1)).toEqual(order);
+  });
+
+  it("can reach any order: the owner's evening example", () => {
+    let next = order;
+    for (const [code, moves] of [["X-2", 4], ["X-1", 3], ["B", 1]] as const) {
+      for (let i = 0; i < moves; i += 1) next = moveInRotation(next, code, -1);
+    }
+    expect(next).toEqual(["X-2", "X-1", "A", "B", "C", "P"]);
+  });
+
+  it("doesn't change the list it was given", () => {
+    const given = [...order];
+    moveInRotation(given, "C", 1);
+    expect(given).toEqual(order);
   });
 });
