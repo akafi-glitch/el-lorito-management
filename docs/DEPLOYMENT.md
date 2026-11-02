@@ -177,7 +177,8 @@ The app refuses to show pages if a value is missing, if the keys are swapped, or
 | `20261027110000_live_sync` | Applied Oct 27, 2026, when pull request #10 was merged |
 | `20261027120000_hardening` | Applied Oct 27, 2026, when pull request #12 was merged |
 | `20261028010000_shift_rotation_reset` | Applied |
-| `20261102010000` to `20261102050000` (upgrade of Nov 2, 2026) | **Not applied.** They apply when that pull request is merged |
+| `20261102010000` to `20261102050000` (upgrade of Nov 2, 2026) | Applied Nov 2, 2026, when pull request #16 was merged |
+| `20261103010000_orders_by_table` | **Not applied.** It applies when that pull request is merged |
 
 **Merging applies migrations.** Supabase's GitHub integration applies a migration to the live
 project as soon as its pull request is merged into `main` (the history shows these with no

@@ -55,7 +55,6 @@ export function buildTicket(
   return {
     id: row.id,
     number: row.ticket_number,
-    visitId: row.visit_id,
     status: row.status,
     version: row.version,
     isActive: !row.legacy_single_order,
@@ -86,15 +85,11 @@ export const STATUS_TEXT: Record<TicketStatus, string> = {
 };
 
 /**
- * The ticket this table's page works on: the group's finalized ticket if there is one (nothing more
- * can be added), else its open ticket. Null when nothing is saved yet. Older tickets are listed apart.
+ * The ticket this table's page works on: its open ticket. Null when nothing is on the table right now,
+ * including right after a customer receipt finalized the last one: the next order starts a new ticket.
  */
 export function currentTicket(tickets: readonly SavedTicket[]): SavedTicket | null {
-  return (
-    tickets.find((ticket) => ticket.status === "finalized") ??
-    tickets.find((ticket) => ticket.status === "open" && ticket.isActive) ??
-    null
-  );
+  return tickets.find((ticket) => ticket.status === "open" && ticket.isActive) ?? null;
 }
 
 /** Orders that still need to go to the kitchen: they have items and no print confirmed or awaited. */

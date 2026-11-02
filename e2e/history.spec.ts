@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { employee, freeTables, saveOrder, seat, setItem, startShift, ticketByNumber } from "./support/db";
+import { cancelOpenOrders, employee, freeTables, saveOrder, setItem, startShift, ticketByNumber } from "./support/db";
 
 const rows = (page: import("@playwright/test").Page) => page.getByTestId("history-row");
 
@@ -17,14 +17,14 @@ test.describe.serial("management: order history", () => {
     await setItem("Taco", 235, true);
     await setItem("Domestic beer", 499, true);
 
+    await cancelOpenOrders(["P1", "P2", "P3"]);
     firstShift = await startShift();
-    first = (await saveOrder(await seat(["P1"], 2), hist1, [["Taco", 2], ["Domestic beer", 1]])).ticket_number;
+    first = (await saveOrder("P1", hist1, [["Taco", 2], ["Domestic beer", 1]])).ticket_number;
     await new Promise((resolve) => setTimeout(resolve, 20));
-    second = (await saveOrder(await seat(["P2"], 2), hist2, [["Taco", 1]])).ticket_number;
+    second = (await saveOrder("P2", hist2, [["Taco", 1]])).ticket_number;
 
     secondShift = await startShift();
-    third = (await saveOrder(await seat(["P3"], 2), hist1, [["Domestic beer", 2]])).ticket_number;
-    await freeTables(["P1"]); // a table going vacant must not lose its ticket
+    third = (await saveOrder("P3", hist1, [["Domestic beer", 2]])).ticket_number;
   });
 
   test.afterAll(async () => {

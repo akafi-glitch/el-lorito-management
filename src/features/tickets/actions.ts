@@ -20,7 +20,7 @@ import {
 /**
  * Order and ticket actions. Each checks the signed-in account and the waiter's number, validates the
  * input, and calls ONE database function. The database sets menu prices (including the 3 PM lunch
- * amount) and refuses stale, finalized, cancelled, or closed-table changes. The screen reloads its
+ * amount) and refuses stale, finalized, or cancelled changes. Orders belong to a table: seating doesn't matter. The screen reloads its
  * data in the background afterwards, so the answer comes back at once.
  */
 
@@ -55,12 +55,12 @@ export async function saveOrderAction(input: SaveOrderInput): Promise<SaveOrderR
   const parsed = saveOrderSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Check the order.", reload: false };
 
-  const { employeeNumber, visitId, clientKey, lines, notes } = parsed.data;
+  const { employeeNumber, tableCode, clientKey, lines, notes } = parsed.data;
   const employee = await activeEmployeeId(employeeNumber);
   if ("message" in employee) return { ok: false, message: employee.message, reload: false };
 
-  const { data, error } = await createAdminClient().rpc("save_order", {
-    p_visit_id: visitId,
+  const { data, error } = await createAdminClient().rpc("save_table_order", {
+    p_table_code: tableCode,
     p_employee_id: employee.id,
     p_client_key: clientKey,
     p_lines: lines.map((line) =>
@@ -119,12 +119,11 @@ export async function cancelTicketAction(input: CancelTicketInput): Promise<Chan
   const parsed = cancelTicketSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: "Check the ticket and try again.", reload: false };
 
-  const { employeeNumber, visitId, ticketId, version } = parsed.data;
+  const { employeeNumber, ticketId, version } = parsed.data;
   const employee = await activeEmployeeId(employeeNumber);
   if ("message" in employee) return { ok: false, message: employee.message, reload: false };
 
-  const { data, error } = await createAdminClient().rpc("cancel_ticket", {
-    p_visit_id: visitId,
+  const { data, error } = await createAdminClient().rpc("cancel_order", {
     p_ticket_id: ticketId,
     p_expected_version: version,
     p_employee_id: employee.id,

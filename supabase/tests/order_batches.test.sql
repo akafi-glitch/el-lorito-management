@@ -3,7 +3,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(103);
+select plan(101);
 
 alter sequence public.ticket_number_seq restart with 1001;
 
@@ -205,8 +205,6 @@ select lives_ok($$ select public.record_print_outcome((select attempt_id from th
 select is((select count(*)::int from public.audit_events where event_type = 'ticket_finalized'), 1, 'and finalizes only once');
 
 -- After finalizing: nothing changes, anywhere -----------------------------------------------------------------------------------------
-select throws_ok($$ select * from pg_temp.save(9, 'kafi', jsonb_build_array(pg_temp.line('Taco', 1))) $$, 'P0001', 'ticket_finalized', 'no more orders');
-select is((select count(*)::int from public.tickets where visit_id = pg_temp.id('visit')), 1, '... and no new ticket for this group');
 select throws_ok($$ select pg_temp.change((pg_temp.ticket()).version, jsonb_build_array(jsonb_build_object('op', 'quantity', 'line_id', pg_temp.line_id('Combo #5', 1), 'quantity', 1))) $$,
   'P0001', 'ticket_finalized', 'no quantity changes');
 select throws_ok($$ select pg_temp.change((pg_temp.ticket()).version, jsonb_build_array(jsonb_build_object('op', 'notes', 'batch_id', (select batch_id from saved), 'notes', 'x'))) $$,
@@ -242,13 +240,13 @@ select lives_ok($$ select * from public.request_customer_receipt((pg_temp.ticket
 
 -- A ticket never finalized, then the table cleared: totals frozen, can still be billed.
 insert into ids select 'visit2', public.seat_party(array['X3'], 2, pg_temp.actor());
-create temp table open_ticket as select * from public.save_order(pg_temp.id('visit2'), pg_temp.id('kafi'), pg_temp.key(300), jsonb_build_array(pg_temp.line('Horchata', 1)), null, 'America/Chicago', pg_temp.actor());
+create temp table open_ticket as select * from public.save_ticket(pg_temp.id('visit2'), null, null, pg_temp.id('kafi'), jsonb_build_array(pg_temp.line('Horchata', 1)), 'America/Chicago', pg_temp.actor());
 select public.clear_visit(pg_temp.id('visit2'),
   public.mark_chips_served(pg_temp.id('visit2'), (select version from public.customer_visits where id = pg_temp.id('visit2')), pg_temp.actor()),
   pg_temp.actor());
 update public.tax_groups set rate_bp = 900 where code = 'food';
 select is((select food_tax_cents from public.ticket_totals where ticket_id = (select ticket_id from open_ticket)), 28::bigint,
-  'clearing freezes an unfinalized ticket''s totals: a later rate change doesn''t move it ($3.25 at 8.5%)');
+  'clearing freezes an old-style ticket''s totals: a later rate change doesn''t move it ($3.25 at 8.5%)');
 update public.tax_groups set rate_bp = 850 where code = 'food';
 select throws_ok($$ select * from public.save_order(pg_temp.id('visit2'), pg_temp.id('kafi'), pg_temp.key(301), jsonb_build_array(pg_temp.line('Taco', 1)), null, 'America/Chicago', pg_temp.actor()) $$,
   'P0001', 'visit_closed', 'no more orders on a cleared table');

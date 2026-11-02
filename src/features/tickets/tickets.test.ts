@@ -36,7 +36,6 @@ const batch = (id: number, no: number, overrides: Partial<TicketRow["ticket_batc
 const row: TicketRow = {
   id: 7,
   ticket_number: 1042,
-  visit_id: 3,
   status: "open",
   version: 2,
   legacy_single_order: false,
@@ -117,10 +116,10 @@ describe("which ticket a table's page works on", () => {
 
   it("no ticket yet", () => expect(currentTicket([])).toBeNull());
 
-  it("the group's open ticket", () => expect(currentTicket([t(1, "open")])?.id).toBe(1));
+  it("the table's open ticket", () => expect(currentTicket([t(1, "open")])?.id).toBe(1));
 
-  it("the finalized ticket, when there is one: nothing more can be added", () => {
-    expect(currentTicket([t(1, "cancelled"), t(2, "finalized")])?.id).toBe(2);
+  it("none after a finalized ticket: the table is reset for a new order", () => {
+    expect(currentTicket([t(1, "cancelled"), t(2, "finalized")])).toBeNull();
   });
 
   it("not a cancelled ticket: the next order starts a new one", () => {
@@ -183,7 +182,7 @@ describe("links", () => {
 
 describe("what the server accepts", () => {
   const key = "00000000-0000-4000-8000-000000000001";
-  const order = { employeeNumber: "01", visitId: 1, clientKey: key, notes: null, lines: [{ itemId: 1, quantity: 2 }] };
+  const order = { employeeNumber: "01", tableCode: "X2", clientKey: key, notes: null, lines: [{ itemId: 1, quantity: 2 }] };
 
   it("accepts a menu item, a custom item, and notes", () => {
     expect(saveOrderSchema.safeParse(order).success).toBe(true);
@@ -229,8 +228,8 @@ describe("what the server accepts", () => {
   });
 
   it("checks cancel input", () => {
-    expect(cancelTicketSchema.safeParse({ employeeNumber: "01", visitId: 1, ticketId: 2, version: 3 }).success).toBe(true);
-    expect(cancelTicketSchema.safeParse({ employeeNumber: "x", visitId: 1, ticketId: 2, version: 3 }).success).toBe(false);
+    expect(cancelTicketSchema.safeParse({ employeeNumber: "01", ticketId: 2, version: 3 }).success).toBe(true);
+    expect(cancelTicketSchema.safeParse({ employeeNumber: "x", ticketId: 2, version: 3 }).success).toBe(false);
   });
 });
 

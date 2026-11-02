@@ -69,8 +69,7 @@ export function kitchenReceiptFromRow(row: KitchenBatchRow, isReprint: boolean, 
     title: RESTAURANT.kitchenTitle,
     ticketNumber: row.ticket.ticket_number,
     orderNumber: row.batch_no,
-    tables: [...row.ticket.visit.visit_tables]
-      .map((vt) => vt.restaurant_tables)
+    tables: (row.ticket.visit ? row.ticket.visit.visit_tables.map((vt) => vt.restaurant_tables) : [row.ticket.own_table])
       .sort((a, b) => a.label.localeCompare(b.label, "en", { numeric: true }))
       .map((table) => table.label)
       .join(" + ")

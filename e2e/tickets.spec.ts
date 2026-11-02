@@ -1,6 +1,6 @@
 import { devices, expect, test, type Page } from "@playwright/test";
 
-import { batchesOf, employee, freeTables, printAttempts, saveOrder, seat, setItem, setTaxRate, startShift, ticketByNumber, ticketOfVisit, ticketTotal, visitCleared } from "./support/db";
+import { batchesOf, cancelOpenOrders, employee, freeTables, openTicketsAt, printAttempts, saveOrder, setItem, setTaxRate, startShift, ticketByNumber, ticketTotal } from "./support/db";
 
 const item = (page: Page, name: string) => page.locator(`button[aria-label^='Add ${name},']`).first();
 const category = (page: Page, name: string) => page.click(`nav[aria-label='Menu categories'] button:text-is('${name}')`);
@@ -37,7 +37,6 @@ test.describe.serial("orders on a phone", () => {
   const phone = devices["Pixel 7"];
   test.use({ viewport: phone.viewport, userAgent: phone.userAgent, hasTouch: true, isMobile: true });
 
-  let visitId = 0;
   let kafi = 0;
   const table = "X9";
 
@@ -48,11 +47,12 @@ test.describe.serial("orders on a phone", () => {
     await setItem("Combo #5", 940, true);
     await setItem("Domestic beer", 499, true);
     await setItem("Taco", 235, true);
-    visitId = await seat([table], 4);
+    await freeTables([table]); // nobody is seated: ordering doesn't need the Floor
+    await cancelOpenOrders([table]);
   });
 
   test.afterAll(async () => {
-    await freeTables([table]);
+    await cancelOpenOrders([table]);
   });
 
   test("the whole path from a phone: number, section, table, order, save", async ({ page }) => {
@@ -60,8 +60,7 @@ test.describe.serial("orders on a phone", () => {
     await page.tap("[aria-label='Number pad'] button:text-is('1')");
     await page.tap("button:has-text('Show my tables')");
     await page.selectOption("#pick-section", { label: "X(1)" });
-    await page.selectOption("#pick-table", table);
-    await page.tap("button:has-text('Open table')");
+    await page.getByRole("link", { name: table, exact: true }).tap();
     await expect(page).toHaveURL(new RegExp(`/waiter/01/tables/${table}$`));
 
     await expect(page.locator("nav[aria-label='Menu categories'] button")).toHaveCount(26);
@@ -182,7 +181,7 @@ test.describe.serial("orders on a phone", () => {
     const before = await ticketByNumber(number);
     // Keep this screen from hearing about the other waiter's order, then change a saved line.
     await page.route("**/api/changes", (route) => route.abort());
-    await saveOrder(visitId, kafi, [["Horchata", 1]]);
+    await saveOrder(table, kafi, [["Horchata", 1]]);
     await page.tap("button[aria-label='One more saved Combo #5']");
     await expect(page.locator("main [role=alert]")).toContainText("Someone else just changed this ticket");
     await page.unroute("**/api/changes");
@@ -251,7 +250,6 @@ test.describe.serial("orders on a phone", () => {
       expect((await ticketByNumber(number)).status).toBe("open");
       await expect(saved(page)).toContainText("Lunch #3");
       await expect(kitchenButton(page)).toBeDisabled(); // nothing left to send
-      expect(await visitCleared(visitId)).toBe(false);
     });
 
     test("the next kitchen receipt shows only the new order, on the same ticket", async ({ page }) => {
@@ -267,7 +265,7 @@ test.describe.serial("orders on a phone", () => {
       expect(receipt).not.toContain("COMBO");
       expect(receipt).not.toContain("LUNCH #3");
       await answerYes(page);
-      expect(await ticketOfVisit(visitId)).toHaveLength(1);
+      expect(await openTicketsAt(table)).toHaveLength(1);
     });
 
     test("an order can be reprinted, marked as a reprint", async ({ page }) => {
@@ -288,7 +286,7 @@ test.describe.serial("orders on a phone", () => {
 
       await customerButton(page).tap();
       await expect(page.locator("dialog[open] h2")).toHaveText("Did the customer receipt print?");
-      await expect(page.locator("dialog[open]")).toContainText("Yes finalizes the ticket");
+      await expect(page.locator("dialog[open]")).toContainText("Yes finalizes this ticket and resets the table");
       const receipt = await lastReceipt(page);
       for (const part of ["EL LORITO", `TICKET #${number}`, "WAITER: 01", `TABLE: ${table}`, "TIME: ", "2 × Combo #5", "$18.80", "@ 9.40 each", "2 × House tequila shot", "1 × Horchata", "Food Subtotal", "Liquor Subtotal", "Food Tax (8.5%)", "Liquor Tax (10.5%)", "TOTAL", "THANK YOU!"]) {
         expect(receipt).toContain(part);
@@ -330,7 +328,7 @@ test.describe.serial("orders on a phone", () => {
       await expect(customerButton(page)).toBeEnabled();
     });
 
-    test("Yes finalizes: nothing can change, the receipt reprints exactly, the host can still clear", async ({ page }) => {
+    test("Yes finalizes and resets the table: the receipt reprints exactly, and the next order is a new ticket", async ({ page }) => {
       await stubPrinting(page);
       await page.goto(`/waiter/01/tables/${table}`);
       const number = await ticketNumberOnScreen(page);
@@ -340,29 +338,24 @@ test.describe.serial("orders on a phone", () => {
       await expect(page.locator("dialog[open] h2")).toHaveText("Did the customer receipt print?");
       const printed = await lastReceipt(page);
       await answerYes(page);
-      await expect(page.getByTestId("ticket-finalized")).toBeVisible();
-      await expect(page.getByText(`Ticket #${number} is finalized.`)).toBeVisible();
+      await expect(page.getByText(`Ticket #${number} is finalized. The table is ready for a new order.`)).toBeVisible();
 
       const final = await ticketByNumber(number);
       expect(final.status).toBe("finalized");
       expect(final.total_cents).toBe(total);
       expect(final.final_receipt).not.toBeNull();
 
-      // Nothing to change on screen.
-      await expect(page.locator("#menu-search")).toHaveCount(0);
-      await expect(kitchenButton(page)).toHaveCount(0);
+      // The table is fresh: nothing of the old order, and the menu ready for the next one.
+      await expect(page.locator("#saved-ticket-heading")).toHaveCount(0);
+      await expect(page.locator("#menu-search")).toBeVisible();
       await expect(page.locator("button[aria-label^='One more saved']")).toHaveCount(0);
-      await expect(page.locator("button[aria-label^='Remove saved']")).toHaveCount(0);
-      await expect(page.getByRole("button", { name: "Edit note" })).toHaveCount(0);
-
-      // And the database refuses, whatever a stale screen sends.
-      await expect(saveOrder(visitId, kafi, [["Taco", 1]])).rejects.toThrow(/ticket_finalized/);
-      expect(await ticketOfVisit(visitId)).toHaveLength(1);
+      expect(await openTicketsAt(table)).toHaveLength(0);
 
       // Tax and menu changes don't touch the copy.
       await setItem("Combo #5", 5000, true);
       await setTaxRate("food", 900);
       await page.reload();
+      await page.locator(`a[aria-label^='Ticket ${number},']`).tap();
       await page.getByRole("button", { name: "Reprint Customer Receipt" }).tap();
       await expect(page.locator("dialog[open] h2")).toHaveText("Did the copy of the receipt print?");
       const copy = await lastReceipt(page);
@@ -372,10 +365,7 @@ test.describe.serial("orders on a phone", () => {
       await setTaxRate("food", 850);
       expect(await ticketTotal(number)).toBe(total);
 
-      // The host clears the table as usual; the next group gets a new ticket.
-      await freeTables([table]);
-      expect((await ticketByNumber(number)).status).toBe("finalized");
-      const next = await seat([table], 2);
+      // The next order at this table is a new ticket; the finalized one stays as it was.
       await page.goto(`/waiter/01/tables/${table}`);
       await expect(page.locator("#saved-ticket-heading")).toHaveCount(0);
       await expect(page.locator("#menu-search")).toBeVisible();
@@ -384,7 +374,8 @@ test.describe.serial("orders on a phone", () => {
       await expect(page.getByText(/Order saved on ticket/)).toBeVisible();
       const nextNumber = await ticketNumberOnScreen(page);
       expect(nextNumber).toBeGreaterThan(number);
-      expect((await ticketOfVisit(next))[0]?.status).toBe("open");
+      expect((await openTicketsAt(table))[0]?.ticket_number).toBe(nextNumber);
+      expect((await ticketByNumber(number)).status).toBe("finalized");
     });
   });
 });

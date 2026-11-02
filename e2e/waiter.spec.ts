@@ -1,6 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 
-import { assign, employee, freeTables, seat, setEmployeeActive, startShift, ticketOfVisit, visitRow } from "./support/db";
+import { assign, cancelOpenOrders, employee, freeTables, openTicketsAt, seat, setEmployeeActive, startShift } from "./support/db";
 
 async function enter(page: Page, number: string) {
   await page.goto("/waiter");
@@ -8,8 +8,7 @@ async function enter(page: Page, number: string) {
   await page.click("button:has-text('Show my tables')");
 }
 
-const tableOptions = async (page: Page) =>
-  (await page.locator("#pick-table option").allTextContents()).slice(1).map((text) => text.split(" (")[0]);
+const tableLinks = (page: Page) => page.locator("nav[aria-labelledby='pick-table-heading'] a");
 
 test.describe.serial("waiter section", () => {
   let kafi = 0;
@@ -22,10 +21,11 @@ test.describe.serial("waiter section", () => {
     await setEmployeeActive(off, "Luis", false);
     await assign("X-1", "waiter", kafi);
     await assign("B", "waiter", musfika);
+    await freeTables(["X2", "X3", "B3", "BAR-1", "C6"]);
+    await cancelOpenOrders(["X2", "X3", "X9", "C6"]);
     await seat(["X2"], 4);
     await seat(["B3"], 3);
     await seat(["BAR-1"], 1);
-    await freeTables(["X3"]);
   });
 
   test("unknown and turned-off numbers are refused", async ({ page }) => {
@@ -35,7 +35,7 @@ test.describe.serial("waiter section", () => {
     await expect(page.locator("#employee-number-error")).toContainText("Luis (04) is turned off");
   });
 
-  test("the number pad finds 01 from 1, and offers two dropdowns", async ({ page }) => {
+  test("the number pad finds 01 from 1, and offers the sections", async ({ page }) => {
     await page.goto("/waiter");
     await page.click("[aria-label='Number pad'] button:text-is('1')");
     await page.click("button:has-text('Show my tables')");
@@ -46,25 +46,18 @@ test.describe.serial("waiter section", () => {
     await expect(page.locator("#pick-section")).toHaveValue("X-1"); // their section first, nothing more
   });
 
-  test("the table dropdown follows the section: exactly its tables", async ({ page }) => {
+  test("the table list follows the section: exactly its tables, and nothing about who is seated", async ({ page }) => {
     await page.goto("/waiter/01");
     await page.selectOption("#pick-section", { label: "X(1)" });
-    expect(await tableOptions(page)).toEqual(["X4", "X5", "X6", "X7", "X8", "X9", "X13", "X14"]);
+    await expect(tableLinks(page)).toHaveText(["X4", "X5", "X6", "X7", "X8", "X9", "X13", "X14"]);
     await page.selectOption("#pick-section", { label: "X(2)" });
-    expect(await tableOptions(page)).toEqual(["X1", "X2", "X3", "X10", "X11", "X12"]);
+    await expect(tableLinks(page)).toHaveText(["X1", "X2", "X3", "X10", "X11", "X12"]); // X2 has 4 guests seated
     await page.selectOption("#pick-section", { label: "Party" });
-    expect(await tableOptions(page)).toEqual(["Party 1", "Party 2", "Party 3"]);
+    await expect(tableLinks(page)).toHaveText(["Party 1", "Party 2", "Party 3"]);
     await page.selectOption("#pick-section", { label: "Bar" });
-    expect(await tableOptions(page)).toEqual(["Bar 1", "Bar 2", "Bar 3", "Bar 4"]);
-  });
-
-  test("changing the section forgets a table of the old section", async ({ page }) => {
-    await page.goto("/waiter/01");
-    await page.selectOption("#pick-section", { label: "X(2)" });
-    await page.selectOption("#pick-table", "X2");
-    await page.selectOption("#pick-section", { label: "A" });
-    await expect(page.locator("#pick-table")).toHaveValue("");
-    await expect(page.getByRole("button", { name: "Open table" })).toBeDisabled();
+    await expect(tableLinks(page)).toHaveText(["Bar 1", "Bar 2", "Bar 3", "Bar 4"]);
+    await page.selectOption("#pick-section", { label: "Choose a section…" });
+    await expect(tableLinks(page)).toHaveCount(0);
   });
 
   test("any waiter opens any table, with no warning: another waiter's table, their own, the Bar", async ({ page }) => {
@@ -75,8 +68,7 @@ test.describe.serial("waiter section", () => {
     ] as const) {
       await page.goto("/waiter/01");
       await page.selectOption("#pick-section", { label: section });
-      await page.selectOption("#pick-table", table);
-      await page.click("button:has-text('Open table')");
+      await tableLinks(page).filter({ hasText: new RegExp(`^${table.replace("BAR-", "Bar ")}$`) }).click();
       await expect(page).toHaveURL(new RegExp(`/tables/${urlPart}$`));
       await expect(page.locator("dialog[open]")).toHaveCount(0);
       await expect(page.locator("main")).not.toContainText("assigned to");
@@ -84,39 +76,50 @@ test.describe.serial("waiter section", () => {
     }
   });
 
-  test("a table with nobody seated can be seated right there: the same visit the Floor shows", async ({ page }) => {
+  test("a vacant table goes straight to its order page, and ordering doesn't touch the Floor", async ({ page }) => {
     await page.goto("/waiter/01");
     await page.selectOption("#pick-section", { label: "X(2)" });
-    await page.selectOption("#pick-table", "X3");
-    await page.click("button:has-text('Open table')");
-    await expect(page.locator("main")).toContainText("No guests are seated at X3 yet");
-    await page.fill("#seat-guests", "2");
-    await page.click("button:has-text('Seat and start the order')");
+    await tableLinks(page).filter({ hasText: /^X3$/ }).click();
+    await expect(page).toHaveURL(/\/tables\/X3$/);
     await expect(page.locator("#menu-search")).toBeVisible();
+    await expect(page.locator("main")).not.toContainText(/guests/i);
+    await page.click("button[aria-label^='Add Lunch #1,']");
+    await page.click("button:text-is('Save Order')");
+    await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();
+    expect((await openTicketsAt("X3"))[0]?.visit_id).toBeNull();
     await page.goto("/floor");
-    await expect(page.locator("main button[aria-label^='X3,']")).toHaveAttribute("aria-label", /2 guests, Needs chips/);
+    await expect(page.locator("main button[aria-label^='X3,']")).toHaveAttribute("aria-label", /Vacant/);
   });
 
-  test("a closed section's table can't be seated from here either", async ({ page }) => {
-    await freeTables(["C6"]);
+  test("a seated table looks the same, and the Floor clearing it leaves the order alone", async ({ page }) => {
+    await page.goto("/waiter/01/tables/X2");
+    await expect(page.locator("main")).not.toContainText(/guests/i);
+    await page.click("button[aria-label^='Add Lunch #1,']");
+    await page.click("button:text-is('Save Order')");
+    await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();
+    const [ticket] = await openTicketsAt("X2");
+    await freeTables(["X2"]);
+    expect((await openTicketsAt("X2"))[0]?.ticket_number).toBe(ticket?.ticket_number);
+    await page.reload();
+    await expect(page.locator("#saved-ticket-heading")).toHaveText(`Ticket #${ticket?.ticket_number}`);
+  });
+
+  test("a closed section's table can still take an order", async ({ page }) => {
     await page.goto("/floor");
     await page.click("button[aria-label='Close section C']");
     await expect(page.locator("main button[aria-label^='C6,']")).toHaveAttribute("aria-label", /Section closed/);
     await page.goto("/waiter/01/tables/C6");
-    await page.fill("#seat-guests", "2");
-    await page.click("button:has-text('Seat and start the order')");
-    await expect(page.locator("main p[role=alert]")).toContainText("Section C is closed");
+    await page.click("button[aria-label^='Add Lunch #1,']");
+    await page.click("button:text-is('Save Order')");
+    await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();
     await freeTables(["C6"]); // opens the section again
   });
 
   test("the waiter's number stays on what they save, wherever they are assigned", async ({ page }) => {
-    const visit = await seat(["X9"], 2);
     await page.goto("/waiter/01/tables/X9");
     await page.click("button[aria-label^='Add Lunch #1,']");
     await page.click("button:text-is('Save Order')");
     await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();
-    expect((await ticketOfVisit(visit))[0]?.employee_id).toBe(kafi);
-    expect((await visitRow(visit)).cleared_at).toBeNull();
-    await freeTables(["X9"]);
+    expect((await openTicketsAt("X9"))[0]?.employee_id).toBe(kafi);
   });
 });

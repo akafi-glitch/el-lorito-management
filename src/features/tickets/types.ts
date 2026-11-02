@@ -35,10 +35,9 @@ export type StaffRef = { name: string; number: string };
 export type SavedTicket = {
   id: number;
   number: number;
-  visitId: number;
   status: TicketStatus;
   version: number;
-  /** True for the group's one current ticket; old-style tickets are kept apart. */
+  /** True for the table's one current ticket; old-style tickets are kept apart. */
   isActive: boolean;
   /** "Tue, Oct 27, 4:02 PM" in the restaurant's time zone. */
   createdAt: string;

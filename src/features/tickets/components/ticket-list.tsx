@@ -11,12 +11,12 @@ type TicketListProps = {
   tableHref: string;
 };
 
-/** Other tickets of this group (cancelled, or from before one group meant one ticket). Tap one to open it. */
+/** This table's earlier tickets from this shift. Tap one to see it or print its receipt again. */
 export function TicketList({ tickets, selected, tableHref }: TicketListProps) {
   return (
     <nav aria-labelledby="tickets-heading" className="rounded-2xl border border-glaze bg-paper p-4">
       <h2 id="tickets-heading" className="text-lg font-bold text-ink">
-        Other tickets for this table
+        Earlier tickets at this table
       </h2>
       <ul className="mt-3 flex flex-wrap gap-2">
         {tickets.map((ticket) => {

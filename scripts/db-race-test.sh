@@ -108,6 +108,22 @@ fi
 # The upgrade's order operations -------------------------------------------------------------------
 ORDER_LINE() { echo "[{\"item_id\": $("${PSQL[@]}" -c "select id from public.menu_items where name = '$1' order by id limit 1"), \"quantity\": $2}]"; }
 SAVE() { echo "select * from public.save_order($1, $EMP, '$2'::uuid, '$(ORDER_LINE "$3" 1)', null, 'America/Chicago', null)"; }
+SAVE_AT() { echo "select * from public.save_table_order('$1', $EMP, '$2'::uuid, '$(ORDER_LINE "$3" 1)', null, 'America/Chicago', null)"; }
+
+echo "Race 4b: two waiters send the first order at one table, with nobody seated there"
+"${PSQL[@]}" -c "select public.cancel_order(t.id, t.version, $EMP, null) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C4' and t.status = 'open' and not t.legacy_single_order" >/dev/null
+K1=$("${PSQL[@]}" -c "select gen_random_uuid()"); K2=$("${PSQL[@]}" -c "select gen_random_uuid()")
+( "${PSQL[@]}" -c "begin; $(SAVE_AT C4 "$K1" Taco); select pg_sleep(1); commit;" >"$work/t1.out" 2>&1; echo $? >"$work/t1.code" ) &
+sleep 0.2
+( "${PSQL[@]}" -c "$(SAVE_AT C4 "$K2" Horchata);" >"$work/t2.out" 2>&1; echo $? >"$work/t2.code" ) &
+wait
+T=$("${PSQL[@]}" -c "select count(*) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C4' and t.status = 'open' and not t.legacy_single_order")
+B=$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C4' and t.status = 'open' and not t.legacy_single_order")
+if [ "$(cat "$work/t1.code")" = 0 ] && [ "$(cat "$work/t2.code")" = 0 ] && [ "$T" = 1 ] && [ "$B" = 2 ]; then
+  echo "  PASS: one ticket, two orders, nobody seated"
+else
+  echo "  FAIL: tickets=$T orders=$B"; cat "$work/t1.out" "$work/t2.out"; fail=1
+fi
 
 echo "Race 5: two waiters send the first order at one table at the same moment"
 reset_tables "C5"
@@ -147,10 +163,11 @@ K4=$("${PSQL[@]}" -c "select gen_random_uuid()")
 sleep 0.3
 ( "${PSQL[@]}" -c "$(SAVE "$VISIT" "$K4" Taco);" >"$work/f2.out" 2>&1; echo $? >"$work/f2.code" ) &
 wait
-if [ "$(cat "$work/f1.code")" = 0 ] && grep -q "ticket_finalized" "$work/f2.out" \
+if [ "$(cat "$work/f1.code")" = 0 ] && [ "$(cat "$work/f2.code")" = 0 ] \
    && [ "$("${PSQL[@]}" -c "select status from public.tickets where id = $TID")" = finalized ] \
-   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where ticket_id = $TID")" = 3 ]; then
-  echo "  PASS: finalized first; the late order waited and was refused"
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where ticket_id = $TID")" = 3 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where client_key = '$K4' and ticket_id <> $TID")" = 1 ]; then
+  echo "  PASS: finalized first; the late order waited and started the table's next ticket"
 else
   echo "  FAIL"; cat "$work/f1.out" "$work/f2.out"; fail=1
 fi
