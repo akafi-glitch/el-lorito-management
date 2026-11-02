@@ -139,8 +139,8 @@ select throws_ok($$ select * from public.save_ticket(pg_temp.id('visit'), (selec
   'P0001', 'ticket_printed', 'a printed ticket can''t be changed');
 select throws_ok($$ select public.cancel_ticket(pg_temp.id('visit'), (select ticket_id from saved where name = 't1'), 3, pg_temp.id('kafi'), pg_temp.actor()) $$,
   'P0001', 'ticket_printed', 'a printed ticket can''t be cancelled');
-select throws_ok($$ update public.tickets set printed_at = null where ticket_number = 1001 $$, '23514', null,
-  'printed needs a print time (database rule)');
+select throws_ok($$ update public.tickets set printed_at = null where ticket_number = 1001 $$, 'P0001', 'ticket_finalized',
+  'a printed ticket can''t be changed, even directly in the database');
 
 -- Clearing the table --------------------------------------------------------------------------
 insert into saved select 'before_clear', * from public.save_ticket(pg_temp.id('visit'), null, null, pg_temp.id('kafi'),

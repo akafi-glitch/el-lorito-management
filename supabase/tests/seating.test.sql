@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(38);
+select plan(52);
 
 -- A signed-in administrator to act as.
 insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000aa', 'host@staff.ellorito-management.com');
@@ -98,6 +98,35 @@ select throws_ok($$ select public.mark_chips_served(pg_temp.vid('a3'), 3, pg_tem
   'P0001', 'visit_closed', 'a cleared visit cannot be changed');
 insert into v select 'a3_again', public.seat_party(array['A3'], 4, pg_temp.actor());
 select isnt(pg_temp.vid('a3_again'), pg_temp.vid('a3'), 'the next group at A3 gets a new visit');
+
+-- Undo chips served -------------------------------------------------------------------------
+insert into v select 'undo', public.seat_party(array['C1'], 2, pg_temp.actor());
+select throws_ok($$ select public.undo_chips_served(pg_temp.vid('undo'), 1, pg_temp.actor()) $$,
+  'P0001', 'chips_not_served', 'a yellow table has nothing to undo');
+select is(public.mark_chips_served(pg_temp.vid('undo'), 1, pg_temp.actor()), 2, 'chips served: yellow to red');
+select is(public.undo_chips_served(pg_temp.vid('undo'), 2, pg_temp.actor()), 3, 'undo: back to yellow, the version moves on');
+select results_eq($$ select chips_status::text, chips_served_at, chips_served_by from public.customer_visits where id = pg_temp.vid('undo') $$,
+  $$ values ('needed'::text, null::timestamptz, null::uuid) $$, 'the table is exactly as before chips were served');
+select throws_ok($$ select public.undo_chips_served(pg_temp.vid('undo'), 2, pg_temp.actor()) $$,
+  'P0001', 'stale_visit', 'undo from an older screen is refused');
+select is(public.mark_chips_served(pg_temp.vid('undo'), 3, pg_temp.actor()), 4, 'another employee serves chips again');
+select throws_ok($$ select public.undo_chips_served(pg_temp.vid('undo'), 2, pg_temp.actor()) $$,
+  'P0001', 'stale_visit', 'an old undo can''t overwrite that newer action');
+select is((select chips_status::text from public.customer_visits where id = pg_temp.vid('undo')), 'served', '... the newer action stands');
+select is(public.clear_visit(pg_temp.vid('undo'), 4, pg_temp.actor()), 5, 'another employee clears the table');
+select throws_ok($$ select public.undo_chips_served(pg_temp.vid('undo'), 4, pg_temp.actor()) $$,
+  'P0001', 'visit_closed', 'undo can''t bring back a cleared table''s visit');
+select is((select count(*)::int from public.visit_tables vt join public.restaurant_tables t on t.id = vt.table_id
+           where t.code = 'C1' and vt.released_at is null), 0, '... and C1 stays free');
+select results_eq($$ select event_type from public.audit_events where visit_id = pg_temp.vid('undo') order by id $$,
+  $$ values ('seated'::text), ('chips_served'), ('chips_undone'), ('chips_served'), ('cleared') $$,
+  'every change and its reversal is in the audit history');
+-- Joined tables: chips belong to the visit, so they change together.
+insert into v select 'joined', public.seat_party(array['B3', 'B4'], 9, pg_temp.actor(), 'B3+B4');
+select public.undo_chips_served(pg_temp.vid('joined'), public.mark_chips_served(pg_temp.vid('joined'), 1, pg_temp.actor()), pg_temp.actor());
+select is((select count(distinct cv.chips_status)::int from public.visit_tables vt join public.customer_visits cv on cv.id = vt.visit_id
+           where vt.visit_id = pg_temp.vid('joined')), 1, 'joined tables share one chips status through undo');
+select is((select count(*)::int from public.visit_tables where visit_id = pg_temp.vid('joined') and released_at is null), 2, 'and both stay seated');
 
 -- Audit history ---------------------------------------------------------------------------
 select is((select count(*)::int from public.audit_events where visit_id = pg_temp.vid('a3')), 3,
