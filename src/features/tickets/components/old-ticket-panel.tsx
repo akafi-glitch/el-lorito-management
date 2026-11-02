@@ -10,15 +10,13 @@ import type { SavedTicket } from "../types";
 
 import { SavedTicketPanel } from "./saved-ticket-panel";
 
-/** An open ticket from before one group meant one ticket: it can still be changed and billed. */
+/** An old-style open ticket: it can still be changed and billed while its group is seated. */
 export function SavedTicketPanelForOldTicket({
   ticket,
-  visitId,
   employeeNumber,
   paperWidthMm,
 }: {
   ticket: SavedTicket;
-  visitId: number;
   employeeNumber: string;
   paperWidthMm: 58 | 80;
 }) {
@@ -29,7 +27,6 @@ export function SavedTicketPanelForOldTicket({
       <NoticeBanner notice={notice} />
       <SavedTicketPanel
         ticket={ticket}
-        visitId={visitId}
         employeeNumber={employeeNumber}
         paperWidthMm={paperWidthMm}
         orderOnScreen={false}

@@ -273,6 +273,7 @@ section and table dropdowns open to every waiter; one ticket per group with any 
 order notes; kitchen receipts (large, bold, no prices); customer receipts with finalizing after confirmation, enforced
 in the database; Management → Order History; and much faster responses to a tap.
 
-**For the owner to decide:** a waiter opening a vacant table can seat the group there (see BUSINESS_RULES.md).
+**Changed by the owner the same day:** the Waiter Section is separate from the Floor. Choosing a table goes straight
+to its order page, whatever the Floor shows, and a printed customer receipt resets the table (see BUSINESS_RULES.md).
 **Still open:** first print on the real thermal printer.
 

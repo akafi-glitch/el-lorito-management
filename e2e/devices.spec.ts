@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
 
-import { employee, saveOrder, seat } from "./support/db";
+import { cancelOpenOrders, employee, saveOrder } from "./support/db";
 
 /** Every working screen on a phone, a tablet, and a computer: nothing runs off the side. */
 const PAGES = ["/", "/floor", "/waiter", "/waiter/01", "/waiter/01/tables/P5", "/manage", "/manage/employees", "/manage/menu", "/manage/history", "/manage/accounts"];
@@ -13,7 +13,8 @@ const SIZES = [
 
 test.beforeAll(async () => {
   const kafi = await employee("01", "Kafi", "waiter");
-  await saveOrder(await seat(["P5"], 2), kafi, [["Taco", 2], ["Domestic beer", 1]], "No onions");
+  await cancelOpenOrders(["P5"]);
+  await saveOrder("P5", kafi, [["Taco", 2], ["Domestic beer", 1]], "No onions");
 });
 
 for (const size of SIZES) {

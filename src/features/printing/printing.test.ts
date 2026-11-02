@@ -43,6 +43,7 @@ const kitchenRow: KitchenBatchRow = {
   waiter: { employee_number: "02" },
   ticket: {
     ticket_number: 1042,
+    own_table: { label: "X6" },
     visit: { visit_tables: [{ restaurant_tables: { label: "X8" } }, { restaurant_tables: { label: "X6" } }, { restaurant_tables: { label: "X7" } }] },
   },
   ticket_lines: [
@@ -129,6 +130,11 @@ describe("the kitchen receipt", () => {
 
   it("says when it is another copy, so nothing is cooked twice", () => {
     expect(kitchenReceiptFromRow(kitchenRow, true, "x").isReprint).toBe(true);
+  });
+
+  it("names the ticket's own table when it has no visit", () => {
+    const row = { ...kitchenRow, ticket: { ...kitchenRow.ticket, own_table: { label: "Bar 2" }, visit: null } };
+    expect(kitchenReceiptFromRow(row, false, "x").tables).toBe("BAR 2");
   });
 
   it("reads only what it needs from the database: a price in the row is ignored", () => {

@@ -19,7 +19,6 @@ import type { SavedBatch, SavedLine, SavedTicket } from "../types";
 
 type SavedTicketPanelProps = {
   ticket: SavedTicket;
-  visitId: number;
   employeeNumber: string;
   paperWidthMm: 58 | 80;
   /** A new order is on screen, not saved yet: the bill wouldn't include it. */
@@ -40,9 +39,8 @@ const KITCHEN_DOT: Record<SavedBatch["kitchen"], string> = {
  * The customer's ticket: every saved order, what it comes to, and printing the bill. Taps on quantities
  * show at once and are saved in order, each from the version the last one left.
  */
-export function SavedTicketPanel({ ticket, visitId, employeeNumber, paperWidthMm, orderOnScreen, onNotice, onChanged }: SavedTicketPanelProps) {
+export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOnScreen, onNotice, onChanged }: SavedTicketPanelProps) {
   const editable = ticket.status === "open";
-  const finalized = ticket.status === "finalized";
   const [removing, setRemoving] = useState<SavedLine | null>(null);
   const [editingNote, setEditingNote] = useState<SavedBatch | null>(null);
   const [noteText, setNoteText] = useState("");
@@ -125,7 +123,7 @@ export function SavedTicketPanel({ ticket, visitId, employeeNumber, paperWidthMm
   async function cancelTicket() {
     setConfirmCancel(false);
     try {
-      const result = await cancelTicketAction({ employeeNumber, visitId, ticketId: ticket.id, version: version.current });
+      const result = await cancelTicketAction({ employeeNumber, ticketId: ticket.id, version: version.current });
       onNotice({ tone: result.ok ? "ok" : "error", text: result.message });
     } catch {
       onNotice({ tone: "error", text: OFFLINE });
@@ -149,7 +147,7 @@ export function SavedTicketPanel({ ticket, visitId, employeeNumber, paperWidthMm
       job: {
         attemptIds: [result.attemptId],
         title: result.isCopy ? "the copy of the receipt" : "the customer receipt",
-        question: result.isCopy ? "" : "Yes finalizes the ticket: nothing more can be added or changed.",
+        question: result.isCopy ? "" : "Yes finalizes this ticket and resets the table for a new order.",
         content: { kind: "customer", receipt: result.receipt, isCopy: result.isCopy },
       },
     };
@@ -174,11 +172,6 @@ export function SavedTicketPanel({ ticket, visitId, employeeNumber, paperWidthMm
           {staffLabel(ticket.maker)} · {ticket.createdTime}
         </p>
       </div>
-      {finalized ? (
-        <p className="mt-3 rounded-lg bg-leaf-light px-3 py-2 text-base font-semibold text-ink" data-testid="ticket-finalized">
-          Finalized: the customer receipt was printed. Nothing more can be added or changed. The receipt can be printed again.
-        </p>
-      ) : null}
 
       <ol className="mt-3 flex flex-col gap-4">
         {batches.map((batch) => (
@@ -287,7 +280,7 @@ export function SavedTicketPanel({ ticket, visitId, employeeNumber, paperWidthMm
             start={startCustomerPrint}
             onError={(text) => onNotice({ tone: "error", text })}
             onDone={(printed) => {
-              if (printed && editable) onNotice({ tone: "ok", text: `Ticket #${ticket.number} is finalized.` });
+              if (printed && editable) onNotice({ tone: "ok", text: `Ticket #${ticket.number} is finalized. The table is ready for a new order.` });
               onChanged();
             }}
           />

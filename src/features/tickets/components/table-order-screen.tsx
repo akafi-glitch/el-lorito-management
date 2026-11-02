@@ -21,8 +21,8 @@ import { SavedTicketPanel } from "./saved-ticket-panel";
 
 type TableOrderScreenProps = {
   employeeNumber: string;
-  visitId: number;
-  /** The group's ticket, or null until the first order is saved. */
+  tableCode: string;
+  /** The table's open ticket, or null until the first order is saved. */
   ticket: SavedTicket | null;
   menuVersion: number;
   timeZone: string;
@@ -36,7 +36,7 @@ const OFFLINE = "Couldn't reach the server. Nothing was saved. Check the connect
  * One table: what is saved on its ticket, and the new order being built. The order stays on the device
  * until Save Order or Print Kitchen Receipt; the database then sets the prices of menu items.
  */
-export function TableOrderScreen({ employeeNumber, visitId, ticket, menuVersion, timeZone, nowIso, paperWidthMm }: TableOrderScreenProps) {
+export function TableOrderScreen({ employeeNumber, tableCode, ticket, menuVersion, timeZone, nowIso, paperWidthMm }: TableOrderScreenProps) {
   const router = useRouter();
   const { data, failed, retry } = useMenuData(menuVersion);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -46,7 +46,6 @@ export function TableOrderScreen({ employeeNumber, visitId, ticket, menuVersion,
   /** One key per order as it stands: pressing Save twice sends the same key, so it saves once. */
   const clientKey = useRef<string | null>(null);
 
-  const finalized = ticket?.status === "finalized";
   const dirty = draft.length > 0;
   const hasToSend = batchesToSend(ticket).length > 0;
 
@@ -85,7 +84,7 @@ export function TableOrderScreen({ employeeNumber, visitId, ticket, menuVersion,
     clientKey.current ??= crypto.randomUUID();
     const result = await saveOrderAction({
       employeeNumber,
-      visitId,
+      tableCode,
       clientKey: clientKey.current,
       lines: orderLinesFromDraft(draft),
       notes,
@@ -160,7 +159,6 @@ export function TableOrderScreen({ employeeNumber, visitId, ticket, menuVersion,
         <SavedTicketPanel
           key={ticket.id}
           ticket={ticket}
-          visitId={visitId}
           employeeNumber={employeeNumber}
           paperWidthMm={paperWidthMm}
           orderOnScreen={dirty}
@@ -169,7 +167,7 @@ export function TableOrderScreen({ employeeNumber, visitId, ticket, menuVersion,
         />
       ) : null}
 
-      {finalized ? null : data ? (
+      {data ? (
         <MenuScreen
           menu={data.menu}
           tax={data.tax}

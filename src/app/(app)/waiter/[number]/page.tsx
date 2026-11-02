@@ -38,7 +38,7 @@ export default async function WaiterTablesPage({ params }: Props) {
     <SectionShell
       title={employeeLabel(me)}
       description={`${ROLE_LABEL[me.role]}. Any waiter can open any table.`}
-      live={{ watch: ["floor", "staff"], versions }}
+      live={{ watch: ["staff"], versions }}
     >
       <div className="flex flex-col gap-6">
         <TablePicker sections={sections} basePath={waiterPath(me)} initialSection={mine[0]?.code ?? null} menuVersion={versions.menu} />

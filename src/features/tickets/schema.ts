@@ -3,6 +3,7 @@ import { z } from "zod";
 import { MAX_PRICE_CENTS } from "@/features/menu/money";
 import { MAX_QUANTITY } from "@/features/menu/order-draft";
 import { TAX_CATEGORIES } from "@/features/menu/schema";
+import { tableCodeSchema } from "@/features/waiter/schema";
 
 const staffRow = z.object({ full_name: z.string(), employee_number: z.string() });
 const cents = z.number().int().nonnegative();
@@ -10,7 +11,6 @@ const cents = z.number().int().nonnegative();
 export const ticketRowSchema = z.object({
   id: z.number().int().positive(),
   ticket_number: z.number().int().positive(),
-  visit_id: z.number().int().positive(),
   status: z.enum(["open", "printed", "cancelled", "finalized"]),
   version: z.number().int().positive(),
   legacy_single_order: z.boolean(),
@@ -86,7 +86,7 @@ const notes = z
 
 export const saveOrderSchema = z.object({
   employeeNumber,
-  visitId: z.number().int().positive(),
+  tableCode: tableCodeSchema,
   clientKey: z.uuid(),
   lines: z
     .array(orderLine)
@@ -121,7 +121,6 @@ export type ChangeTicketInput = z.input<typeof changeTicketSchema>;
 
 export const cancelTicketSchema = z.object({
   employeeNumber,
-  visitId: z.number().int().positive(),
   ticketId: z.number().int().positive(),
   version: z.number().int().positive(),
 });

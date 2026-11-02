@@ -4,11 +4,11 @@
  * - A waiter types their employee number ("01" and "1" are the same number).
  * - Unknown and turned-off numbers are refused.
  * - A waiter may open ANY table: section assignments are for floor management and never block ordering.
- * - Tables come from the same database rows as the Floor, so both talk about the same table and visit.
+ * - The Waiter Section is separate from the Floor: whether a table is seated, and how many guests, never
+ *   matters here. Choosing a table goes straight to its order page.
  */
 
 import type { FloorMap } from "@/features/floor/layout";
-import { STATUS_LABEL } from "@/features/floor/status";
 import { employeeLabel, type EmployeeRef } from "@/features/staff/rules";
 
 export const EMPLOYEE_NUMBER_MAX_DIGITS = 6;
@@ -30,10 +30,10 @@ export function lookupResult(typed: string, employee: EmployeeRef | null): Looku
   return { ok: true, employee };
 }
 
-export type PickerTable = { code: string; label: string; detail: string };
+export type PickerTable = { code: string; label: string };
 export type PickerSection = { code: string; name: string; tables: PickerTable[] };
 
-/** Every section with its tables, in floor order, for the two dropdowns. */
+/** Every section with its tables, in floor order, for the picker. */
 export function pickerSections(map: Pick<FloorMap, "areas" | "sections">): PickerSection[] {
   const tables = map.areas.flatMap((area) => area.tables);
   return map.sections.flatMap((section) => {
@@ -43,11 +43,7 @@ export function pickerSections(map: Pick<FloorMap, "areas" | "sections">): Picke
       {
         code: section.code,
         name: section.name,
-        tables: list.map((table) => ({
-          code: table.code,
-          label: table.label,
-          detail: table.visit ? `${table.visit.guestCount} seated` : STATUS_LABEL[table.status].toLowerCase(),
-        })),
+        tables: list.map((table) => ({ code: table.code, label: table.label })),
       },
     ];
   });

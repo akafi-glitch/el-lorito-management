@@ -96,7 +96,8 @@ The employee number travels in the link (`/waiter/01`, `/waiter/01/tables/B3`) r
 cookie. Nothing is remembered between waiters on a shared tablet, and "Not you? Change number" or
 Home starts over. Every page checks the number again on the server (unknown or turned-off numbers
 are refused), so a stale link stops working as soon as someone is turned off. Any waiter can open any
-table through the section and table dropdowns. The number identifies the waiter; the administrator sign-in is
+table: choose a section, then tap a table in its list. The table's page never loads the Floor: orders belong to
+tables, not to seated groups. The number identifies the waiter; the administrator sign-in is
 what protects the app. Pure rules live in `features/waiter/rules.ts` and are unit tested.
 
 ## Menu and money

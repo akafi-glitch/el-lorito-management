@@ -76,8 +76,9 @@ describe("the section and table dropdowns", () => {
   });
 
   it("each table says whether anyone is seated there", () => {
-    expect(sections.find((s) => s.code === "X-2")?.tables[1]).toEqual({ code: "X2", label: "X2", detail: "4 seated" });
-    expect(sections.find((s) => s.code === "X-2")?.tables[0]).toEqual({ code: "X1", label: "X1", detail: "vacant" });
+    // Seated or vacant makes no difference here: the Waiter Section is separate from the Floor.
+    expect(sections.find((s) => s.code === "X-2")?.tables[1]).toEqual({ code: "X2", label: "X2" });
+    expect(sections.find((s) => s.code === "X-2")?.tables[0]).toEqual({ code: "X1", label: "X1" });
   });
 
   it("use the same table codes as the Floor", () => {

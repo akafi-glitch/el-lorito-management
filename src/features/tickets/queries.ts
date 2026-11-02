@@ -9,7 +9,7 @@ import { buildTicket } from "./rules";
 import { ticketRowSchema, ticketTotalsRowSchema } from "./schema";
 import type { SavedTicket } from "./types";
 
-const SELECT = `id, ticket_number, visit_id, status, version, legacy_single_order, created_at, finalized_at,
+const SELECT = `id, ticket_number, status, version, legacy_single_order, created_at, finalized_at,
   maker:employees!tickets_employee_id_fkey(full_name, employee_number),
   editor:employees!tickets_last_edited_by_employee_id_fkey(full_name, employee_number),
   ticket_batches(id, batch_no, notes, created_at, kitchen_printed_at,
@@ -31,14 +31,25 @@ function build(rows: unknown, totals: unknown): SavedTicket[] {
     });
 }
 
-/** Every ticket of one visit (one group at a table), oldest first, with totals from the database. */
-export async function loadVisitTickets(visitId: number): Promise<SavedTicket[]> {
+/**
+ * A table's current ticket and its earlier tickets from the open shift, oldest first, with totals from
+ * the database. Older ones are in Management's Order History, so the table reads as fresh.
+ */
+export async function loadTableTickets(tableId: string): Promise<SavedTicket[]> {
   const db = createAdminClient();
-  const [tickets, totals] = await Promise.all([
-    db.from("tickets").select(SELECT).eq("visit_id", visitId).order("ticket_number"),
-    db.from("ticket_totals").select(TOTALS).eq("visit_id", visitId),
-  ]);
+  const shift = await db.from("shifts").select("id").is("ended_at", null).maybeSingle();
+  if (shift.error) throw new Error(`Could not load the shift: ${shift.error.message}`);
+  const current = "and(status.eq.open,legacy_single_order.eq.false)";
+  const tickets = await db
+    .from("tickets")
+    .select(SELECT)
+    .eq("table_id", tableId)
+    .or(shift.data ? `${current},shift_id.eq.${shift.data.id}` : current)
+    .order("ticket_number");
   if (tickets.error) throw new Error(`Could not load the tickets: ${tickets.error.message}`);
+  const ids = tickets.data.map((ticket) => ticket.id);
+  if (ids.length === 0) return [];
+  const totals = await db.from("ticket_totals").select(TOTALS).in("ticket_id", ids);
   if (totals.error) throw new Error(`Could not load the ticket totals: ${totals.error.message}`);
   return build(tickets.data, totals.data);
 }

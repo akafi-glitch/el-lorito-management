@@ -81,13 +81,13 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Identify:** the waiter types their employee number (01 and 1 are the same). Unknown numbers and
   turned-off employees are refused. The number says who is working; it is not a password (the
   administrator sign-in protects the app).
-- **Any table:** two dropdowns, Select Section then Select Table, list every section and exactly its
-  tables, from the database. Nothing limits a waiter to their assigned section and there is no warning.
-  Their section this shift is shown, and picked first, only as a convenience.
-- **Same tables as the Floor:** both use the same table codes and the same visits.
-- **Nobody seated yet (decided by the developer; easy to change):** a waiter who opens a vacant table is
-  asked for the guest count and seats the group there. It shows on the Floor at once as yellow, moves the
-  rotation like any seating, and is refused for a closed section.
+- **Any table:** Select Section, then a list shows exactly that section's tables, from the database. Tapping a
+  table goes straight to its order page. Nothing limits a waiter to their assigned section and there is no
+  warning. Their section this shift is shown, and picked first, only as a convenience.
+- **Separate from the Floor (owner decision, Nov 2, 2026):** the Waiter Section never looks at whether a table
+  is vacant, seated, or closed, or how many guests there are, and never asks. Orders don't seat anyone, change
+  the chips, or move the rotation. Seating, chips, and clearing on the Floor never change an order. Both sides
+  use the same table codes, and nothing else connects them.
 - The ticket keeps the waiter who started it; each order keeps the waiter who took it.
 
 ## Table status (Built, Phase 3)
@@ -128,9 +128,14 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 
 ## Tickets and orders (Rebuilt Nov 2, 2026)
 
-- **One ticket per group:** the ticket number identifies the customer's visit. Adding items never makes
-  a new ticket: each submitted order is a batch on the same ticket, with its own ID, waiter, time, and one
-  optional note. Numbers start at 1001 and never reset; a refused save uses no number.
+- **One open ticket per table:** adding items never makes a new ticket: each submitted order is a batch on the
+  table's open ticket, with its own ID, waiter, time, and one optional note. Numbers start at 1001 and never
+  reset; a refused save uses no number.
+- **The customer receipt resets the table:** when the waiter confirms it printed, the ticket is finalized and the
+  table is ready again. The next order starts a new ticket. Cancelling a ticket frees the table the same way. If
+  the waiter says it didn't print, or doesn't answer, the ticket stays open and nothing resets.
+- **Earlier tickets:** the table's page lists its finalized and cancelled tickets from this shift, to see or
+  reprint them. Everything else is in Management's Order History.
 - **Save Order** saves what is on screen; nothing prints. Pressing it twice saves once (the screen sends
   one key per order). Two waiters adding at once get two orders; nothing is overwritten.
 - **Custom items:** name, price ($0.00 or more), quantity (1 to 99), and a tax type the waiter must choose:
@@ -141,11 +146,12 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Prices:** the database copies each menu item's name, price, and tax group when the order is saved. From
   3:00 PM lunch items get $1.00 more at that moment. Menu changes never touch saved orders.
 - **Turned-off items** can't be ordered.
-- **Table cleared:** the ticket is kept and can no longer be changed; its totals are frozen if it wasn't
-  finalized. The next group starts a new ticket.
+- **Table cleared on the Floor:** nothing happens to the order. An open ticket stays open until its customer
+  receipt is printed or it is cancelled.
 - Every save, change, cancel, print, answer, and finalization is in the audit history.
-- **Tickets from before this rule** stay as they are. A group still seated with several open tickets keeps
-  them all: the newest is the active one, and the others are listed apart and can still be billed.
+- **Tickets from before this rule** stay as they are. Each now belongs to the first table of its group. A group
+  still seated keeps its open ticket as the table's current one. An open ticket whose group was already cleared
+  keeps its frozen totals, stays in the history as Open, and no longer holds the table.
 
 ## Kitchen receipts (Built Nov 2, 2026)
 

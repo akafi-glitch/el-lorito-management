@@ -15,6 +15,8 @@ const employeeRow = z.object({
   is_active: z.boolean(),
 });
 
+const tableRow = z.object({ id: z.string(), code: z.string(), label: z.string() });
+
 const waiterRow = z.object({
   section_code: z.string(),
   employee_id: z.number().int().positive(),
@@ -33,6 +35,13 @@ export async function findEmployeeByNumber(typed: string): Promise<EmployeeRef |
   if (!data) return null;
   const row = employeeRow.parse(data);
   return { id: row.id, number: row.employee_number, name: row.full_name, role: row.role_code, isActive: row.is_active };
+}
+
+/** One table by its code, whatever is happening on the Floor. Null when there is none. */
+export async function findTableByCode(code: string): Promise<z.infer<typeof tableRow> | null> {
+  const { data, error } = await createAdminClient().from("restaurant_tables").select("id, code, label").eq("code", code).maybeSingle();
+  if (error) throw new Error(`Could not look up the table: ${error.message}`);
+  return data ? tableRow.parse(data) : null;
 }
 
 /** The waiter on each section in the open shift. */

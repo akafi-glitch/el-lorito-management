@@ -19,8 +19,9 @@ Hosted on Vercel.
   (with Undo), asks "Is the table cleaned?" to clear, and opens or closes sections.
 - **Management**: start shifts and set each shift's seating rotation, assign each section's waiter and
   chips runner, manage employees and sign-in accounts. The floor shows who works each section.
-- **Waiter Section**: a waiter types their employee number on a big number pad, then chooses any section and
-  any table from two dropdowns. Built for phones and tablets. Choosing a table opens the ticket and the menu.
+- **Waiter Section**: a waiter types their employee number on a big number pad, chooses any section, and taps a
+  table in its list to go straight to the order page. Built for phones and tablets. It is separate from the Floor:
+  it never asks whether a table is vacant or how many guests there are. A printed customer receipt resets the table.
 - **Menu**: all 206 items from the restaurant's menu (plus 4 cheese-dip add-ons) in 26 categories,
   with search, quantities, and a running order. Lunch items cost $1.00 more from 3:00 PM. Management
   can change prices and turn items off.

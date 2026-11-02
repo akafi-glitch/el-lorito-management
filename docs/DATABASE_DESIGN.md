@@ -202,6 +202,24 @@ lines, totals, and `updated_at` (tested against a copy of the old schema with da
 
 Every function takes the visit lock before the ticket lock, so a save, a print, and clearing can't deadlock.
 
+### Orders by table (`20261103010000_orders_by_table`, Nov 2, 2026)
+
+Orders belong to a table, separate from the Floor (see BUSINESS_RULES.md). This replaces the per-visit rules above.
+
+| Change | Does |
+| --- | --- |
+| `tickets.table_id` (required), `tickets.visit_id` (now optional) | New tickets have a table and no visit. Old tickets got the first table of their visit, without changing `updated_at` |
+| `tickets_one_active_per_table` | At most one open ticket per table. Replaces the two per-visit indexes, so a table can have any number of finalized tickets |
+| `save_table_order(table code, employee, key, lines, notes, time zone, actor)` | Adds one order to the table's open ticket, starting one if needed. Locks the table row. Refuses `table_not_found` and the same input errors as before; nothing about visits |
+| `cancel_order(ticket, version, employee, actor)` | Cancels an open ticket, freeing the table |
+| `lock_order_ticket(ticket, version)` | The lock for changes: only an old-style ticket still depends on its visit |
+| `ticket_table_labels(ticket)` | The visit's joined tables if it has a visit, else its own table. Used by receipts and `ticket_history` |
+| `change_ticket`, `request_kitchen_print`, `customer_receipt_snapshot` | Work without a visit |
+| `clear_visit` | Freezes totals only on old-style open tickets. Current tickets are left alone |
+| `save_order` (by visit) | Stays only for the previous app build during a release or rollback. Remove it in a later migration |
+
+Locks: the table, then the ticket, in saves; the visit, then the ticket, only for old-style tickets.
+
 `save_ticket`, `print_ticket`, and `reprint_ticket` stay, working on this schema, only so the previous app
 build keeps working between the migration and the new deployment, and after a rollback. Nothing in the new app
 calls them; remove them in a later migration.

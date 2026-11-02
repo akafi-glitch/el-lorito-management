@@ -1,15 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 
-import { buttonClasses } from "@/components/ui/button";
 import { fetchMenuData } from "@/features/menu/use-menu-data";
 
 import { tablePath, type PickerSection } from "../rules";
-
-const selectClass =
-  "min-h-14 w-full rounded-xl border-2 border-glaze bg-paper px-4 text-lg font-semibold text-ink focus:border-leaf focus:outline-none disabled:opacity-60";
 
 type TablePickerProps = {
   sections: PickerSection[];
@@ -20,15 +16,10 @@ type TablePickerProps = {
   menuVersion: number;
 };
 
-/** Choose a section, then one of its tables. Every table of every section is open to every waiter. */
+/** Choose a section, then tap one of its tables to go straight to its order page. Open to every waiter. */
 export function TablePicker({ sections, basePath, initialSection, menuVersion }: TablePickerProps) {
-  const router = useRouter();
-  const [opening, startOpening] = useTransition();
   const [sectionCode, setSectionCode] = useState(initialSection ?? "");
-  const [tableCode, setTableCode] = useState("");
-  const tables = sections.find((section) => section.code === sectionCode)?.tables ?? [];
-  // A table from another section (or one no longer listed) never stays chosen.
-  const chosen = tables.some((table) => table.code === tableCode) ? tableCode : "";
+  const section = sections.find((candidate) => candidate.code === sectionCode);
 
   // Have the menu on the device before the waiter gets to the table.
   useEffect(() => {
@@ -36,58 +27,47 @@ export function TablePicker({ sections, basePath, initialSection, menuVersion }:
   }, [menuVersion]);
 
   return (
-    <form
-      className="mx-auto flex w-full max-w-md flex-col gap-4"
-      onSubmit={(event) => {
-        event.preventDefault();
-        if (chosen) startOpening(() => router.push(tablePath(basePath, chosen)));
-      }}
-    >
+    <div className="mx-auto flex w-full max-w-md flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <label htmlFor="pick-section" className="text-lg font-semibold text-ink">
           Select Section
         </label>
         <select
           id="pick-section"
-          className={selectClass}
+          className="min-h-14 w-full rounded-xl border-2 border-glaze bg-paper px-4 text-lg font-semibold text-ink focus:border-leaf focus:outline-none"
           value={sectionCode}
-          onChange={(event) => {
-            setSectionCode(event.target.value);
-            setTableCode("");
-          }}
+          onChange={(event) => setSectionCode(event.target.value)}
         >
           <option value="">Choose a section…</option>
-          {sections.map((section) => (
-            <option key={section.code} value={section.code}>
-              {section.name}
+          {sections.map((candidate) => (
+            <option key={candidate.code} value={candidate.code}>
+              {candidate.name}
             </option>
           ))}
         </select>
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <label htmlFor="pick-table" className="text-lg font-semibold text-ink">
-          Select Table
-        </label>
-        <select
-          id="pick-table"
-          className={selectClass}
-          value={chosen}
-          disabled={sectionCode === ""}
-          onChange={(event) => setTableCode(event.target.value)}
-        >
-          <option value="">{sectionCode === "" ? "Choose a section first" : "Choose a table…"}</option>
-          {tables.map((table) => (
-            <option key={table.code} value={table.code}>
-              {table.label} ({table.detail})
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <button type="submit" disabled={!chosen || opening} className={buttonClasses("primary", "min-h-16 text-xl")}>
-        {opening ? "Opening…" : "Open table"}
-      </button>
-    </form>
+      {section ? (
+        <nav aria-labelledby="pick-table-heading" className="flex flex-col gap-1.5">
+          <h2 id="pick-table-heading" className="text-lg font-semibold text-ink">
+            Select Table
+          </h2>
+          <ul className="grid grid-cols-3 gap-3">
+            {section.tables.map((table) => (
+              <li key={table.code}>
+                <Link
+                  href={tablePath(basePath, table.code)}
+                  className="flex min-h-16 items-center justify-center rounded-xl border-2 border-glaze bg-paper px-2 text-center text-xl font-bold text-ink hover:border-leaf active:scale-95"
+                >
+                  {table.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
+      ) : (
+        <p className="text-base text-muted">Choose a section to see its tables.</p>
+      )}
+    </div>
   );
 }

@@ -13,6 +13,8 @@ export function ticketErrorMessage(error: DbError): string {
       return "Your employee number wasn't found. Enter it again.";
     case "employee_inactive":
       return `${detail ?? "This employee"} is turned off and can't save tickets. Ask a manager.`;
+    case "table_not_found":
+      return "That table isn't on the floor plan. The page has been refreshed.";
     case "visit_not_found":
     case "visit_closed":
       return "This table has been cleared, so its tickets can't be changed. The page has been refreshed.";
@@ -48,6 +50,7 @@ export function ticketErrorMessage(error: DbError): string {
 /** Refusals that mean the screen is out of date and should reload what's saved. */
 export function shouldReload(error: DbError): boolean {
   return [
+    "table_not_found",
     "visit_not_found",
     "visit_closed",
     "ticket_not_found",

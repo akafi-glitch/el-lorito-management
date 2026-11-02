@@ -112,10 +112,10 @@ export async function menuItem(name: string): Promise<{ price_cents: number; is_
 }
 
 /** Saves an order the way a second device would. */
-export async function saveOrder(visitId: number, employeeId: number, lines: [string, number][], notes: string | null = null) {
+export async function saveOrder(tableCode: string, employeeId: number, lines: [string, number][], notes: string | null = null) {
   const items = await Promise.all(lines.map(async ([name, quantity]) => ({ item_id: await itemId(name), quantity })));
-  const rows = await rpc<{ ticket_id: number; ticket_number: number; version: number; batch_id: number; batch_no: number }[]>("save_order", {
-    p_visit_id: visitId,
+  const rows = await rpc<{ ticket_id: number; ticket_number: number; version: number; batch_id: number; batch_no: number }[]>("save_table_order", {
+    p_table_code: tableCode,
     p_employee_id: employeeId,
     p_client_key: crypto.randomUUID(),
     p_lines: items,
@@ -132,10 +132,26 @@ export async function ticketByNumber(number: number) {
   return data;
 }
 
-export async function ticketOfVisit(visitId: number) {
-  const { data, error } = await db().from("tickets").select("id, ticket_number, status, version, total_cents, employee_id").eq("visit_id", visitId);
+/** The open ticket of a table, in a list: there is never more than one. */
+export async function openTicketsAt(tableCode: string) {
+  const { data, error } = await db()
+    .from("tickets")
+    .select("id, ticket_number, status, version, total_cents, employee_id, visit_id, restaurant_tables!inner(code)")
+    .eq("restaurant_tables.code", tableCode)
+    .eq("status", "open")
+    .eq("legacy_single_order", false);
   if (error) throw error;
   return data;
+}
+
+/** Cancels whatever earlier runs left open at these tables, so each starts with a fresh order. */
+export async function cancelOpenOrders(codes: string[]) {
+  const staff = await employee("99", "Test cleanup", "waiter");
+  for (const code of codes) {
+    for (const ticket of await openTicketsAt(code)) {
+      await rpc("cancel_order", { p_ticket_id: ticket.id, p_expected_version: ticket.version, p_employee_id: staff, p_actor: null });
+    }
+  }
 }
 
 export async function batchesOf(ticketId: number) {
