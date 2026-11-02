@@ -88,6 +88,10 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   is vacant, seated, or closed, or how many guests there are, and never asks. Orders don't seat anyone, change
   the chips, or move the rotation. Seating, chips, and clearing on the Floor never change an order. Both sides
   use the same table codes, and nothing else connects them.
+- **Kitchen receipt marker (owner decision, Nov 2, 2026):** once a waiter confirms a table's kitchen receipt printed,
+  the table turns blue in the waiter's list, with "Kitchen Receipt Printed" under its name, and its page says the
+  same. A saved order or a kitchen receipt that didn't print changes nothing. It stays until the customer receipt is
+  confirmed printed or the ticket is cancelled, and then the table looks normal again.
 - The ticket keeps the waiter who started it; each order keeps the waiter who took it.
 
 ## Table status (Built, Phase 3)

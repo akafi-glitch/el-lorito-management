@@ -21,6 +21,13 @@ export const KITCHEN_TEXT: Record<KitchenState, string> = {
   printed: "Sent to the kitchen",
 };
 
+export const KITCHEN_PRINTED_TEXT = "Kitchen Receipt Printed";
+
+/** True once a waiter has confirmed any kitchen receipt of this ticket printed. */
+export function kitchenPrinted(ticket: Pick<SavedTicket, "batches"> | null): boolean {
+  return (ticket?.batches ?? []).some((batch) => batch.kitchen === "printed");
+}
+
 /** Database row -> ticket for the screen. */
 export function buildTicket(
   row: TicketRow,

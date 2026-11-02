@@ -25,6 +25,14 @@ async function stubPrinting(page: Page) {
 const prints = (page: Page) => page.evaluate(() => (window as unknown as { __prints: number }).__prints);
 const lastReceipt = (page: Page) => page.evaluate(() => (window as unknown as { __receipts: string[] }).__receipts.at(-1) ?? "");
 const answerYes = (page: Page) => page.click("dialog[open] button:has-text('Yes, it printed')");
+const BLUE = "rgb(29, 78, 216)";
+
+/** A table's button in the waiter's list. */
+async function tableInList(page: Page, section: string, code: string) {
+  await page.goto("/waiter/01");
+  await page.selectOption("#pick-section", { label: section });
+  return page.locator("nav[aria-labelledby='pick-table-heading'] a", { hasText: code });
+}
 const answerNo = (page: Page) => page.click("dialog[open] button:has-text('No, it didn')");
 
 async function ticketNumberOnScreen(page: Page): Promise<number> {
@@ -192,6 +200,9 @@ test.describe.serial("orders on a phone", () => {
 
   test.describe("printing", () => {
     test("kitchen receipt: saves first, no prices, large and bold, only unsent orders; no duplicates", async ({ page }) => {
+      // Saved but not sent to the kitchen: the table still looks normal.
+      await expect(await tableInList(page, "X(1)", table)).not.toContainText("Kitchen Receipt Printed");
+
       await stubPrinting(page);
       await page.goto(`/waiter/01/tables/${table}`);
       const number = await ticketNumberOnScreen(page);
@@ -250,6 +261,13 @@ test.describe.serial("orders on a phone", () => {
       expect((await ticketByNumber(number)).status).toBe("open");
       await expect(saved(page)).toContainText("Lunch #3");
       await expect(kitchenButton(page)).toBeDisabled(); // nothing left to send
+
+      // The table says so, on its page and in blue on the waiter's list.
+      await expect(page.locator("main")).toContainText("Kitchen Receipt Printed");
+      const listed = await tableInList(page, "X(1)", table);
+      await expect(listed).toContainText("Kitchen Receipt Printed");
+      await expect(listed).toHaveCSS("background-color", BLUE);
+      await expect(await tableInList(page, "X(1)", "X8")).not.toContainText("Kitchen Receipt Printed");
     });
 
     test("the next kitchen receipt shows only the new order, on the same ticket", async ({ page }) => {
@@ -350,6 +368,13 @@ test.describe.serial("orders on a phone", () => {
       await expect(page.locator("#menu-search")).toBeVisible();
       await expect(page.locator("button[aria-label^='One more saved']")).toHaveCount(0);
       expect(await openTicketsAt(table)).toHaveLength(0);
+
+      // The table is normal again on the waiter's list.
+      const listed = await tableInList(page, "X(1)", table);
+      await expect(listed).toHaveText(table);
+      await expect(listed).not.toHaveCSS("background-color", BLUE);
+      await page.goto(`/waiter/01/tables/${table}`);
+      await expect(page.locator("main")).not.toContainText("Kitchen Receipt Printed");
 
       // Tax and menu changes don't touch the copy.
       await setItem("Combo #5", 5000, true);

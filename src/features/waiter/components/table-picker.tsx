@@ -5,6 +5,8 @@ import { useEffect, useState } from "react";
 
 import { fetchMenuData } from "@/features/menu/use-menu-data";
 
+import { KITCHEN_PRINTED_TEXT } from "@/features/tickets/rules";
+
 import { tablePath, type PickerSection } from "../rules";
 
 type TablePickerProps = {
@@ -57,9 +59,12 @@ export function TablePicker({ sections, basePath, initialSection, menuVersion }:
               <li key={table.code}>
                 <Link
                   href={tablePath(basePath, table.code)}
-                  className="flex min-h-16 items-center justify-center rounded-xl border-2 border-glaze bg-paper px-2 text-center text-xl font-bold text-ink hover:border-leaf active:scale-95"
+                  className={`flex h-full min-h-16 flex-col items-center justify-center rounded-xl border-2 px-2 py-1 text-center text-xl font-bold active:scale-95 ${
+                    table.kitchenPrinted ? "border-status-kitchen bg-status-kitchen text-white" : "border-glaze bg-paper text-ink hover:border-leaf"
+                  }`}
                 >
                   {table.label}
+                  {table.kitchenPrinted ? <span className="text-xs font-semibold">{KITCHEN_PRINTED_TEXT}</span> : null}
                 </Link>
               </li>
             ))}
