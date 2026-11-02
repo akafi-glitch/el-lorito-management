@@ -17,6 +17,8 @@ const employeeRow = z.object({
 
 const tableRow = z.object({ id: z.string(), code: z.string(), label: z.string() });
 
+const kitchenPrintedRow = z.object({ own_table: z.object({ code: z.string() }) });
+
 const waiterRow = z.object({
   section_code: z.string(),
   employee_id: z.number().int().positive(),
@@ -42,6 +44,18 @@ export async function findTableByCode(code: string): Promise<z.infer<typeof tabl
   const { data, error } = await createAdminClient().from("restaurant_tables").select("id, code, label").eq("code", code).maybeSingle();
   if (error) throw new Error(`Could not look up the table: ${error.message}`);
   return data ? tableRow.parse(data) : null;
+}
+
+/** Codes of the tables whose open ticket has a kitchen receipt confirmed printed. */
+export async function loadKitchenPrintedTables(): Promise<Set<string>> {
+  const { data, error } = await createAdminClient()
+    .from("tickets")
+    .select("own_table:restaurant_tables(code), ticket_batches!inner(id)")
+    .eq("status", "open")
+    .eq("legacy_single_order", false)
+    .not("ticket_batches.kitchen_printed_at", "is", null);
+  if (error) throw new Error(`Could not load the kitchen receipts: ${error.message}`);
+  return new Set(z.array(kitchenPrintedRow).parse(data).map((row) => row.own_table.code));
 }
 
 /** The waiter on each section in the open shift. */

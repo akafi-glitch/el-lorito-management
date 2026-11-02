@@ -24,7 +24,7 @@ const musfika: EmployeeRef = { id: 2, number: "02", name: "Musfika", role: "wait
 const visits = new Map<string, VisitSnapshot>([
   [rows.tables.find((t) => t.code === "X2")!.id, { visitId: 1, version: 1, guestCount: 4, chipsServed: false, tableLabels: ["X2"] }],
 ]);
-const sections = pickerSections(buildFloorMap(rows, { visits }));
+const sections = pickerSections(buildFloorMap(rows, { visits }), new Set(["X3"]));
 const tablesOf = (code: string) => sections.find((section) => section.code === code)?.tables.map((table) => table.code);
 
 describe("employee lookup", () => {
@@ -75,10 +75,15 @@ describe("the section and table dropdowns", () => {
     expect(new Set(listed).size).toBe(45);
   });
 
-  it("each table says whether anyone is seated there", () => {
+  it("a table looks the same whether or not anyone is seated there", () => {
     // Seated or vacant makes no difference here: the Waiter Section is separate from the Floor.
-    expect(sections.find((s) => s.code === "X-2")?.tables[1]).toEqual({ code: "X2", label: "X2" });
-    expect(sections.find((s) => s.code === "X-2")?.tables[0]).toEqual({ code: "X1", label: "X1" });
+    expect(sections.find((s) => s.code === "X-2")?.tables[1]).toEqual({ code: "X2", label: "X2", kitchenPrinted: false });
+    expect(sections.find((s) => s.code === "X-2")?.tables[0]).toEqual({ code: "X1", label: "X1", kitchenPrinted: false });
+  });
+
+  it("marks only the tables with a kitchen receipt printed", () => {
+    const marked = sections.flatMap((section) => section.tables).filter((table) => table.kitchenPrinted);
+    expect(marked.map((table) => table.code)).toEqual(["X3"]);
   });
 
   it("use the same table codes as the Floor", () => {

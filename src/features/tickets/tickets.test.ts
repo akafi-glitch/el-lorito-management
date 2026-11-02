@@ -4,9 +4,9 @@ import { computeTotals } from "@/features/billing/tax";
 import { addCustomItem, addItem, type Draft } from "@/features/menu/order-draft";
 
 import { shouldReload, ticketErrorMessage } from "./errors";
-import { batchesToSend, buildTicket, currentTicket, kitchenState, orderLinesFromDraft, withTicket } from "./rules";
+import { batchesToSend, buildTicket, currentTicket, kitchenPrinted, kitchenState, orderLinesFromDraft, withTicket } from "./rules";
 import { cancelTicketSchema, changeTicketSchema, saveOrderSchema, ticketNumberParamSchema, ticketRowSchema, ticketTotalsRowSchema, type TicketRow, type TicketTotalsRow } from "./schema";
-import type { SavedTicket } from "./types";
+import type { SavedBatch, SavedTicket } from "./types";
 
 const line = (id: number, no: number, overrides: Partial<TicketRow["ticket_batches"][number]["ticket_lines"][number]> = {}) => ({
   id,
@@ -128,6 +128,19 @@ describe("which ticket a table's page works on", () => {
 
   it("not an old-style ticket from before one group meant one ticket", () => {
     expect(currentTicket([t(1, "open", false), t(2, "printed", false)])).toBeNull();
+  });
+});
+
+describe("whether a table shows its kitchen receipt as printed", () => {
+  const withBatches = (...states: SavedBatch["kitchen"][]) => ({ batches: states.map((kitchen) => ({ kitchen }) as SavedBatch) });
+
+  it("no: no ticket, or nothing confirmed printed", () => {
+    expect(kitchenPrinted(null)).toBe(false);
+    expect(kitchenPrinted(withBatches("not-sent", "waiting", "failed"))).toBe(false);
+  });
+
+  it("yes, even when a newer order hasn't been sent yet", () => {
+    expect(kitchenPrinted(withBatches("printed", "not-sent"))).toBe(true);
   });
 });
 

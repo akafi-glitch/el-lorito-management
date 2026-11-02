@@ -11,7 +11,7 @@ import { SavedTicketPanelForOldTicket } from "@/features/tickets/components/old-
 import { TicketList } from "@/features/tickets/components/ticket-list";
 import { TicketView } from "@/features/tickets/components/ticket-view";
 import { loadTableTickets } from "@/features/tickets/queries";
-import { currentTicket, withTicket } from "@/features/tickets/rules";
+import { currentTicket, KITCHEN_PRINTED_TEXT, kitchenPrinted, withTicket } from "@/features/tickets/rules";
 import { ticketNumberParamSchema } from "@/features/tickets/schema";
 import { WaiterRefused } from "@/features/waiter/components/waiter-refused";
 import { findTableByCode } from "@/features/waiter/queries";
@@ -76,6 +76,9 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
   return shell(
     `Table ${table.label}`,
     <div className="flex flex-col gap-6">
+      {kitchenPrinted(current) ? (
+        <p className="self-start rounded-lg bg-status-kitchen px-3 py-1.5 text-base font-bold text-white">{KITCHEN_PRINTED_TEXT}</p>
+      ) : null}
       <p className="rounded-2xl border border-glaze bg-paper p-4 text-lg font-bold text-ink">
         <span className="text-sm font-semibold text-muted">Waiter </span>
         {employeeLabel(me)}
