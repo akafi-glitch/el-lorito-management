@@ -186,6 +186,10 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 
 ## Order history (Built Nov 2, 2026)
 
+- **Management → Shift Report (owner decision, Nov 2, 2026):** one shift at a time, opening on the most recent, to
+  read or print on the receipt printer at any point, during the shift or after it. It shows only ticket numbers and
+  totals with tax, then the shift total. Only tickets whose customer receipt printed are added in. Open tickets are
+  named apart and not added, and cancelled ones are left out. A ticket counts in the shift it was started in.
 - **Management → Order History:** ticket, date and time, shift, waiter number, table, total with tax, and status.
   Most recent first; can be sorted oldest first, and filtered by shift and by waiter. No food items in the table;
   a ticket's own page shows them, and can print a copy of its receipt.

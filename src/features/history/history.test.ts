@@ -1,6 +1,55 @@
 import { describe, expect, it } from "vitest";
 
 import { historyHref, historyRowSchema, parseHistoryFilters } from "./rules";
+import { buildShiftReport, chooseShift, openTicketsText, type ShiftChoice } from "./shift-report";
+
+describe("shift report", () => {
+  const rows = [
+    { ticketNumber: 1003, status: "finalized", totalCents: 500 },
+    { ticketNumber: 1001, status: "printed", totalCents: 1705 },
+    { ticketNumber: 1004, status: "cancelled", totalCents: 999 },
+    { ticketNumber: 1002, status: "open", totalCents: 250 },
+    { ticketNumber: 1005, status: "open", totalCents: 100 },
+  ] as const;
+
+  it("lists sold tickets in order, and adds up only those", () => {
+    const report = buildShiftReport(rows);
+    expect(report.lines).toEqual([
+      { ticketNumber: 1001, totalCents: 1705 },
+      { ticketNumber: 1003, totalCents: 500 },
+    ]);
+    expect(report.totalCents).toBe(2205);
+  });
+
+  it("names open tickets apart, and leaves cancelled ones out", () => {
+    const report = buildShiftReport(rows);
+    expect(report.openTickets).toEqual([1002, 1005]);
+    expect(report.openCents).toBe(350);
+    expect(openTicketsText(report.openTickets)).toBe("Tickets #1002, #1005");
+    expect(openTicketsText([1002])).toBe("Ticket #1002");
+  });
+
+  it("is empty, not broken, with nothing sold", () => {
+    expect(buildShiftReport([])).toEqual({ lines: [], totalCents: 0, openTickets: [], openCents: 0 });
+  });
+
+  const shifts: ShiftChoice[] = [
+    { id: 9, label: "new", started: "x", ended: null },
+    { id: 8, label: "old", started: "x", ended: "y" },
+  ];
+
+  it("opens on the most recent shift, or the one in the link", () => {
+    expect(chooseShift(shifts, undefined)?.id).toBe(9);
+    expect(chooseShift(shifts, "8")?.id).toBe(8);
+  });
+
+  it("ignores a link that makes no sense", () => {
+    expect(chooseShift(shifts, "x")?.id).toBe(9);
+    expect(chooseShift(shifts, "77")?.id).toBe(9);
+    expect(chooseShift(shifts, ["8", "9"])?.id).toBe(9);
+    expect(chooseShift([], "8")).toBeNull();
+  });
+});
 
 describe("order history filters", () => {
   it("default to everything, most recent first", () => {
