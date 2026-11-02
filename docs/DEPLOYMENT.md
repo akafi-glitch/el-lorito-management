@@ -139,8 +139,11 @@ If you change an environment variable in Vercel, **redeploy** (Deployments → �
   Supabase **Site URL**.
 - **Rolling back the app:** Vercel → Deployments → pick the last good one → **Promote to
   Production**. Database changes are not rolled back by this; they need a new migration.
-- **Backups:** on Supabase Free there are no daily backups. Either upgrade to Pro, or regularly
-  download a backup (Database → Backups, or `supabase db dump` with the database password).
+- **Backups:** on Supabase Free there are no daily backups. Either upgrade to Pro, or regularly run
+  `scripts/backup-live-db.ps1`. It only reads, needs no Docker (`supabase db dump` does), and saves to
+  `Documents\el-lorito-backups`, outside the repository. It uses `pg_dump` 17 or newer from
+  `%USERPROFILE%\el-lorito-tools\pgsql-17\bin` (or pass `-PgBin`) and asks for the database password,
+  which isn't saved. The password is under Project Settings → Database.
 - **Silent printing** (no print dialog) is out of scope for now; it needs a dedicated set-up per
   device and the printer model.
 
@@ -193,8 +196,9 @@ deploys the new app, on their own, within minutes. Merge at a quiet time, not du
 Before merging:
 
 1. All three CI checks are green on the pull request.
-2. **Take a backup.** The Supabase Free plan has no daily backups: run `supabase db dump` for this project and keep
-   the file, or upgrade first if you prefer (your decision).
+2. **Take a backup.** The Supabase Free plan has no daily backups: run `scripts/backup-live-db.ps1` (see "Backups"
+   above) and keep the file, or upgrade first if you prefer (your decision). If orders were taken since the last
+   backup, take a new one.
 3. Check `RECEIPT_PAPER_WIDTH_MM` on Vercel matches the printer (80 by default).
 
 After merging, in this order:
