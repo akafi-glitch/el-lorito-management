@@ -34,6 +34,8 @@ merged (Database → Migrations shows them).
    - **Leaked password protection** (refuses passwords known from data breaches): switch it on if
      your plan offers it (Supabase lists it for Pro and above). Supabase's Security Advisor warns
      while it is off; that warning is the only one expected.
+   - **CAPTCHA protection**: leave it **off**. The sign-in page has no CAPTCHA box, so with it on nobody can
+     sign in, whatever password they type (the page says so since Nov 3, 2026).
 2. **Authentication → URL Configuration**
    - **Site URL**: your Vercel address once you have it (step 3), for example
      `https://el-lorito-management.vercel.app`. Later, your own domain.
@@ -110,8 +112,9 @@ If you change an environment variable in Vercel, **redeploy** (Deployments → �
 1. Open `https://<your address>/api/health`: it should say `"status":"ok"`.
 2. Open the address, sign in with the administrator from step 2.
 3. **Management → Shift and sections → Start shift.** Assign waiters and chips runners.
-   Give at least one employee the manager role, then set their PIN with `npm run admin:pin`: Order History and the
-   Shift Report stay locked for everyone until a manager has one.
+   Give at least one employee the manager role, then set their PIN: Order History and the Shift Report stay locked
+   for everyone until a manager has one. Add `--disable` to turn a PIN off. In PowerShell, where `npm run` can be blocked:
+   `node --no-warnings --env-file=.env.local scripts/set-manager-pin.mts`
    (The 16 waiters are already in **Employees**; change roles there if someone is a chips runner
    or manager.)
 4. **Live updates:** open **Floor Management** on two devices. The dot under the title should say
@@ -129,7 +132,7 @@ If you change an environment variable in Vercel, **redeploy** (Deployments → �
      **margins: none**, **scale: 100%**, and untick **Headers and footers**. Chrome remembers these.
    - Answer **"Did it print?"** honestly; No offers **Print again**.
    - If the receipt is cut off or too narrow, set `RECEIPT_PAPER_WIDTH_MM` (step 3.4) and redeploy.
-7. Sign out on shared devices you don't want left signed in. To lock out a lost tablet at once:
+7. Sign out on shared devices you don't want left signed in. Signing out only affects that device. To lock out a lost tablet at once:
    **Management → Sign-in accounts → Turn off** its account (every page and action checks this).
 
 ---

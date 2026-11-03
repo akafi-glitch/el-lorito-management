@@ -8,11 +8,10 @@ import { createSessionClient } from "@/lib/supabase/server";
 import { safeNextPath } from "./redirect";
 import { signInSchema } from "./schema";
 import { findAppUser, getSessionState } from "./session";
+import { signInFailureMessage, WRONG_CREDENTIALS } from "./sign-in-error";
 import { usernameToEmail } from "./username";
 
 export type SignInState = { error: string | null; username: string };
-
-const WRONG_CREDENTIALS = "Username or password is wrong.";
 
 export async function signIn(_previous: SignInState, formData: FormData): Promise<SignInState> {
   const parsed = signInSchema.safeParse({
@@ -34,16 +33,13 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
   });
 
   if (error || !data.user) {
-    const tooMany = error?.status === 429;
-    return {
-      error: tooMany ? "Too many sign-in attempts. Wait a minute, then try again." : WRONG_CREDENTIALS,
-      username,
-    };
+    if (error) console.error(`Sign-in refused: ${error.code ?? "no code"} (${error.status ?? "no status"})`);
+    return { error: signInFailureMessage(error), username };
   }
 
   const appUser = await findAppUser(data.user.id);
   if (!appUser?.isActive) {
-    await supabase.auth.signOut();
+    await supabase.auth.signOut({ scope: "local" });
     return { error: "This account is turned off. Ask an administrator to turn it back on.", username };
   }
 
@@ -54,6 +50,6 @@ export async function signOut(): Promise<never> {
   const session = await getSessionState();
   if (session.status === "signed-in") await endPinSession(session.user.userId, "sign_out");
   const supabase = await createSessionClient();
-  await supabase.auth.signOut();
+  await supabase.auth.signOut({ scope: "local" }); // this device only: the restaurant's devices share one account
   redirect("/sign-in");
 }

@@ -1,8 +1,10 @@
 /**
  * Sets, resets, or turns off a manager's PIN for Order History and the Shift Report. Run on your own computer:
  *
- *   npm run admin:pin              set or reset a PIN
- *   npm run admin:pin -- --disable turn a PIN off
+ *   node --no-warnings --env-file=.env.local scripts/set-manager-pin.mts            set or reset a PIN
+ *   node --no-warnings --env-file=.env.local scripts/set-manager-pin.mts --disable  turn a PIN off
+ *
+ * In PowerShell on this computer `npm run admin:pin` is blocked, because scripts are disabled there.
  *
  * It reads NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SECRET_KEY from .env.local, and changes the database those
  * name. The PIN is typed hidden, only its hash leaves this computer, and it is never written or shown anywhere.
