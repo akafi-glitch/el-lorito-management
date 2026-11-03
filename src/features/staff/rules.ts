@@ -64,14 +64,12 @@ export function buildBoard(
   }));
 }
 
-/** Moves a section up (-1) or down (+1) in the rotation; at either end it stays where it is. */
-export function moveInRotation(order: readonly string[], code: string, delta: -1 | 1): string[] {
-  const next = [...order];
-  const from = next.indexOf(code);
-  const to = from + delta;
-  if (from < 0 || to < 0 || to >= next.length) return next;
-  [next[from], next[to]] = [next[to]!, next[from]!];
-  return next;
+/** Puts a section at this place in the rotation (0 is first), and the others close up around it. */
+export function placeInRotation(order: readonly string[], code: string, place: number): string[] {
+  if (!order.includes(code)) return [...order];
+  const others = order.filter((other) => other !== code);
+  const to = Math.min(Math.max(place, 0), others.length);
+  return [...others.slice(0, to), code, ...others.slice(to)];
 }
 
 /** Active employees who may take a duty, sorted by number. */

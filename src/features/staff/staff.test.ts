@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { moveInRotation } from "./rules";
+import { placeInRotation } from "./rules";
 
 import { accountErrorMessage, staffErrorMessage } from "./errors";
 import {
@@ -165,28 +165,27 @@ describe("messages", () => {
 describe("arranging the rotation", () => {
   const order = ["A", "C", "B", "X-1", "X-2", "P"];
 
-  it("moves a section up or down one place", () => {
-    expect(moveInRotation(order, "C", -1)).toEqual(["C", "A", "B", "X-1", "X-2", "P"]);
-    expect(moveInRotation(order, "C", 1)).toEqual(["A", "B", "C", "X-1", "X-2", "P"]);
+  it("puts a section at any place, in one move", () => {
+    expect(placeInRotation(order, "P", 1)).toEqual(["A", "P", "C", "B", "X-1", "X-2"]);
+    expect(placeInRotation(order, "A", 5)).toEqual(["C", "B", "X-1", "X-2", "P", "A"]);
+    expect(placeInRotation(order, "C", 0)).toEqual(["C", "A", "B", "X-1", "X-2", "P"]);
   });
 
   it("stays put at either end, and ignores a section that isn't there", () => {
-    expect(moveInRotation(order, "A", -1)).toEqual(order);
-    expect(moveInRotation(order, "P", 1)).toEqual(order);
-    expect(moveInRotation(order, "BAR", 1)).toEqual(order);
+    expect(placeInRotation(order, "A", -1)).toEqual(order);
+    expect(placeInRotation(order, "P", 6)).toEqual(order);
+    expect(placeInRotation(order, "BAR", 1)).toEqual(order);
   });
 
   it("can reach any order: the owner's evening example", () => {
     let next = order;
-    for (const [code, moves] of [["X-2", 4], ["X-1", 3], ["B", 1]] as const) {
-      for (let i = 0; i < moves; i += 1) next = moveInRotation(next, code, -1);
-    }
+    for (const [code, place] of [["X-2", 0], ["X-1", 1], ["B", 3]] as const) next = placeInRotation(next, code, place);
     expect(next).toEqual(["X-2", "X-1", "A", "B", "C", "P"]);
   });
 
   it("doesn't change the list it was given", () => {
     const given = [...order];
-    moveInRotation(given, "C", 1);
+    placeInRotation(given, "C", 3);
     expect(given).toEqual(order);
   });
 });
