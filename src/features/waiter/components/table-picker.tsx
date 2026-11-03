@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { fetchMenuData } from "@/features/menu/use-menu-data";
 
-import { KITCHEN_PRINTED_TEXT } from "@/features/tickets/rules";
+import { KITCHEN_MARK_TEXT } from "@/features/tickets/rules";
 
 import { tablePath, type PickerSection } from "../rules";
 
@@ -60,11 +60,15 @@ export function TablePicker({ sections, basePath, initialSection, menuVersion }:
                 <Link
                   href={tablePath(basePath, table.code)}
                   className={`flex h-full min-h-16 flex-col items-center justify-center rounded-xl border-2 px-2 py-1 text-center text-xl font-bold active:scale-95 ${
-                    table.kitchenPrinted ? "border-status-kitchen bg-status-kitchen text-white" : "border-glaze bg-paper text-ink hover:border-leaf"
+                    table.kitchen === "printed"
+                      ? "border-status-kitchen bg-status-kitchen text-white"
+                      : table.kitchen === "saved"
+                        ? "border-status-saved bg-status-saved text-white"
+                        : "border-glaze bg-paper text-ink hover:border-leaf"
                   }`}
                 >
                   {table.label}
-                  {table.kitchenPrinted ? <span className="text-xs font-semibold">{KITCHEN_PRINTED_TEXT}</span> : null}
+                  {table.kitchen ? <span className="text-xs font-semibold">{KITCHEN_MARK_TEXT[table.kitchen]}</span> : null}
                 </Link>
               </li>
             ))}

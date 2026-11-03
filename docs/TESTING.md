@@ -50,7 +50,7 @@ database and runs every database test against it.
 | Seating combinations still work | `recommend.test.ts` | `seating.test.sql` | `floor.spec.ts` |
 | Any waiter, any section; the table list follows the section | `waiter.test.ts` | | `waiter.spec.ts` |
 | Waiter Section separate from the Floor: no guest question, orders don't seat anyone, clearing leaves orders alone | `waiter.test.ts` | `orders_by_table.test.sql` | `waiter.spec.ts`; race 4b |
-| Kitchen receipt marker: blue with its label once confirmed printed, normal again after the customer receipt | `waiter.test.ts`, `tickets.test.ts` | | `tickets.spec.ts` |
+| Kitchen receipt markers: green once saved, blue once printed, green again for a new order, normal after the customer receipt | `waiter.test.ts`, `tickets.test.ts` | | `tickets.spec.ts` |
 | A confirmed customer receipt resets the table: next order is a new ticket | `tickets.test.ts` | `orders_by_table.test.sql` | `tickets.spec.ts`; race 7 |
 | Ordering from a phone-sized screen | | | `tickets.spec.ts` (Pixel 7, touch), `devices.spec.ts` |
 | Menu items, custom items, notes, waiter attribution | `tickets.test.ts`, `menu.test.ts` | `order_batches.test.sql` | `tickets.spec.ts`, `waiter.spec.ts` |
@@ -59,11 +59,12 @@ database and runs every database test against it.
 | Finalizing, failed or cancelled printing, reprints, nothing can change | | `order_batches.test.sql`, `tickets.test.sql` | `tickets.spec.ts`; races 7, 8 |
 | Finish shift: names open tickets, closes the Waiter Section at once, refuses new orders, keeps everything, opens again on a new shift | `tickets.test.ts` | `finish_shift.test.sql`, race tests 10 and 11 | `finish-shift.spec.ts` |
 | Shift Report: only sold tickets, right total, open tickets named apart, prints numbers and totals only | `history.test.ts` | | `shift-report.spec.ts` |
+| Item notes: each item keeps its own, edited on the saved ticket, on the kitchen receipt, never on the customer's | `menu.test.ts`, `printing.test.ts` | `item_notes.test.sql` | `tickets.spec.ts` |
 | History: filters, sort, totals with tax, unchanged by menu prices | `history.test.ts` | `order_batches.test.sql` | `history.spec.ts` |
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 2, 2026:** 308 unit tests, 498 database checks, 12 race tests, 71 browser tests.
+**Results, Nov 2, 2026:** 316 unit tests, 516 database checks, 12 race tests, 71 browser tests.
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for

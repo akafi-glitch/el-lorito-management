@@ -14,6 +14,8 @@ export type SavedLine = {
   quantity: number;
   totalCents: number;
   taxGroup: "food" | "liquor";
+  /** A note for the kitchen about this item only. */
+  notes: string | null;
 };
 
 /** Where an order stands with the kitchen. Only a waiter's "Yes, it printed" makes it "printed". */

@@ -180,7 +180,7 @@ export function TableOrderScreen({ employeeNumber, tableCode, ticket, menuVersio
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">
                 <label htmlFor="order-notes" className="text-sm font-semibold text-ink">
-                  Order notes (optional)
+                  Note for the whole order (optional)
                 </label>
                 <textarea
                   id="order-notes"
@@ -188,7 +188,7 @@ export function TableOrderScreen({ employeeNumber, tableCode, ticket, menuVersio
                   maxLength={NOTE_MAX}
                   value={notes}
                   onChange={(event) => setNotes(event.target.value)}
-                  placeholder="No onions, extra spicy, allergy…"
+                  placeholder="Allergy, bring everything together…"
                   className="w-full rounded-lg border border-glaze bg-paper px-3 py-2 text-base text-ink focus:border-leaf focus:outline-none"
                 />
               </div>

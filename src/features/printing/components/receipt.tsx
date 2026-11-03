@@ -76,8 +76,11 @@ export function KitchenReceipts({ receipts, paperWidthMm }: { receipts: readonly
           <div className="kitchen-time">TIME: {receipt.time}</div>
           <hr />
           {receipt.lines.map((line, lineIndex) => (
-            <div key={lineIndex} className="kitchen-item">
-              {line.quantity} × {line.name}
+            <div key={lineIndex}>
+              <div className="kitchen-item">
+                {line.quantity} × {line.name}
+              </div>
+              {line.note ? <div className="kitchen-item-note">&gt; {line.note}</div> : null}
             </div>
           ))}
           {receipt.notes ? (

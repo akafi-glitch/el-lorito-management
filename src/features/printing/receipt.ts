@@ -27,7 +27,7 @@ export type KitchenReceiptData = {
   time: string;
   /** Another copy of an order already requested: the kitchen must not cook it twice. */
   isReprint: boolean;
-  lines: { name: string; quantity: number }[];
+  lines: { name: string; quantity: number; note: string | null }[];
   notes: string | null;
 };
 
@@ -79,7 +79,7 @@ export function kitchenReceiptFromRow(row: KitchenBatchRow, isReprint: boolean, 
     isReprint,
     lines: [...row.ticket_lines]
       .sort((a, b) => a.line_no - b.line_no)
-      .map((line) => ({ name: line.item_name.toUpperCase(), quantity: line.quantity })),
+      .map((line) => ({ name: line.item_name.toUpperCase(), quantity: line.quantity, note: line.notes?.toUpperCase() ?? null })),
     notes: row.notes?.toUpperCase() ?? null,
   };
 }

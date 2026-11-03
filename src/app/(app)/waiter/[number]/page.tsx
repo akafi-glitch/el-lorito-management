@@ -8,7 +8,7 @@ import { ROLE_LABEL, employeeLabel } from "@/features/staff/rules";
 import { loadVersions } from "@/features/sync/queries";
 import { TablePicker } from "@/features/waiter/components/table-picker";
 import { WaiterRefused } from "@/features/waiter/components/waiter-refused";
-import { loadKitchenPrintedTables, loadWaitersBySection } from "@/features/waiter/queries";
+import { loadTableKitchenMarks, loadWaitersBySection } from "@/features/waiter/queries";
 import { resolveWaiter } from "@/features/waiter/resolve";
 import { assignedSections, pickerSections, waiterPath } from "@/features/waiter/rules";
 
@@ -30,8 +30,8 @@ export default async function WaiterTablesPage({ params }: Props) {
 
   const me = result.employee;
   const versions = await loadVersions(); // before the data: see floor/page.tsx
-  const [floor, waiters, printed] = await Promise.all([loadFloorMap(), loadWaitersBySection(), loadKitchenPrintedTables()]);
-  const sections = pickerSections(floor, printed);
+  const [floor, waiters, marks] = await Promise.all([loadFloorMap(), loadWaitersBySection(), loadTableKitchenMarks()]);
+  const sections = pickerSections(floor, marks);
   const mine = assignedSections(sections, me, waiters);
 
   return (

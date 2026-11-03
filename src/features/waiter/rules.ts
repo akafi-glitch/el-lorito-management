@@ -6,12 +6,14 @@
  * - A waiter may open ANY table: section assignments are for floor management and never block ordering.
  * - The Waiter Section is separate from the Floor: whether a table is seated, and how many guests, never
  *   matters here. Choosing a table goes straight to its order page.
- * - A table whose open ticket has a kitchen receipt confirmed printed is blue, until the ticket is finished.
+ * - A table with a saved order still needing its kitchen receipt is green. Once every order's receipt is
+ *   confirmed printed it is blue, until the ticket is finished.
  * - Between shifts the restaurant is closed: nobody enters until a manager starts a shift.
  */
 
 import type { FloorMap } from "@/features/floor/layout";
 import { employeeLabel, type EmployeeRef } from "@/features/staff/rules";
+import type { KitchenMark } from "@/features/tickets/rules";
 
 export const EMPLOYEE_NUMBER_MAX_DIGITS = 6;
 
@@ -34,11 +36,11 @@ export function lookupResult(typed: string, employee: EmployeeRef | null): Looku
   return { ok: true, employee };
 }
 
-export type PickerTable = { code: string; label: string; kitchenPrinted: boolean };
+export type PickerTable = { code: string; label: string; kitchen: KitchenMark | null };
 export type PickerSection = { code: string; name: string; tables: PickerTable[] };
 
 /** Every section with its tables, in floor order, for the picker. */
-export function pickerSections(map: Pick<FloorMap, "areas" | "sections">, kitchenPrinted: ReadonlySet<string>): PickerSection[] {
+export function pickerSections(map: Pick<FloorMap, "areas" | "sections">, kitchen: ReadonlyMap<string, KitchenMark>): PickerSection[] {
   const tables = map.areas.flatMap((area) => area.tables);
   return map.sections.flatMap((section) => {
     const list = tables.filter((table) => table.section.code === section.code).sort((a, b) => a.sortOrder - b.sortOrder);
@@ -47,7 +49,7 @@ export function pickerSections(map: Pick<FloorMap, "areas" | "sections">, kitche
       {
         code: section.code,
         name: section.name,
-        tables: list.map((table) => ({ code: table.code, label: table.label, kitchenPrinted: kitchenPrinted.has(table.code) })),
+        tables: list.map((table) => ({ code: table.code, label: table.label, kitchen: kitchen.get(table.code) ?? null })),
       },
     ];
   });

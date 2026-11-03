@@ -7,7 +7,7 @@ import type { TaxSetup } from "@/features/billing/setup";
 import { computeTotals, type TaxGroup } from "@/features/billing/tax";
 
 import { formatCents } from "../money";
-import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setQuantity, MAX_QUANTITY, type Draft } from "../order-draft";
+import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setItemNote, setQuantity, ITEM_NOTE_MAX, MAX_QUANTITY, type Draft } from "../order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate } from "../pricing";
 import { searchMenu } from "../search";
 import type { Menu, MenuCategory, MenuItem } from "../types";
@@ -227,6 +227,18 @@ export function MenuScreen({
                     Remove
                   </button>
                 </div>
+                <label htmlFor={`item-note-${line.itemId}`} className="sr-only">
+                  Note for {line.name}
+                </label>
+                <input
+                  id={`item-note-${line.itemId}`}
+                  type="text"
+                  maxLength={ITEM_NOTE_MAX}
+                  value={line.note ?? ""}
+                  onChange={(event) => setDraft((current) => setItemNote(current, line.itemId, event.target.value))}
+                  placeholder="Note for this item (optional)"
+                  className="min-h-11 w-full rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none"
+                />
               </li>
             ))}
           </ul>

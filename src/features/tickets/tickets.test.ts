@@ -15,7 +15,7 @@ import { computeTotals } from "@/features/billing/tax";
 import { addCustomItem, addItem, type Draft } from "@/features/menu/order-draft";
 
 import { shouldReload, ticketErrorMessage } from "./errors";
-import { batchesToSend, buildTicket, currentTicket, kitchenPrinted, kitchenState, orderLinesFromDraft, withTicket } from "./rules";
+import { batchesToSend, buildTicket, currentTicket, kitchenMark, kitchenState, orderLinesFromDraft, ticketKitchenMark, withTicket, KITCHEN_MARK_TEXT } from "./rules";
 import { cancelTicketSchema, changeTicketSchema, saveOrderSchema, ticketNumberParamSchema, ticketRowSchema, ticketTotalsRowSchema, type TicketRow, type TicketTotalsRow } from "./schema";
 import type { SavedBatch, SavedTicket } from "./types";
 
@@ -29,6 +29,7 @@ const line = (id: number, no: number, overrides: Partial<TicketRow["ticket_batch
   late_surcharge_cents: 0,
   quantity: 1,
   tax_group_code: "food" as const,
+  notes: null,
   ...overrides,
 });
 
@@ -142,16 +143,63 @@ describe("which ticket a table's page works on", () => {
   });
 });
 
-describe("whether a table shows its kitchen receipt as printed", () => {
-  const withBatches = (...states: SavedBatch["kitchen"][]) => ({ batches: states.map((kitchen) => ({ kitchen }) as SavedBatch) });
-
-  it("no: no ticket, or nothing confirmed printed", () => {
-    expect(kitchenPrinted(null)).toBe(false);
-    expect(kitchenPrinted(withBatches("not-sent", "waiting", "failed"))).toBe(false);
+describe("what a table says about its kitchen receipt", () => {
+  const withBatches = (...states: SavedBatch["kitchen"][]) => ({
+    batches: states.map((kitchen) => ({ kitchen, lines: [{ lineId: 1 }] }) as SavedBatch),
   });
 
-  it("yes, even when a newer order hasn't been sent yet", () => {
-    expect(kitchenPrinted(withBatches("printed", "not-sent"))).toBe(true);
+  it("nothing with no ticket, or no order with items", () => {
+    expect(ticketKitchenMark(null)).toBeNull();
+    expect(ticketKitchenMark({ batches: [] })).toBeNull();
+    expect(ticketKitchenMark({ batches: [{ kitchen: "not-sent", lines: [] } as unknown as SavedBatch] })).toBeNull();
+    expect(kitchenMark([])).toBeNull();
+  });
+
+  it("saved: an order still needs its kitchen receipt", () => {
+    expect(ticketKitchenMark(withBatches("not-sent"))).toBe("saved");
+    expect(ticketKitchenMark(withBatches("waiting"))).toBe("saved");
+    expect(ticketKitchenMark(withBatches("failed"))).toBe("saved");
+  });
+
+  it("saved again when a newer order hasn't been printed", () => {
+    expect(ticketKitchenMark(withBatches("printed", "not-sent"))).toBe("saved");
+  });
+
+  it("printed: every order is with the kitchen, so the customer receipt is next", () => {
+    expect(ticketKitchenMark(withBatches("printed"))).toBe("printed");
+    expect(ticketKitchenMark(withBatches("printed", "printed"))).toBe("printed");
+  });
+
+  it("uses the owner's words", () => {
+    expect(KITCHEN_MARK_TEXT).toEqual({ saved: "Kitchen Receipt Saved", printed: "Kitchen Receipt Printed" });
+  });
+});
+
+describe("a note on one item", () => {
+  const order = { employeeNumber: "01", tableCode: "A1", clientKey: crypto.randomUUID(), notes: null };
+
+  it("is sent with its item, trimmed; a blank one is no note", () => {
+    const parsed = saveOrderSchema.parse({
+      ...order,
+      lines: [
+        { itemId: 1, quantity: 1, notes: "  No onions " },
+        { itemId: 2, quantity: 1, notes: "   " },
+        { itemId: 3, quantity: 1 },
+      ],
+    });
+    expect(parsed.lines.map((item) => item.notes)).toEqual(["No onions", null, undefined]);
+  });
+
+  it("is refused over 200 characters", () => {
+    expect(saveOrderSchema.safeParse({ ...order, lines: [{ itemId: 1, quantity: 1, notes: "x".repeat(201) }] }).success).toBe(false);
+    expect(saveOrderSchema.safeParse({ ...order, lines: [{ itemId: 1, quantity: 1, notes: "x".repeat(200) }] }).success).toBe(true);
+    expect(
+      changeTicketSchema.safeParse({ employeeNumber: "01", ticketId: 1, version: 1, changes: [{ op: "line_notes", lineId: 1, notes: "x".repeat(201) }] }).success,
+    ).toBe(false);
+  });
+
+  it("goes from the screen to the order", () => {
+    expect(orderLinesFromDraft([{ itemId: 12, quantity: 1, note: "Extra rice" }])).toEqual([{ itemId: 12, quantity: 1, notes: "Extra rice" }]);
   });
 });
 
@@ -185,8 +233,8 @@ describe("the order on screen", () => {
     let draft: Draft = addItem([], 12);
     draft = addCustomItem(draft, { name: "Birthday flan", priceCents: 450, taxCategory: "food" }, 2);
     expect(orderLinesFromDraft(draft)).toEqual([
-      { itemId: 12, quantity: 1 },
-      { name: "Birthday flan", priceCents: 450, taxCategory: "food", quantity: 2 },
+      { itemId: 12, quantity: 1, notes: null },
+      { name: "Birthday flan", priceCents: 450, taxCategory: "food", quantity: 2, notes: null },
     ]);
   });
 });

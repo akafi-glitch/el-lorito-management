@@ -209,6 +209,11 @@ Adds `finish_shift(actor)` and the audit event `shift_finished`. `save_table_ord
 `restaurant_closed` while no shift is open, holding a shared lock on the open shift so a shift can't finish
 halfway through a save. No table rows change.
 
+### Item notes (`20261105010000_item_notes`, Nov 2, 2026)
+
+Adds `ticket_lines.notes` (optional, up to 200 characters; existing lines have none). In `save_table_order` a line
+may carry `notes`, and `change_ticket` gains the change `line_notes`. Locked tickets refuse these like any other change.
+
 ### Orders by table (`20261103010000_orders_by_table`, Nov 2, 2026)
 
 Orders belong to a table, separate from the Floor (see BUSINESS_RULES.md). This replaces the per-visit rules above.
