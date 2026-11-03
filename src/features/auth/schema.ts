@@ -9,6 +9,7 @@ export const signInSchema = z.object({
     .refine(isValidUsername, { message: `Enter a valid username. ${USERNAME_RULE_TEXT}` }),
   // Length rules are enforced when an account is created. Sign-in only needs a non-empty value.
   password: z.string().min(1, "Enter your password.").max(200, "Password is too long."),
+  captchaToken: z.string().max(4096, "Security check response is invalid.").default(""),
   next: z.string().optional(),
 });
 

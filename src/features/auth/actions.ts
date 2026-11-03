@@ -18,6 +18,7 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
   const parsed = signInSchema.safeParse({
     username: formData.get("username") ?? "",
     password: formData.get("password") ?? "",
+    captchaToken: formData.get("captchaToken") ?? "",
     next: formData.get("next") ?? undefined,
   });
   const typedUsername = String(formData.get("username") ?? "");
@@ -26,17 +27,26 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
     return { error: parsed.error.issues[0]?.message ?? WRONG_CREDENTIALS, username: typedUsername };
   }
 
-  const { username, password, next } = parsed.data;
+  const { username, password, captchaToken, next } = parsed.data;
+  if (process.env.NEXT_TURNSTILE_SITE_KEY && !captchaToken) {
+    return { error: "Complete the security check before signing in.", username };
+  }
   const supabase = await createSessionClient();
   const { data, error } = await supabase.auth.signInWithPassword({
     email: usernameToEmail(username),
     password,
+    options: captchaToken ? { captchaToken } : undefined,
   });
 
   if (error || !data.user) {
     const tooMany = error?.status === 429;
+    const captchaFailed = error?.code === "captcha_failed";
     return {
-      error: tooMany ? "Too many sign-in attempts. Wait a minute, then try again." : WRONG_CREDENTIALS,
+      error: tooMany
+        ? "Too many sign-in attempts. Wait a minute, then try again."
+        : captchaFailed
+          ? "The security check could not be verified. Try again."
+          : WRONG_CREDENTIALS,
       username,
     };
   }

@@ -6,7 +6,7 @@ const header = (headers: { key: string; value: string }[], key: string) => heade
 
 describe("security headers", () => {
   it("lets the page talk only to itself and the Supabase project (HTTPS and secure websocket)", () => {
-    const csp = contentSecurityPolicy({ supabaseUrl: "https://abc.supabase.co", development: false, https: true });
+    const csp = contentSecurityPolicy({ supabaseUrl: "https://abc.supabase.co", turnstile: false, development: false, https: true });
     expect(csp).toContain("connect-src 'self' https://abc.supabase.co wss://abc.supabase.co;");
     expect(csp).toContain("default-src 'self'");
     expect(csp).toContain("frame-ancestors 'none'");
@@ -16,15 +16,24 @@ describe("security headers", () => {
   });
 
   it("uses plain websockets for a local Supabase, and doesn't force HTTPS off Vercel", () => {
-    const csp = contentSecurityPolicy({ supabaseUrl: "http://127.0.0.1:54321", development: false, https: false });
+    const csp = contentSecurityPolicy({ supabaseUrl: "http://127.0.0.1:54321", turnstile: false, development: false, https: false });
     expect(csp).toContain("connect-src 'self' http://127.0.0.1:54321 ws://127.0.0.1:54321;");
     expect(csp).not.toContain("upgrade-insecure-requests");
   });
 
   it("allows the development server's extras only in development", () => {
-    const csp = contentSecurityPolicy({ supabaseUrl: undefined, development: true, https: false });
+    const csp = contentSecurityPolicy({ supabaseUrl: undefined, turnstile: false, development: true, https: false });
     expect(csp).toContain("'unsafe-eval'");
     expect(csp).toContain("connect-src 'self' ws: wss:");
+  });
+
+  it("allows Cloudflare Turnstile only when the site key is configured", () => {
+    const enabled = securityHeaders({ NEXT_TURNSTILE_SITE_KEY: "public-site-key" });
+    const csp = header(enabled, "Content-Security-Policy");
+    expect(csp).toContain("script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com");
+    expect(csp).toContain("frame-src https://challenges.cloudflare.com");
+    expect(csp).toContain("connect-src 'self' https://challenges.cloudflare.com");
+    expect(csp).not.toContain("public-site-key");
   });
 
   it("forbids framing and sniffing everywhere; HSTS only on Vercel", () => {

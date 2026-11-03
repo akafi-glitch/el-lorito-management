@@ -10,19 +10,22 @@
 
 export type Header = { key: string; value: string };
 
-export function contentSecurityPolicy(options: { supabaseUrl?: string; development: boolean; https: boolean }): string {
+export function contentSecurityPolicy(options: { supabaseUrl?: string; turnstile: boolean; development: boolean; https: boolean }): string {
   const connect = ["'self'"];
+  const turnstileOrigin = "https://challenges.cloudflare.com";
   if (options.supabaseUrl) {
     const url = new URL(options.supabaseUrl);
     connect.push(url.origin, `${url.protocol === "https:" ? "wss:" : "ws:"}//${url.host}`);
   }
+  if (options.turnstile) connect.push(turnstileOrigin);
   const directives = [
     "default-src 'self'",
-    `script-src 'self' 'unsafe-inline'${options.development ? " 'unsafe-eval'" : ""}`,
+    `script-src 'self' 'unsafe-inline'${options.development ? " 'unsafe-eval'" : ""}${options.turnstile ? ` ${turnstileOrigin}` : ""}`,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob:",
     "font-src 'self' data:",
     `connect-src ${connect.join(" ")}${options.development ? " ws: wss:" : ""}`,
+    ...(options.turnstile ? [`frame-src ${turnstileOrigin}`] : []),
     "frame-ancestors 'none'",
     "base-uri 'self'",
     "form-action 'self'",
@@ -39,6 +42,7 @@ export function securityHeaders(env: Record<string, string | undefined>): Header
       key: "Content-Security-Policy",
       value: contentSecurityPolicy({
         supabaseUrl: env.NEXT_PUBLIC_SUPABASE_URL || undefined,
+        turnstile: Boolean(env.NEXT_TURNSTILE_SITE_KEY),
         development: env.NODE_ENV === "development",
         https: onVercel,
       }),

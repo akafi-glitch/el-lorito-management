@@ -24,10 +24,10 @@ export default async function SignInPage({ searchParams }: SignInPageProps) {
         priority
         className="h-auto w-44 sm:w-56"
       />
-      <div className="w-full max-w-sm rounded-2xl border border-glaze bg-paper p-6 shadow-[0_2px_0_var(--color-glaze)] sm:p-8">
+      <div className="w-full max-w-md rounded-2xl border border-glaze bg-paper p-4 shadow-[0_2px_0_var(--color-glaze)] sm:p-8">
         <h1 className="mb-6 text-2xl font-bold text-ink">Sign in</h1>
         {configured ? (
-          <SignInForm next={safeNextPath(next)} />
+          <SignInForm next={safeNextPath(next)} siteKey={process.env.NEXT_TURNSTILE_SITE_KEY || ""} />
         ) : (
           <p role="alert" className="text-base text-ink">
             The app isn&apos;t set up yet: its database settings are missing. See the README section
