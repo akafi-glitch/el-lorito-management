@@ -7,12 +7,15 @@
  * - The Waiter Section is separate from the Floor: whether a table is seated, and how many guests, never
  *   matters here. Choosing a table goes straight to its order page.
  * - A table whose open ticket has a kitchen receipt confirmed printed is blue, until the ticket is finished.
+ * - Between shifts the restaurant is closed: nobody enters until a manager starts a shift.
  */
 
 import type { FloorMap } from "@/features/floor/layout";
 import { employeeLabel, type EmployeeRef } from "@/features/staff/rules";
 
 export const EMPLOYEE_NUMBER_MAX_DIGITS = 6;
+
+export const RESTAURANT_CLOSED_TEXT = "The restaurant is closed. A manager needs to start the shift first.";
 
 /** Who waits each section right now, keyed by section code. */
 export type WaiterBySection = ReadonlyMap<string, Pick<EmployeeRef, "id" | "name" | "number">>;

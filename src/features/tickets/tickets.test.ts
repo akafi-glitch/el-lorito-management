@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
 
+import { RESTAURANT_CLOSED_TEXT } from "@/features/waiter/rules";
+
+import { shouldReload as refusalReloads, ticketErrorMessage as refusalText } from "./errors";
+
+describe("an order sent while the restaurant is closed", () => {
+  it("says so, and reloads the screen", () => {
+    expect(refusalText({ message: "restaurant_closed" })).toBe(RESTAURANT_CLOSED_TEXT);
+    expect(refusalReloads({ message: "restaurant_closed" })).toBe(true);
+  });
+});
+
 import { computeTotals } from "@/features/billing/tax";
 import { addCustomItem, addItem, type Draft } from "@/features/menu/order-draft";
 

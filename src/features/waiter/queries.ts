@@ -26,6 +26,13 @@ const waiterRow = z.object({
   employee_number: z.string(),
 });
 
+/** The restaurant is open while a shift is open. */
+export async function restaurantIsOpen(): Promise<boolean> {
+  const { data, error } = await createAdminClient().from("shifts").select("id").is("ended_at", null).maybeSingle();
+  if (error) throw new Error(`Could not load the shift: ${error.message}`);
+  return data !== null;
+}
+
 /** Finds an employee by the number they typed ("1" finds "01"). Null when nobody has it. */
 export async function findEmployeeByNumber(typed: string): Promise<EmployeeRef | null> {
   const { data, error } = await createAdminClient()

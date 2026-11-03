@@ -19,6 +19,7 @@ const nextSectionRow = z.object({ next_section_code: z.string() });
 const rotationRow = z.object({ section_code: z.string(), section_position: z.number().int().positive() });
 const assignmentRow = z.object({ section_code: z.string(), duty: z.enum(DUTIES), employee_id: z.number().int().positive() });
 const shiftRow = z.object({ id: z.number().int().positive(), started_at: z.string() });
+const openTicketRow = z.object({ ticket_number: z.number().int().positive(), table_labels: z.string().nullable(), total_cents: z.number().int() });
 const accountRow = z.object({
   user_id: z.guid(),
   username: z.string(),
@@ -69,23 +70,27 @@ export type StaffBoard = {
   /** The open shift's rotation in order (the default order when no shift is open). */
   rotation: { code: string; name: string }[];
   nextSection: string | null;
+  /** Tickets not finished yet, for the warning before a shift is finished. */
+  openTickets: { number: number; tables: string | null; totalCents: number }[];
 };
 
 export async function loadStaffBoard(): Promise<StaffBoard> {
   const db = createAdminClient();
-  const [shift, sections, assignments, employees, rotation, nextSection] = await Promise.all([
+  const [shift, sections, assignments, employees, rotation, nextSection, openTickets] = await Promise.all([
     db.from("shifts").select("id, started_at").is("ended_at", null).maybeSingle(),
     db.from("sections").select("code, name, open_to_all_waiters, sort_order"),
     db.from("current_assignments").select("section_code, duty, employee_id"),
     loadEmployees(),
     db.rpc("current_rotation"),
     db.from("rotation_state").select("next_section_code").maybeSingle(),
+    db.from("ticket_history").select("ticket_number, table_labels, total_cents").eq("status", "open").order("ticket_number"),
   ]);
   if (shift.error) fail("the shift", shift.error);
   if (sections.error) fail("sections", sections.error);
   if (assignments.error) fail("assignments", assignments.error);
   if (rotation.error) fail("the rotation", rotation.error);
   if (nextSection.error) fail("the rotation", nextSection.error);
+  if (openTickets.error) fail("the open tickets", openTickets.error);
 
   const openShift = shift.data ? shiftRow.parse(shift.data) : null;
   const sectionRefs = z
@@ -111,6 +116,10 @@ export async function loadStaffBoard(): Promise<StaffBoard> {
         name: sectionRefs.find((section) => section.code === row.section_code)?.name ?? row.section_code,
       })),
     nextSection: nextSection.data ? nextSectionRow.parse(nextSection.data).next_section_code : null,
+    openTickets: z
+      .array(openTicketRow)
+      .parse(openTickets.data)
+      .map((row) => ({ number: row.ticket_number, tables: row.table_labels, totalCents: row.total_cents })),
   };
 }
 

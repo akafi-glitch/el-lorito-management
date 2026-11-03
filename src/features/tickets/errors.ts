@@ -1,3 +1,5 @@
+import { RESTAURANT_CLOSED_TEXT } from "@/features/waiter/rules";
+
 type DbError = { code?: string | null; message?: string | null; details?: string | null };
 
 /** Database refusals for tickets, in plain words. */
@@ -5,6 +7,8 @@ export function ticketErrorMessage(error: DbError): string {
   const detail = error.details?.trim() || null;
   const ticket = detail ? `Ticket #${detail}` : "This ticket";
   switch (error.message) {
+    case "restaurant_closed":
+      return RESTAURANT_CLOSED_TEXT;
     case "empty_ticket":
       return "Add at least one item before saving.";
     case "invalid_lines":
@@ -50,6 +54,7 @@ export function ticketErrorMessage(error: DbError): string {
 /** Refusals that mean the screen is out of date and should reload what's saved. */
 export function shouldReload(error: DbError): boolean {
   return [
+    "restaurant_closed",
     "table_not_found",
     "visit_not_found",
     "visit_closed",

@@ -110,6 +110,8 @@ ORDER_LINE() { echo "[{\"item_id\": $("${PSQL[@]}" -c "select id from public.men
 SAVE() { echo "select * from public.save_order($1, $EMP, '$2'::uuid, '$(ORDER_LINE "$3" 1)', null, 'America/Chicago', null)"; }
 SAVE_AT() { echo "select * from public.save_table_order('$1', $EMP, '$2'::uuid, '$(ORDER_LINE "$3" 1)', null, 'America/Chicago', null)"; }
 
+"${PSQL[@]}" -c "select public.start_shift(null)" >/dev/null # orders need an open shift
+
 echo "Race 4b: two waiters send the first order at one table, with nobody seated there"
 "${PSQL[@]}" -c "select public.cancel_order(t.id, t.version, $EMP, null) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C4' and t.status = 'open' and not t.legacy_single_order" >/dev/null
 K1=$("${PSQL[@]}" -c "select gen_random_uuid()"); K2=$("${PSQL[@]}" -c "select gen_random_uuid()")
@@ -206,6 +208,37 @@ elif [ "$(cat "$work/h1.code")" = 0 ] && [ "$(cat "$work/h2.code")" = 0 ]; then
   echo "  PASS: both finished, one after the other; no deadlock"
 else
   echo "  FAIL"; cat "$work"/h*.out; fail=1
+fi
+
+echo "Race 10: the shift finishes while a waiter sends an order"
+"${PSQL[@]}" -c "select public.cancel_order(t.id, t.version, $EMP, null) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code in ('C2', 'C6') and t.status = 'open' and not t.legacy_single_order" >/dev/null
+SHIFT=$("${PSQL[@]}" -c "select public.start_shift(null)")
+K8=$("${PSQL[@]}" -c "select gen_random_uuid()"); K9=$("${PSQL[@]}" -c "select gen_random_uuid()")
+( "${PSQL[@]}" -c "begin; $(SAVE_AT C2 "$K8" Taco); select pg_sleep(1); commit;" >"$work/i1.out" 2>&1; echo $? >"$work/i1.code" ) &
+sleep 0.3
+( "${PSQL[@]}" -c "select public.finish_shift(null);" >"$work/i2.out" 2>&1; echo $? >"$work/i2.code" ) &
+wait
+SAVED=$("${PSQL[@]}" -c "select count(*) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C2' and t.status = 'open' and t.shift_id = $SHIFT")
+if "${PSQL[@]}" -c "$(SAVE_AT C6 "$K9" Taco)" >"$work/i3.out" 2>&1; then REFUSED=no; else REFUSED=$(grep -c "restaurant_closed" "$work/i3.out" || true); fi
+if [ "$(cat "$work/i1.code")" = 0 ] && [ "$(cat "$work/i2.code")" = 0 ] && [ "$SAVED" = 1 ] && [ "$REFUSED" = 1 ]; then
+  echo "  PASS: the finish waited for the order, which counts in that shift; the next order was refused"
+else
+  echo "  FAIL: saved=$SAVED refused=$REFUSED"; cat "$work"/i*.out; fail=1
+fi
+
+echo "Race 11: a waiter sends an order while the shift is finishing"
+"${PSQL[@]}" -c "select public.start_shift(null)" >/dev/null
+K10=$("${PSQL[@]}" -c "select gen_random_uuid()")
+BEFORE=$("${PSQL[@]}" -c "select count(*) from public.ticket_batches")
+( "${PSQL[@]}" -c "begin; select public.finish_shift(null); select pg_sleep(1); commit;" >"$work/j1.out" 2>&1; echo $? >"$work/j1.code" ) &
+sleep 0.3
+( if "${PSQL[@]}" -c "$(SAVE_AT C6 "$K10" Taco);" >"$work/j2.out" 2>&1; then echo 0 >"$work/j2.code"; else echo 1 >"$work/j2.code"; fi ) &
+wait
+if [ "$(cat "$work/j1.code")" = 0 ] && [ "$(cat "$work/j2.code")" != 0 ] && grep -q "restaurant_closed" "$work/j2.out" \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches")" = "$BEFORE" ]; then
+  echo "  PASS: the order waited for the finish, then was refused; nothing was added"
+else
+  echo "  FAIL"; cat "$work"/j*.out; fail=1
 fi
 
 exit $fail

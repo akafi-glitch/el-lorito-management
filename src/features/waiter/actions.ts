@@ -4,8 +4,8 @@ import { redirect } from "next/navigation";
 
 import { requireActiveUser } from "@/features/auth/session";
 
-import { findEmployeeByNumber } from "./queries";
-import { lookupResult, waiterPath } from "./rules";
+import { findEmployeeByNumber, restaurantIsOpen } from "./queries";
+import { lookupResult, RESTAURANT_CLOSED_TEXT, waiterPath } from "./rules";
 import { employeeNumberSchema } from "./schema";
 
 export type FindWaiterState = { message: string | null };
@@ -19,12 +19,15 @@ export async function findWaiterAction(_previous: FindWaiterState, formData: For
   const parsed = employeeNumberSchema.safeParse(formData.get("employeeNumber") ?? "");
   if (!parsed.success) return { message: parsed.error.issues[0]?.message ?? "Enter your employee number." };
 
+  let open;
   let employee;
   try {
-    employee = await findEmployeeByNumber(parsed.data);
+    [open, employee] = await Promise.all([restaurantIsOpen(), findEmployeeByNumber(parsed.data)]);
   } catch {
     return { message: "Couldn't look up the number. Check the connection and try again." };
   }
+
+  if (!open) return { message: RESTAURANT_CLOSED_TEXT };
 
   const result = lookupResult(parsed.data, employee);
   if (!result.ok) return { message: result.message };

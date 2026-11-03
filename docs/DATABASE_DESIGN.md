@@ -85,6 +85,7 @@ The app turns each refusal into plain words (`src/features/seating/errors.ts`).
 | Function | Does | Refuses with |
 | --- | --- | --- |
 | `start_shift(actor, rotation?)` | Ends the open shift and its assignments, opens a new one with this rotation, and points at its first section | `invalid_rotation` |
+| `finish_shift(actor)` | Ends the open shift and its assignments. Open tickets stay open | `no_open_shift` |
 | `set_shift_rotation(rotation, next section?, actor)` | Changes the open shift's order; the next section stays unless another is picked | `no_open_shift`, `invalid_rotation` |
 | `assign_duty(section, duty, employee or null, actor)` | Sets or clears a section's waiter or runner; keeps history | `no_open_shift`, `bar_open_to_all`, `employee_inactive`, `role_mismatch`, `employee_not_found` |
 | `add_employee(number, name, role, actor)` | Adds an employee | `employee_number_taken` |

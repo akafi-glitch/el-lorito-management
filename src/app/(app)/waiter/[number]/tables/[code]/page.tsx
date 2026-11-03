@@ -41,7 +41,7 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
   // Versions before the data (see floor/page.tsx), so this screen follows changes from other devices.
   const versions = result.ok ? await loadVersions() : null;
   const shell = (title: string, children: React.ReactNode) => (
-    <SectionShell title={title} description="Waiter Section" live={versions ? { watch: ["tickets", "menu"], versions } : undefined}>
+    <SectionShell title={title} description="Waiter Section" live={versions ? { watch: ["tickets", "menu", "staff"], versions } : undefined}>
       {children}
     </SectionShell>
   );

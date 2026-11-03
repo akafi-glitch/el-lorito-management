@@ -60,9 +60,14 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   duty: chips runners and managers.
 - **Employee numbers** are unique digits (1–6). "01" and "1" count as the same number, so either can
   be typed. A number never changes; a mistake means turning that employee off and adding a new one.
-- **Shifts:** one is open at a time. "Start new shift" asks for the rotation, ends the current shift
-  and every assignment in it, and starts at the first section of the new rotation. Seated tables,
-  visits, tickets, and history are not affected.
+- **Shifts:** one is open at a time. "Start shift" asks for the rotation and starts at its first
+  section. While a shift is open, the button is "Finish shift" (owner decision, Nov 2, 2026), which asks
+  first, names any open tickets, then ends the shift and every assignment in it. Seated tables, visits,
+  tickets, and history are not affected.
+- **Closed:** with no open shift the restaurant is closed. The Waiter Section says so, waiters already
+  inside are taken out of it, and the database refuses new orders. It opens by itself when a manager
+  starts a shift. Open tickets stay open: a customer receipt still being printed can finish, and waiters
+  can pick up the rest in the next shift. The Floor and Management keep working.
 - **Assignments:** each section has at most one waiter and one chips runner at a time (database
   rule). One person can cover several sections. Moving someone ends the old assignment and starts a
   new one, so history is kept and the latest assignment is always the current one.

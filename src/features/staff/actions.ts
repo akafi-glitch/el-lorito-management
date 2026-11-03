@@ -45,6 +45,14 @@ export async function startShiftAction(input: StartShiftInput): Promise<ActionRe
   return { ok: true, message: `New shift started. The rotation starts at ${parsed.data.firstName}. Assign waiters and chips runners.` };
 }
 
+export async function finishShiftAction(): Promise<ActionResult> {
+  const user = await requireActiveUser();
+  const { error } = await createAdminClient().rpc("finish_shift", { p_actor: user.userId });
+  if (error?.message === "no_open_shift") return { ok: false, message: "This shift was already finished." };
+  if (error) return { ok: false, message: staffErrorMessage(error) };
+  return { ok: true, message: "Shift finished. The restaurant is closed." };
+}
+
 export async function setRotationAction(input: SetRotationInput): Promise<ActionResult> {
   const user = await requireActiveUser();
   const parsed = setRotationSchema.safeParse(input);
