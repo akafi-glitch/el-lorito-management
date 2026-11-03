@@ -203,6 +203,12 @@ lines, totals, and `updated_at` (tested against a copy of the old schema with da
 
 Every function takes the visit lock before the ticket lock, so a save, a print, and clearing can't deadlock.
 
+### Finishing a shift (`20261104010000_finish_shift`, Nov 2, 2026)
+
+Adds `finish_shift(actor)` and the audit event `shift_finished`. `save_table_order` now refuses with
+`restaurant_closed` while no shift is open, holding a shared lock on the open shift so a shift can't finish
+halfway through a save. No table rows change.
+
 ### Orders by table (`20261103010000_orders_by_table`, Nov 2, 2026)
 
 Orders belong to a table, separate from the Floor (see BUSINESS_RULES.md). This replaces the per-visit rules above.
