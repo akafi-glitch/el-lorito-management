@@ -85,6 +85,7 @@ The app turns each refusal into plain words (`src/features/seating/errors.ts`).
 | Function | Does | Refuses with |
 | --- | --- | --- |
 | `start_shift(actor, rotation?)` | Ends the open shift and its assignments, opens a new one with this rotation, and points at its first section | `invalid_rotation` |
+| `finish_shift(actor)` | Ends the open shift and its assignments. Open tickets stay open | `no_open_shift` |
 | `set_shift_rotation(rotation, next section?, actor)` | Changes the open shift's order; the next section stays unless another is picked | `no_open_shift`, `invalid_rotation` |
 | `assign_duty(section, duty, employee or null, actor)` | Sets or clears a section's waiter or runner; keeps history | `no_open_shift`, `bar_open_to_all`, `employee_inactive`, `role_mismatch`, `employee_not_found` |
 | `add_employee(number, name, role, actor)` | Adds an employee | `employee_number_taken` |
@@ -201,6 +202,12 @@ lines, totals, and `updated_at` (tested against a copy of the old schema with da
 | `clear_visit` (changed) | Also freezes the totals of tickets left unfinalized | |
 
 Every function takes the visit lock before the ticket lock, so a save, a print, and clearing can't deadlock.
+
+### Finishing a shift (`20261104010000_finish_shift`, Nov 2, 2026)
+
+Adds `finish_shift(actor)` and the audit event `shift_finished`. `save_table_order` now refuses with
+`restaurant_closed` while no shift is open, holding a shared lock on the open shift so a shift can't finish
+halfway through a save. No table rows change.
 
 ### Orders by table (`20261103010000_orders_by_table`, Nov 2, 2026)
 

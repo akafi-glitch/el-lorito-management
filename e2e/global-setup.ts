@@ -31,6 +31,10 @@ export default async function globalSetup(config: FullConfig) {
   });
   if (direct.error) throw new Error(`The test administrator can't sign in to the local Supabase: ${direct.error.message}`);
 
+  // Waiters can only enter during a shift, so no test depends on an earlier one having started it.
+  const shift = await db().rpc("start_shift", { p_actor: null });
+  if (shift.error) throw new Error(`Could not start a shift: ${shift.error.message}`);
+
   const baseURL = config.projects[0]?.use.baseURL ?? "http://127.0.0.1:3100";
   const browser = await chromium.launch();
   const page = await browser.newPage();

@@ -26,6 +26,10 @@ export async function startShift(rotation?: string[]): Promise<number> {
   return rpc<number>("start_shift", { p_actor: null, ...(rotation ? { p_rotation: rotation } : {}) });
 }
 
+export async function finishShift(): Promise<number> {
+  return rpc<number>("finish_shift", { p_actor: null });
+}
+
 /** An employee with this number, active, with this name and role (added the first time). */
 export async function employee(number: string, name: string, role: "waiter" | "chips_runner" | "manager"): Promise<number> {
   const key = number.replace(/^0+/, "") || "0";

@@ -1,6 +1,6 @@
 import { expect, test, type Locator, type Page } from "@playwright/test";
 
-import { currentRotation, freeTables, seat, startShift } from "./support/db";
+import { currentRotation, finishShift, freeTables, seat, startShift } from "./support/db";
 import { testEnv } from "./support/env";
 
 const editor = (page: Page) => page.locator("section[aria-labelledby='rotation-heading']");
@@ -21,8 +21,9 @@ test.describe.serial("the manager's seating rotation", () => {
 
   test("starting a shift shows the sections to arrange, and saves the order", async ({ page }) => {
     await seat(["A1"], 2); // someone is seated across the shift change
+    await finishShift();
     await page.goto("/manage");
-    await page.click("section[aria-labelledby='shift-heading'] button:has-text('Start new shift')");
+    await page.click("section[aria-labelledby='shift-heading'] button:has-text('Start shift')");
     const dialog = page.locator("dialog[open]");
     await expect(dialog).toContainText("Put the sections in the order");
     expect(await shownOrder(dialog)).toEqual(["A", "C", "B", "X(1)", "X(2)", "P"]);
@@ -33,7 +34,7 @@ test.describe.serial("the manager's seating rotation", () => {
     await moveEarlier(dialog, "B", 1);
     expect(await shownOrder(dialog)).toEqual(["X(2)", "X(1)", "A", "B", "C", "P"]);
 
-    await dialog.getByRole("button", { name: "Start new shift" }).click();
+    await dialog.getByRole("button", { name: "Start shift" }).click();
     await expect(page.getByText("New shift started. The rotation starts at X(2).")).toBeVisible();
     expect(await currentRotation()).toEqual(["X-2", "X-1", "A", "B", "C", "P"]);
   });
@@ -84,13 +85,14 @@ test.describe.serial("the manager's seating rotation", () => {
   });
 
   test("a new shift begins at the first section of its own new order", async ({ page }) => {
+    await finishShift();
     await page.goto("/manage");
-    await page.click("section[aria-labelledby='shift-heading'] button:has-text('Start new shift')");
+    await page.click("section[aria-labelledby='shift-heading'] button:has-text('Start shift')");
     const dialog = page.locator("dialog[open]");
     await expect(dialog).toContainText("Put the sections in the order");
-    await moveEarlier(dialog, "C", 5);
+    await moveEarlier(dialog, "C", 1); // a shift starts from the default order: A, C, B, ...
     expect((await shownOrder(dialog))[0]).toBe("C");
-    await dialog.getByRole("button", { name: "Start new shift" }).click();
+    await dialog.getByRole("button", { name: "Start shift" }).click();
     await expect(page.getByText("New shift started. The rotation starts at C.")).toBeVisible();
     await page.goto("/floor");
     await expect(page.locator("section[aria-labelledby='new-party-heading'] p", { hasText: "Next in rotation" })).toHaveText("Next in rotation: C");

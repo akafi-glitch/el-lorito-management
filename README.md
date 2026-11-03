@@ -17,7 +17,7 @@ Hosted on Vercel.
 - **Floor Management**: all 45 tables placed like the restaurant's floor plan. Suggests tables by
   the rotation and party size, seats by tap (including joined tables), marks chips served with one tap
   (with Undo), asks "Is the table cleaned?" to clear, and opens or closes sections.
-- **Management**: start shifts and set each shift's seating rotation, assign each section's waiter and
+- **Management**: start and finish shifts (waiters can only enter during a shift), set each shift's seating rotation, assign each section's waiter and
   chips runner, manage employees and sign-in accounts, and read or print a Shift Report of what a shift took. The floor shows who works each section.
 - **Waiter Section**: a waiter types their employee number on a big number pad, chooses any section, and taps a
   table in its list to go straight to the order page. Built for phones and tablets. It is separate from the Floor:

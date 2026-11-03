@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-import { assign, employee, freeTables, seat, setItem, startShift } from "./support/db";
+import { assign, employee, finishShift, freeTables, seat, setItem, startShift } from "./support/db";
 import { testEnv } from "./support/env";
 
 /**
@@ -68,10 +68,11 @@ test.describe.serial("live updates across devices", () => {
     const next = page.locator("section[aria-labelledby='new-party-heading'] p", { hasText: "Next in rotation" });
     await expect(next).toHaveText("Next in rotation: B");
 
+    await finishShift();
     const manager = await browser.newPage({ storageState: "e2e/.auth/admin.json" });
     await manager.goto("/manage");
-    await manager.click("section[aria-labelledby='shift-heading'] button:has-text('Start new shift')");
-    await manager.locator("dialog[open]").getByRole("button", { name: "Start new shift" }).click();
+    await manager.click("section[aria-labelledby='shift-heading'] button:has-text('Start shift')");
+    await manager.locator("dialog[open]").getByRole("button", { name: "Start shift" }).click();
     await expect(manager.getByText("New shift started. The rotation starts at A.")).toBeVisible();
 
     await expect(next).toHaveText("Next in rotation: A", { timeout: env.realtime ? 4_000 : 15_000 });
