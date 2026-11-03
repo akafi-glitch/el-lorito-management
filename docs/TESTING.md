@@ -43,6 +43,7 @@ database and runs every database test against it.
 
 | Requirement | Unit | Database | Browser / race |
 | --- | --- | --- | --- |
+| Rotation dragged by mouse, finger, or keyboard; a swipe over a row moves nothing | `staff.test.ts` | | `rotation.spec.ts` |
 | Custom rotation, changed mid-shift, new shift starts at its first section, history per shift | `recommend.test.ts`, `staff.test.ts` | `shift_rotation.test.sql` | `rotation.spec.ts` |
 | X(1) = X4–X9, X13, X14; X(2) = X1–X3, X10–X12 | `layout.test.ts`, `waiter.test.ts` | `floor_layout.test.sql` | `floor.spec.ts`, `waiter.spec.ts` |
 | Yellow to red with no popup; a tap shows at once | `optimistic.test.ts` | `seating.test.sql` | `floor.spec.ts` (server held back 1.5 s, tile red within 0.4 s) |
@@ -64,7 +65,7 @@ database and runs every database test against it.
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 2, 2026:** 316 unit tests, 516 database checks, 12 race tests, 71 browser tests.
+**Results, Nov 2, 2026:** 316 unit tests, 516 database checks, 12 race tests, 74 browser tests.
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for

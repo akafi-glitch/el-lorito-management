@@ -44,7 +44,7 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
    wasn't entered in New party. All tables are seated together or none. If the tapped tables are
    exactly an approved combination, that's recorded too.
 6. **Anyone** signed in can join any free tables by hand. Every joined table shows "with …".
-7. **Rotation (decided Nov 2, 2026):** the manager sets the order of the dining sections when starting
+7. **Rotation (decided Nov 2, 2026):** the manager drags the dining sections into order when starting
    each shift, and can change it during the shift. New suggestions follow the change at once, from the
    section that is next (or another one the manager picks). Every shift keeps its own order in the
    history. After any seating, suggested or tapped, the rotation moves to the section after the one
