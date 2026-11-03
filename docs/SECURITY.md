@@ -10,7 +10,7 @@ noted, against the live Supabase project `yshypzeuqzgattkvmzak`.
 | --- | --- | --- |
 | Who can open the app | ✅ | Every page and every server action needs a signed-in administrator account that is **on** (`app_users.is_active`). Turning an account off locks it out on its next click. No sign-up page. |
 | Passwords | ✅ | Stored only by Supabase Auth (hashed). Minimum 10 characters (app check; set the same in Supabase, DEPLOYMENT.md step 1). Never logged, never shown. |
-| Sign-in attempts | ✅ | Supabase Auth rate-limits sign-ins; the app shows "Too many sign-in attempts" on HTTP 429. One message for any wrong username or password. |
+| Sign-in attempts | ✅ | Supabase Auth rate-limits sign-ins; the app shows "Too many sign-in attempts" on HTTP 429. One message for any wrong username or password; CAPTCHA and connection failures say what they are, and reveal nothing about accounts. |
 | Secret key | ✅ | Only in server-only modules (`server-only` breaks the build if browser code imports them). The build fails if a real secret key, or anything shaped like one, reaches browser files. The app refuses to run if a `NEXT_PUBLIC_` variable holds a secret key. |
 | Browser access to data | ✅ live | Row Level Security is on for every table, with no browser policies. Browser roles (`anon`, `authenticated`) have no rights on any table, view, ID counter, or function in `public` (checked on the live project; enforced by `supabase/tests/hardening.test.sql` on every pull request). |
 | The one browser-callable check | ✅ live | `private.is_active_staff()`: "is the signed-in account an active administrator?", answering only for the caller. Used by the Realtime rule; in a schema the API doesn't expose. |
@@ -39,7 +39,7 @@ These are deliberate and documented in docs/PROJECT_REQUIREMENTS.md:
    the Shift Report, which also need a manager's own PIN (BUSINESS_RULES.md). Only a bcrypt hash of
    each PIN is stored. A 6-digit PIN could be guessed from a stolen hash with enough computing, so
    treat the server key and database backups as carefully as the PINs. Anyone at the sign-in can
-   lock a manager out for 10 minutes with wrong PINs; resetting the PIN with `npm run admin:pin` clears it.
+   lock a manager out for 10 minutes with wrong PINs; resetting the PIN with `scripts/set-manager-pin.mts` clears it.
 3. **Devices stay signed in.** A shared tablet stays signed in until someone signs out. If a
    device is lost, turn its account off in **Management → Sign-in accounts**; that takes effect
    on its next click.

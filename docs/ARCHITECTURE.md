@@ -36,7 +36,8 @@ Restaurant devices ──calls──▶ Next.js on Vercel ──RPC──▶ Sup
    configuration is broken, protected pages still redirect.
 2. `/sign-in` calls the `signIn` Server Action. The username maps to a hidden internal address
    (`<username>@staff.ellorito-management.com`) because Supabase Auth signs in by email. Wrong
-   username or password shows one generic message.
+   username or password shows one generic message. Failures that have nothing to do with what was typed (CAPTCHA, too
+   many tries, no connection) say so. Signing out ends only that device's session.
 3. After Supabase Auth accepts the password, the server checks `app_users.is_active`. Turned-off
    accounts are signed straight back out.
 4. The signed-in layout (`src/app/(app)/layout.tsx`) checks the account again on every page.

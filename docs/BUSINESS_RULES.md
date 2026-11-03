@@ -209,7 +209,7 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   ends after 15 minutes without real use, after 12 hours at most, with **Lock**, or when the app signs out. 5 wrong tries
   block that number for 10 minutes, for everyone, on every device. The answer is always "Incorrect PIN", whether or not
   the employee exists or has a PIN. Logins, failures, lockouts, and Lock are in the audit history, with the employee
-  number and time. PINs are set, reset, and turned off with `npm run admin:pin`, on the owner's computer. A waiter still
+  number and time. PINs are set, reset, and turned off with `scripts/set-manager-pin.mts`, on the owner's computer (commands in DEPLOYMENT.md). A waiter still
   sees a table's earlier tickets from this shift on its page, and reprints work without a PIN, as the owner asked.
 - **Management → Order History:** ticket, date and time, shift, waiter number, table, total with tax, and status.
   Most recent first; can be sorted oldest first, and filtered by shift and by waiter. No food items in the table;
