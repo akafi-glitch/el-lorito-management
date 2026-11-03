@@ -241,5 +241,18 @@ else
   echo "  FAIL"; cat "$work"/j*.out; fail=1
 fi
 
+echo "Race 12: eight tries of a PIN at the same moment can't get past the limit of five"
+"${PSQL[@]}" -c "delete from public.pin_attempts where attempt_key = public.pin_attempt_key('990098')" >/dev/null
+for i in 1 2 3 4 5 6 7 8; do
+  ( "${PSQL[@]}" -c "select allowed::int from public.pin_reserve_attempt('990098')" >"$work/k$i.out" 2>&1 ) &
+done
+wait
+ALLOWED=$(cat "$work"/k*.out | grep -c '^1' || true)
+if [ "$ALLOWED" = 5 ]; then
+  echo "  PASS: exactly five were allowed, and the number is locked"
+else
+  echo "  FAIL: allowed=$ALLOWED"; cat "$work"/k*.out; fail=1
+fi
+
 exit $fail
 

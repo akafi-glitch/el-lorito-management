@@ -2,11 +2,12 @@
 
 import { redirect } from "next/navigation";
 
+import { endPinSession } from "@/features/pin/session";
 import { createSessionClient } from "@/lib/supabase/server";
 
 import { safeNextPath } from "./redirect";
 import { signInSchema } from "./schema";
-import { findAppUser } from "./session";
+import { findAppUser, getSessionState } from "./session";
 import { usernameToEmail } from "./username";
 
 export type SignInState = { error: string | null; username: string };
@@ -50,6 +51,8 @@ export async function signIn(_previous: SignInState, formData: FormData): Promis
 }
 
 export async function signOut(): Promise<never> {
+  const session = await getSessionState();
+  if (session.status === "signed-in") await endPinSession(session.user.userId, "sign_out");
   const supabase = await createSessionClient();
   await supabase.auth.signOut();
   redirect("/sign-in");

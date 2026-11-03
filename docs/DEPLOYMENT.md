@@ -110,6 +110,8 @@ If you change an environment variable in Vercel, **redeploy** (Deployments → �
 1. Open `https://<your address>/api/health`: it should say `"status":"ok"`.
 2. Open the address, sign in with the administrator from step 2.
 3. **Management → Shift and sections → Start shift.** Assign waiters and chips runners.
+   Give at least one employee the manager role, then set their PIN with `npm run admin:pin`: Order History and the
+   Shift Report stay locked for everyone until a manager has one.
    (The 16 waiters are already in **Employees**; change roles there if someone is a chips runner
    or manager.)
 4. **Live updates:** open **Floor Management** on two devices. The dot under the title should say

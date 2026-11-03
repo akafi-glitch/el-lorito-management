@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 import { cancelOpenOrders, cancelTicket, employee, finalizeTicket, saveOrder, setItem, startShift, ticketTotal } from "./support/db";
+import { unlock } from "./support/pin";
+
+test.beforeEach(async ({ page }) => {
+  await unlock(page, "/manage/shift-report");
+});
 
 const money = (cents: number) => `$${(cents / 100).toFixed(2)}`;
 const TABLES = ["P1", "P2", "P3", "P4"];

@@ -1,6 +1,11 @@
 import { expect, test } from "@playwright/test";
 
 import { cancelOpenOrders, employee, freeTables, saveOrder, setItem, startShift, ticketByNumber } from "./support/db";
+import { unlock } from "./support/pin";
+
+test.beforeEach(async ({ page }) => {
+  await unlock(page, "/manage/history");
+});
 
 const rows = (page: import("@playwright/test").Page) => page.getByTestId("history-row");
 

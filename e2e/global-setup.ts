@@ -3,7 +3,7 @@ import { mkdirSync } from "node:fs";
 import { chromium, type FullConfig } from "@playwright/test";
 import { createClient } from "@supabase/supabase-js";
 
-import { db } from "./support/db";
+import { db, employee, MANAGER, setManagerPin } from "./support/db";
 import { testEnv } from "./support/env";
 
 /**
@@ -34,6 +34,10 @@ export default async function globalSetup(config: FullConfig) {
   // Waiters can only enter during a shift, so no test depends on an earlier one having started it.
   const shift = await db().rpc("start_shift", { p_actor: null });
   if (shift.error) throw new Error(`Could not start a shift: ${shift.error.message}`);
+
+  // Order History and the Shift Report open with a manager's PIN.
+  await employee(MANAGER.number, "Test Manager", "manager");
+  await setManagerPin(MANAGER.number, MANAGER.pin);
 
   const baseURL = config.projects[0]?.use.baseURL ?? "http://127.0.0.1:3100";
   const browser = await chromium.launch();

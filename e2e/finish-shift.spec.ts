@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 
-import { assign, cancelOpenOrders, employee, finishShift, openTicketsAt, saveOrder, setItem, startShift } from "./support/db";
+import { assign, cancelOpenOrders, employee, finishShift, MANAGER, openTicketsAt, saveOrder, setItem, startShift } from "./support/db";
+import { enterPin } from "./support/pin";
 import { testEnv } from "./support/env";
 
 const shiftButton = (name: string) => `section[aria-labelledby='shift-heading'] button:has-text('${name}')`;
@@ -62,6 +63,7 @@ test.describe.serial("finishing a shift", () => {
     await page.goto("/manage");
     await page.click("section[aria-labelledby='shift-heading'] a:has-text('Shift Report')");
     await expect(page).toHaveURL(/\/manage\/shift-report$/);
+    await enterPin(page, MANAGER.number, MANAGER.pin);
     await expect(page.locator("main")).toContainText("Ended ");
     await expect(page.getByTestId("open-tickets")).toContainText("still open");
   });
