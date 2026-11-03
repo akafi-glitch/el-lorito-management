@@ -134,11 +134,11 @@ export function ShiftAndBoard({ board }: { board: StaffBoard }) {
       {confirming ? (
         <Modal title="Start the shift" onClose={() => setConfirming(false)}>
           <p className="text-base">
-            Put the sections in the order seating should follow. The shift starts at number 1. Seated tables and orders
+            Drag the sections into the order seating should follow. The shift starts at number 1. Seated tables and orders
             stay as they are.
           </p>
           <div className="mt-4">
-            <RotationList sections={board.rotation} order={startOrder.order} onMove={startOrder.move} disabled={busy} />
+            <RotationList sections={board.rotation} order={startOrder.order} onPlace={startOrder.place} disabled={busy} />
           </div>
           <div className="mt-6 flex flex-col gap-2 sm:flex-row-reverse">
             <button type="button" disabled={busy} className={buttonClasses("primary", "flex-1")} onClick={startShift}>
