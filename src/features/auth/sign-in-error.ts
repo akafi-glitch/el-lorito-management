@@ -6,7 +6,7 @@
 
 export const WRONG_CREDENTIALS = "Username or password is wrong.";
 export const TOO_MANY_ATTEMPTS = "Too many sign-in attempts. Wait a minute, then try again.";
-export const SIGN_IN_BLOCKED = "Sign-in is blocked by a security setting (CAPTCHA), not by your password. Ask the owner to check Supabase.";
+export const SIGN_IN_BLOCKED = "The security check could not be verified. Try again. Your password was not rejected.";
 export const SIGN_IN_UNAVAILABLE = "Couldn't sign in right now. Your password wasn't checked. Check the connection and try again.";
 
 export function signInFailureMessage(error: { code?: string; status?: number } | null): string {

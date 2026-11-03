@@ -27,7 +27,7 @@ describe("why a sign-in failed", () => {
 
   it("CAPTCHA says it isn't the password", () => {
     expect(signInFailureMessage({ code: "captcha_failed", status: 400 })).toBe(SIGN_IN_BLOCKED);
-    expect(SIGN_IN_BLOCKED).toContain("not by your password");
+    expect(SIGN_IN_BLOCKED).toContain("password was not rejected");
   });
 
   it("too many tries says to wait", () => {
@@ -46,6 +46,7 @@ function form(): FormData {
   const data = new FormData();
   data.set("username", "lorito2014");
   data.set("password", "not-a-real-password");
+  data.set("captchaToken", "test-captcha-token");
   return data;
 }
 
@@ -58,6 +59,14 @@ describe("the sign-in page", () => {
   it("still gives one message for a wrong password", async () => {
     auth.signInWithPassword.mockResolvedValue({ data: { user: null }, error: { code: "invalid_credentials", status: 400 } });
     expect((await signIn({ error: null, username: "" }, form())).error).toBe(WRONG_CREDENTIALS);
+  });
+
+  it("passes the CAPTCHA token to Supabase Auth", async () => {
+    auth.signInWithPassword.mockResolvedValue({ data: { user: null }, error: { code: "invalid_credentials", status: 400 } });
+    await signIn({ error: null, username: "" }, form());
+    expect(auth.signInWithPassword).toHaveBeenCalledWith(
+      expect.objectContaining({ options: { captchaToken: "test-captcha-token" } }),
+    );
   });
 
   it("a turned-off account leaves only this device's session", async () => {
