@@ -5,6 +5,9 @@ import { PrintShiftReport, ShiftReportPicker } from "@/features/history/componen
 import { loadShiftChoices, loadShiftReport } from "@/features/history/queries";
 import { chooseShift, openTicketsText } from "@/features/history/shift-report";
 import { formatCents } from "@/features/menu/money";
+import { PinBar } from "@/features/pin/components/pin-bar";
+import { PinGate } from "@/features/pin/components/pin-gate";
+import { getPinSession } from "@/features/pin/session";
 import { LiveSync } from "@/features/sync/components/live-sync";
 import { loadVersions } from "@/features/sync/queries";
 import { serverEnv } from "@/lib/env";
@@ -15,6 +18,9 @@ type Props = { searchParams: Promise<{ shift?: string | string[] }> };
 
 /** One shift's sales: ticket numbers and totals, the shift total, and a print button. */
 export default async function ShiftReportPage({ searchParams }: Props) {
+  const pin = await getPinSession();
+  if (!pin) return <PinGate area="The Shift Report" />;
+
   const asked = (await searchParams).shift;
   const versions = await loadVersions(); // before the data: see floor/page.tsx
   const shifts = await loadShiftChoices();
@@ -23,6 +29,7 @@ export default async function ShiftReportPage({ searchParams }: Props) {
 
   return (
     <section aria-labelledby="report-heading" className="flex flex-col gap-4">
+      <PinBar name={pin.name} employeeNumber={pin.employeeNumber} expiresAtMs={pin.expiresAtMs} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="report-heading" className="text-xl font-bold text-ink">
           Shift Report

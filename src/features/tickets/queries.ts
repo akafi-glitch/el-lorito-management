@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { formatClock, formatTime } from "@/features/staff/queries";
+import { requirePinSession } from "@/features/pin/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import { buildTicket } from "./rules";
@@ -56,6 +57,7 @@ export async function loadTableTickets(tableId: string): Promise<SavedTicket[]> 
 
 /** One ticket by its number, for Management. Null when there is none. */
 export async function loadTicketByNumber(ticketNumber: number): Promise<SavedTicket | null> {
+  await requirePinSession();
   const db = createAdminClient();
   const [tickets, totals] = await Promise.all([
     db.from("tickets").select(SELECT).eq("ticket_number", ticketNumber),

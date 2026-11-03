@@ -59,13 +59,14 @@ database and runs every database test against it.
 | Customer receipt: all orders, same ticket number, taxes, paper width | `printing.test.ts`, `tax.test.ts` | `order_batches.test.sql` | `tickets.spec.ts` |
 | Finalizing, failed or cancelled printing, reprints, nothing can change | | `order_batches.test.sql`, `tickets.test.sql` | `tickets.spec.ts`; races 7, 8 |
 | Finish shift: names open tickets, closes the Waiter Section at once, refuses new orders, keeps everything, opens again on a new shift | `tickets.test.ts` | `finish_shift.test.sql`, race tests 10 and 11 | `finish-shift.spec.ts` |
+| PIN gate: both areas and a ticket by address, generic error, lockout, 15 minutes and 12 hours, Lock, cookie flags, audit, the rest needs no PIN | `pin.test.ts` | `pin_gate.test.sql`, `hardening.test.sql`, race test 12 | `pin-gate.spec.ts` |
 | Shift Report: only sold tickets, right total, open tickets named apart, prints numbers and totals only | `history.test.ts` | | `shift-report.spec.ts` |
 | Item notes: each item keeps its own, edited on the saved ticket, on the kitchen receipt, never on the customer's | `menu.test.ts`, `printing.test.ts` | `item_notes.test.sql` | `tickets.spec.ts` |
 | History: filters, sort, totals with tax, unchanged by menu prices | `history.test.ts` | `order_batches.test.sql` | `history.spec.ts` |
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 2, 2026:** 316 unit tests, 516 database checks, 12 race tests, 74 browser tests.
+**Results, Nov 2, 2026:** 325 unit tests, 560 database checks, 13 race tests, 87 browser tests.
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for

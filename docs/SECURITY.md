@@ -35,7 +35,11 @@ These are deliberate and documented in docs/PROJECT_REQUIREMENTS.md:
    so mistakes can be traced, but this is not proof of who it was.
 2. **All administrator accounts can do everything.** There are no separate manager-only rights
    yet (owner decision: everyone can access everything for now). Give accounts only to people who
-   should have full access; turn accounts off when people leave.
+   should have full access; turn accounts off when people leave. The exception is Order History and
+   the Shift Report, which also need a manager's own PIN (BUSINESS_RULES.md). Only a bcrypt hash of
+   each PIN is stored. A 6-digit PIN could be guessed from a stolen hash with enough computing, so
+   treat the server key and database backups as carefully as the PINs. Anyone at the sign-in can
+   lock a manager out for 10 minutes with wrong PINs; resetting the PIN with `npm run admin:pin` clears it.
 3. **Devices stay signed in.** A shared tablet stays signed in until someone signs out. If a
    device is lost, turn its account off in **Management → Sign-in accounts**; that takes effect
    on its next click.

@@ -6,6 +6,9 @@ import { HistoryFilterBar } from "@/features/history/components/history-filters"
 import { loadHistory, loadShiftOptions } from "@/features/history/queries";
 import { HISTORY_STATUS_TEXT, historyHref, parseHistoryFilters } from "@/features/history/rules";
 import { formatCents } from "@/features/menu/money";
+import { PinBar } from "@/features/pin/components/pin-bar";
+import { PinGate } from "@/features/pin/components/pin-gate";
+import { getPinSession } from "@/features/pin/session";
 import { loadEmployees } from "@/features/staff/queries";
 import { LiveSync } from "@/features/sync/components/live-sync";
 import { loadVersions } from "@/features/sync/queries";
@@ -15,12 +18,16 @@ export const metadata: Metadata = { title: "Order History" };
 type Props = { searchParams: Promise<Record<string, string | string[] | undefined>> };
 
 export default async function OrderHistoryPage({ searchParams }: Props) {
+  const pin = await getPinSession();
+  if (!pin) return <PinGate area="Order History" />;
+
   const filters = parseHistoryFilters(await searchParams);
   const versions = await loadVersions(); // before the data: see floor/page.tsx
   const [history, shifts, employees] = await Promise.all([loadHistory(filters), loadShiftOptions(), loadEmployees()]);
 
   return (
     <section aria-labelledby="history-heading" className="flex flex-col gap-4">
+      <PinBar name={pin.name} employeeNumber={pin.employeeNumber} expiresAtMs={pin.expiresAtMs} />
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 id="history-heading" className="text-xl font-bold text-ink">
           Order History

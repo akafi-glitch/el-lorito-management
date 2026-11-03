@@ -204,6 +204,13 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   read or print on the receipt printer at any point, during the shift or after it. It shows only ticket numbers and
   totals with tax, then the shift total. Only tickets whose customer receipt printed are added in. Open tickets are
   named apart and not added, and cancelled ones are left out. A ticket counts in the shift it was started in.
+- **PIN for Order History and the Shift Report (owner decision, Nov 2, 2026):** these two areas open only with a
+  manager's employee number and their own PIN of 6 to 12 digits, and nothing else in the app asks for one. The session
+  ends after 15 minutes without real use, after 12 hours at most, with **Lock**, or when the app signs out. 5 wrong tries
+  block that number for 10 minutes, for everyone, on every device. The answer is always "Incorrect PIN", whether or not
+  the employee exists or has a PIN. Logins, failures, lockouts, and Lock are in the audit history, with the employee
+  number and time. PINs are set, reset, and turned off with `npm run admin:pin`, on the owner's computer. A waiter still
+  sees a table's earlier tickets from this shift on its page, and reprints work without a PIN, as the owner asked.
 - **Management → Order History:** ticket, date and time, shift, waiter number, table, total with tax, and status.
   Most recent first; can be sorted oldest first, and filtered by shift and by waiter. No food items in the table;
   a ticket's own page shows them, and can print a copy of its receipt.

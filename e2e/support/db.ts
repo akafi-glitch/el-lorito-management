@@ -1,3 +1,4 @@
+import { hash } from "bcryptjs";
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 import { testEnv } from "./env";
@@ -28,6 +29,43 @@ export async function startShift(rotation?: string[]): Promise<number> {
 
 export async function finishShift(): Promise<number> {
   return rpc<number>("finish_shift", { p_actor: null });
+}
+
+/** The manager who opens Order History and the Shift Report in the tests. */
+export const MANAGER = { number: "990070", pin: "482913" } as const;
+
+export async function setManagerPin(number: string, pin: string): Promise<void> {
+  await rpc("set_manager_pin", { p_number: number, p_pin_hash: await hash(pin, 4), p_actor: null });
+}
+
+export async function disableManagerPin(number: string): Promise<void> {
+  await rpc("disable_manager_pin", { p_number: number, p_actor: null });
+}
+
+export async function clearPinAttempts(): Promise<void> {
+  const { error } = await db().from("pin_attempts").delete().neq("attempt_key", "");
+  if (error) throw error;
+}
+
+/** Moves the newest PIN session's clock back, and says how long ago it was last used. */
+export async function setPinSessionTimes(times: { lastSeenMinutesAgo?: number; expiresMinutesAgo?: number }): Promise<{ lastSeenMinutesAgo: number }> {
+  const { data, error } = await db().from("pin_sessions").select("id, last_seen_at").order("id", { ascending: false }).limit(1).single();
+  if (error) throw error;
+  const ago = (minutes: number) => new Date(Date.now() - minutes * 60_000).toISOString();
+  const change: Record<string, string> = {};
+  if (times.lastSeenMinutesAgo !== undefined) change.last_seen_at = ago(times.lastSeenMinutesAgo);
+  if (times.expiresMinutesAgo !== undefined) change.expires_at = ago(times.expiresMinutesAgo);
+  if (Object.keys(change).length > 0) {
+    const updated = await db().from("pin_sessions").update(change).eq("id", data.id);
+    if (updated.error) throw updated.error;
+  }
+  return { lastSeenMinutesAgo: (Date.now() - Date.parse(data.last_seen_at)) / 60_000 };
+}
+
+export async function auditFrom(sinceIso: string): Promise<{ event_type: string; details: Record<string, unknown> }[]> {
+  const { data, error } = await db().from("audit_events").select("event_type, details").gte("occurred_at", sinceIso).order("id");
+  if (error) throw error;
+  return data;
 }
 
 /** An employee with this number, active, with this name and role (added the first time). */

@@ -214,6 +214,18 @@ halfway through a save. No table rows change.
 Adds `ticket_lines.notes` (optional, up to 200 characters; existing lines have none). In `save_table_order` a line
 may carry `notes`, and `change_ticket` gains the change `line_notes`. Locked tickets refuse these like any other change.
 
+### PIN gate (`20261106010000_pin_gate`, Nov 2, 2026)
+
+| Object | Purpose | Key rules |
+| --- | --- | --- |
+| `employee_pins` | One bcrypt hash per manager | Only a bcrypt-shaped value fits. Turned off, never deleted |
+| `pin_attempts` | Tries per typed number, under a hash of the number | Kept for numbers nobody has too, so a lockout says nothing about who exists |
+| `pin_sessions` | Open sessions | Holds a hash of the cookie's token, the employee, and the sign-in account |
+| `pin_reserve_attempt(number)` | Uses up a try before the PIN is compared, under a row lock, so tries at the same moment can't pass five | |
+| `pin_login_success`, `pin_login_failed` | Opens a session and clears the tries; or records the failure and the lockout | `pin_not_allowed` |
+| `pin_session_check`, `pin_session_touch`, `pin_session_end` | Reads a session without extending it; extends it for real use; ends it | |
+| `set_manager_pin(number, hash, actor)`, `disable_manager_pin(number, actor)` | For `scripts/set-manager-pin.mts`. Both end that employee's sessions | `employee_not_found`, `employee_inactive`, `not_a_manager`, `no_pin` |
+
 ### Orders by table (`20261103010000_orders_by_table`, Nov 2, 2026)
 
 Orders belong to a table, separate from the Floor (see BUSINESS_RULES.md). This replaces the per-visit rules above.

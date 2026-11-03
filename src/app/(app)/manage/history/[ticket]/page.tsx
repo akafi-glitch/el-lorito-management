@@ -3,6 +3,9 @@ import Link from "next/link";
 
 import { buttonClasses } from "@/components/ui/button";
 import { HistoryReprint } from "@/features/history/components/history-reprint";
+import { PinBar } from "@/features/pin/components/pin-bar";
+import { PinGate } from "@/features/pin/components/pin-gate";
+import { getPinSession } from "@/features/pin/session";
 import { loadTicketByNumber } from "@/features/tickets/queries";
 import { ticketNumberParamSchema } from "@/features/tickets/schema";
 import { TicketView } from "@/features/tickets/components/ticket-view";
@@ -21,11 +24,15 @@ const REASON = {
 
 /** One saved ticket, read-only, and another copy of its receipt. */
 export default async function HistoryTicketPage({ params }: Props) {
+  const pin = await getPinSession();
+  if (!pin) return <PinGate area="Order History" />;
+
   const parsed = ticketNumberParamSchema.safeParse((await params).ticket);
   const ticket = parsed.success ? await loadTicketByNumber(parsed.data) : null;
 
   return (
     <div className="flex flex-col gap-4">
+      <PinBar name={pin.name} employeeNumber={pin.employeeNumber} expiresAtMs={pin.expiresAtMs} />
       <Link href="/manage/history" className={buttonClasses("secondary", "self-start")}>
         Back to Order History
       </Link>

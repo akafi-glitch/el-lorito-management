@@ -4,7 +4,7 @@ import { expect, test } from "@playwright/test";
 import { cancelOpenOrders, employee, saveOrder } from "./support/db";
 
 /** Every working screen on a phone, a tablet, and a computer: nothing runs off the side. */
-const PAGES = ["/", "/floor", "/waiter", "/waiter/01", "/waiter/01/tables/P5", "/manage", "/manage/employees", "/manage/menu", "/manage/history", "/manage/accounts"];
+const PAGES = ["/", "/floor", "/waiter", "/waiter/01", "/waiter/01/tables/P5", "/manage", "/manage/employees", "/manage/menu", "/manage/history", "/manage/shift-report", "/manage/accounts"];
 const SIZES = [
   { name: "phone", width: 390, height: 844 },
   { name: "tablet", width: 820, height: 1180 },
