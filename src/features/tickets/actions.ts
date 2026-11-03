@@ -65,8 +65,8 @@ export async function saveOrderAction(input: SaveOrderInput): Promise<SaveOrderR
     p_client_key: clientKey,
     p_lines: lines.map((line) =>
       "itemId" in line
-        ? { item_id: line.itemId, quantity: line.quantity }
-        : { name: line.name, price_cents: line.priceCents, tax_category: line.taxCategory, quantity: line.quantity },
+        ? { item_id: line.itemId, quantity: line.quantity, notes: line.notes }
+        : { name: line.name, price_cents: line.priceCents, tax_category: line.taxCategory, quantity: line.quantity, notes: line.notes },
     ),
     p_notes: notes,
     p_time_zone: serverEnv().APP_TIME_ZONE,
@@ -106,7 +106,9 @@ export async function changeTicketAction(input: ChangeTicketInput): Promise<Chan
         ? { op: "quantity", line_id: change.lineId, quantity: change.quantity }
         : change.op === "remove"
           ? { op: "remove", line_id: change.lineId }
-          : { op: "notes", batch_id: change.batchId, notes: change.notes },
+          : change.op === "line_notes"
+            ? { op: "line_notes", line_id: change.lineId, notes: change.notes }
+            : { op: "notes", batch_id: change.batchId, notes: change.notes },
     ),
     p_actor: user.userId,
   });

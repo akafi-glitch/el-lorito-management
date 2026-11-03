@@ -22,6 +22,7 @@
   --color-status-served: #d8432f;
   --color-status-closed: #9aa3b8;
   --color-status-kitchen: #1d4ed8;
+  --color-status-saved: #15803d;
 
   --color-danger: #b42318;
 
@@ -164,6 +165,12 @@
     font-weight: 800;
     line-height: 1.25;
     margin: 1.5mm 0;
+  }
+  .kitchen-item-note {
+    font-size: 18px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0 0 1.5mm 4mm;
   }
   .kitchen-note {
     font-size: 20px;

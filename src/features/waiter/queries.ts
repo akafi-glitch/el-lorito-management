@@ -3,6 +3,7 @@ import "server-only";
 import { z } from "zod";
 
 import { employeeNumberKey, ROLES, type EmployeeRef } from "@/features/staff/rules";
+import { kitchenMark, type KitchenMark } from "@/features/tickets/rules";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { WaiterBySection } from "./rules";
@@ -17,7 +18,10 @@ const employeeRow = z.object({
 
 const tableRow = z.object({ id: z.string(), code: z.string(), label: z.string() });
 
-const kitchenPrintedRow = z.object({ own_table: z.object({ code: z.string() }) });
+const openOrderRow = z.object({
+  own_table: z.object({ code: z.string() }),
+  ticket_batches: z.array(z.object({ kitchen_printed_at: z.string().nullable(), ticket_lines: z.array(z.object({ id: z.number() })) })),
+});
 
 const waiterRow = z.object({
   section_code: z.string(),
@@ -53,16 +57,23 @@ export async function findTableByCode(code: string): Promise<z.infer<typeof tabl
   return data ? tableRow.parse(data) : null;
 }
 
-/** Codes of the tables whose open ticket has a kitchen receipt confirmed printed. */
-export async function loadKitchenPrintedTables(): Promise<Set<string>> {
+/** What each table with an open ticket says about its kitchen receipt, by table code. */
+export async function loadTableKitchenMarks(): Promise<Map<string, KitchenMark>> {
   const { data, error } = await createAdminClient()
     .from("tickets")
-    .select("own_table:restaurant_tables(code), ticket_batches!inner(id)")
+    .select("own_table:restaurant_tables(code), ticket_batches(kitchen_printed_at, ticket_lines(id))")
     .eq("status", "open")
-    .eq("legacy_single_order", false)
-    .not("ticket_batches.kitchen_printed_at", "is", null);
+    .eq("legacy_single_order", false);
   if (error) throw new Error(`Could not load the kitchen receipts: ${error.message}`);
-  return new Set(z.array(kitchenPrintedRow).parse(data).map((row) => row.own_table.code));
+  return new Map(
+    z
+      .array(openOrderRow)
+      .parse(data)
+      .flatMap((row) => {
+        const mark = kitchenMark(row.ticket_batches.filter((batch) => batch.ticket_lines.length > 0).map((batch) => batch.kitchen_printed_at !== null));
+        return mark ? [[row.own_table.code, mark] as const] : [];
+      }),
+  );
 }
 
 /** The waiter on each section in the open shift. */

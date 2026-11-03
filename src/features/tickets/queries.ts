@@ -15,7 +15,7 @@ const SELECT = `id, ticket_number, status, version, legacy_single_order, created
   ticket_batches(id, batch_no, notes, created_at, kitchen_printed_at,
     waiter:employees!ticket_batches_employee_id_fkey(employee_number),
     print_attempts(attempt_no, outcome),
-    ticket_lines(id, line_no, menu_item_id, is_custom, item_name, unit_price_cents, late_surcharge_cents, quantity, tax_group_code))`;
+    ticket_lines(id, line_no, menu_item_id, is_custom, item_name, unit_price_cents, late_surcharge_cents, quantity, tax_group_code, notes))`;
 
 const TOTALS = "ticket_id, food_subtotal_cents, liquor_subtotal_cents, food_rate_bp, liquor_rate_bp, food_tax_cents, liquor_tax_cents, total_cents";
 

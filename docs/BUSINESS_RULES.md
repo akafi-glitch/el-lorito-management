@@ -93,10 +93,12 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   is vacant, seated, or closed, or how many guests there are, and never asks. Orders don't seat anyone, change
   the chips, or move the rotation. Seating, chips, and clearing on the Floor never change an order. Both sides
   use the same table codes, and nothing else connects them.
-- **Kitchen receipt marker (owner decision, Nov 2, 2026):** once a waiter confirms a table's kitchen receipt printed,
-  the table turns blue in the waiter's list, with "Kitchen Receipt Printed" under its name, and its page says the
-  same. A saved order or a kitchen receipt that didn't print changes nothing. It stays until the customer receipt is
-  confirmed printed or the ticket is cancelled, and then the table looks normal again.
+- **Kitchen receipt markers (owner decisions, Nov 2, 2026):** they show which table needs which receipt, in the
+  waiter's list under the table's name and on its page. **Green, "Kitchen Receipt Saved":** an order with items still
+  needs its kitchen receipt, including one that didn't print or has no answer yet. **Blue, "Kitchen Receipt Printed":**
+  every order's kitchen receipt is confirmed printed, so the customer receipt is next. A new order turns a blue table
+  green again until it prints. After the customer receipt is confirmed printed or the ticket is cancelled, the table
+  looks normal again.
 - The ticket keeps the waiter who started it; each order keeps the waiter who took it.
 
 ## Table status (Built, Phase 3)
@@ -149,6 +151,9 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   one key per order). Two waiters adding at once get two orders; nothing is overwritten.
 - **Custom items:** name, price ($0.00 or more), quantity (1 to 99), and a tax type the waiter must choose:
   it is never guessed, so a liquor item can't take the food rate. Saved on that order only; never added to the menu.
+- **Item notes (owner decision, Nov 2, 2026):** every item of an order can have its own note, written under it
+  while ordering or later on the saved ticket, up to 200 characters. An item appears once per order, so "1 no
+  onions" goes in its note. The note for the whole order stays. Item notes never print on the customer's bill.
 - **Before finalizing:** quantities can change, lines can be removed, notes can be edited, and the ticket
   can be cancelled. Each change carries the version the screen saw; if someone changed the ticket first it
   is refused ("Someone else just changed this ticket") and the screen shows the latest.
@@ -168,7 +173,7 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   each with its own heading. Later receipts show only new orders. A chosen order can be reprinted, marked
   REPRINT so it isn't cooked twice.
 - **Shows:** EL LORITO — KITCHEN, ticket, table, waiter number (of that order), order number, date and time,
-  quantities and item names in large bold capitals, and the note. **Never any price, subtotal, tax, or total:**
+  quantities and item names in large bold capitals, each item's note under it, and the order's note. **Never any price, subtotal, tax, or total:**
   the receipt's data has no place for them.
 - After each print the waiter answers "Did the kitchen receipt print?". An order waiting for an answer isn't
   sent again by accident; a No sends it next time. Printing never locks or finalizes anything.

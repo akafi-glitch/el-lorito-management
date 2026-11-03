@@ -8,7 +8,7 @@ import type { Notice } from "@/components/use-action-runner";
 import { TotalsBlock } from "@/features/billing/components/totals-block";
 import { computeTotals } from "@/features/billing/tax";
 import { formatCents } from "@/features/menu/money";
-import { MAX_QUANTITY } from "@/features/menu/order-draft";
+import { ITEM_NOTE_MAX, MAX_QUANTITY } from "@/features/menu/order-draft";
 import { printCustomerAction, printKitchenAction } from "@/features/printing/actions";
 import { PrintFlow, type PrintStart } from "@/features/printing/components/print-flow";
 
@@ -28,6 +28,9 @@ type SavedTicketPanelProps = {
 };
 
 const OFFLINE = "Couldn't reach the server. Nothing was changed. Check the connection, then try again.";
+
+/** The note being edited: on a whole order, or on one item. */
+type NoteTarget = { kind: "order"; batch: SavedBatch } | { kind: "item"; line: SavedLine };
 const KITCHEN_DOT: Record<SavedBatch["kitchen"], string> = {
   "not-sent": "bg-status-chips",
   waiting: "bg-status-chips",
@@ -42,7 +45,7 @@ const KITCHEN_DOT: Record<SavedBatch["kitchen"], string> = {
 export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOnScreen, onNotice, onChanged }: SavedTicketPanelProps) {
   const editable = ticket.status === "open";
   const [removing, setRemoving] = useState<SavedLine | null>(null);
-  const [editingNote, setEditingNote] = useState<SavedBatch | null>(null);
+  const [editingNote, setEditingNote] = useState<NoteTarget | null>(null);
   const [noteText, setNoteText] = useState("");
   const [confirmCancel, setConfirmCancel] = useState(false);
   /** What this screen has changed that the saved ticket doesn't show yet. Null quantity: removed. */
@@ -115,9 +118,12 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
 
   function saveNote() {
     if (!editingNote) return;
-    const batchId = editingNote.id;
+    const change: ChangeTicketInput["changes"][number] =
+      editingNote.kind === "order"
+        ? { op: "notes", batchId: editingNote.batch.id, notes: noteText }
+        : { op: "line_notes", lineId: editingNote.line.lineId, notes: noteText };
     setEditingNote(null);
-    send([{ op: "notes", batchId, notes: noteText }], () => onNotice({ tone: "ok", text: "Note saved." }));
+    send([change], () => onNotice({ tone: "ok", text: "Note saved." }));
   }
 
   async function cancelTicket() {
@@ -196,6 +202,7 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
                     </span>
                     <span className="font-semibold tabular-nums text-ink">{formatCents(line.totalCents)}</span>
                   </div>
+                  {line.notes ? <p className="rounded-lg bg-tile px-3 py-1.5 text-sm font-semibold text-ink">Note: {line.notes}</p> : null}
                   {editable ? (
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2" role="group" aria-label={`Saved quantity of ${line.name}`}>
@@ -218,14 +225,27 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
                           +
                         </button>
                       </div>
-                      <button
-                        type="button"
-                        aria-label={`Remove saved ${line.name}`}
-                        onClick={() => setRemoving(line)}
-                        className="min-h-11 rounded-lg px-3 font-semibold text-danger hover:bg-danger/10"
-                      >
-                        Remove
-                      </button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          type="button"
+                          aria-label={`${line.notes ? "Edit the note on" : "Add a note to"} saved ${line.name}`}
+                          onClick={() => {
+                            setNoteText(line.notes ?? "");
+                            setEditingNote({ kind: "item", line });
+                          }}
+                          className={buttonClasses("quiet", "min-h-11 px-3 text-sm")}
+                        >
+                          {line.notes ? "Edit note" : "Add note"}
+                        </button>
+                        <button
+                          type="button"
+                          aria-label={`Remove saved ${line.name}`}
+                          onClick={() => setRemoving(line)}
+                          className="min-h-11 rounded-lg px-3 font-semibold text-danger hover:bg-danger/10"
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </div>
                   ) : null}
                 </li>
@@ -239,10 +259,10 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
                   className={buttonClasses("quiet", "min-h-11 px-3 text-sm")}
                   onClick={() => {
                     setNoteText(batch.notes ?? "");
-                    setEditingNote(batch);
+                    setEditingNote({ kind: "order", batch });
                   }}
                 >
-                  {batch.notes ? "Edit note" : "Add a note"}
+                  {batch.notes ? "Edit order note" : "Add order note"}
                 </button>
                 {batch.kitchen === "printed" || batch.kitchen === "waiting" ? (
                   <PrintFlow
@@ -315,14 +335,17 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
       ) : null}
 
       {editingNote ? (
-        <Modal title={`Note for order ${editingNote.no}`} onClose={() => setEditingNote(null)}>
+        <Modal
+          title={editingNote.kind === "order" ? `Note for order ${editingNote.batch.no}` : `Note for ${editingNote.line.name}`}
+          onClose={() => setEditingNote(null)}
+        >
           <label htmlFor="edit-note" className="sr-only">
             Note
           </label>
           <textarea
             id="edit-note"
             rows={3}
-            maxLength={NOTE_MAX}
+            maxLength={editingNote.kind === "order" ? NOTE_MAX : ITEM_NOTE_MAX}
             value={noteText}
             onChange={(event) => setNoteText(event.target.value)}
             className="w-full rounded-lg border border-glaze bg-paper px-3 py-2 text-base text-ink focus:border-leaf focus:outline-none"

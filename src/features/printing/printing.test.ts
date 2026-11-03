@@ -47,8 +47,8 @@ const kitchenRow: KitchenBatchRow = {
     visit: { visit_tables: [{ restaurant_tables: { label: "X8" } }, { restaurant_tables: { label: "X6" } }, { restaurant_tables: { label: "X7" } }] },
   },
   ticket_lines: [
-    { line_no: 2, item_name: "Beef tacos", quantity: 3 },
-    { line_no: 1, item_name: "Chicken fajitas", quantity: 2 },
+    { line_no: 2, item_name: "Beef tacos", quantity: 3, notes: "Extra salsa" },
+    { line_no: 1, item_name: "Chicken fajitas", quantity: 2, notes: null },
   ],
 };
 
@@ -112,8 +112,8 @@ describe("the kitchen receipt", () => {
       time: "11/02/2026 7:35 PM",
       isReprint: false,
       lines: [
-        { name: "CHICKEN FAJITAS", quantity: 2 },
-        { name: "BEEF TACOS", quantity: 3 },
+        { name: "CHICKEN FAJITAS", quantity: 2, note: null },
+        { name: "BEEF TACOS", quantity: 3, note: "EXTRA SALSA" },
       ],
       notes: "NO ONIONS",
     });
@@ -121,7 +121,7 @@ describe("the kitchen receipt", () => {
 
   it("has no prices, subtotals, taxes, or totals anywhere: the data has no place for them", () => {
     expect(JSON.stringify(receipt)).not.toMatch(/cents|price|total|tax|\$/i);
-    expect(Object.keys(receipt.lines[0]!)).toEqual(["name", "quantity"]);
+    expect(Object.keys(receipt.lines[0]!)).toEqual(["name", "quantity", "note"]);
   });
 
   it("drops the note line when there is no note", () => {
@@ -138,7 +138,7 @@ describe("the kitchen receipt", () => {
   });
 
   it("reads only what it needs from the database: a price in the row is ignored", () => {
-    const parsed = kitchenBatchRowSchema.parse({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Taco", quantity: 1, unit_price_cents: 235 }] });
+    const parsed = kitchenBatchRowSchema.parse({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Taco", quantity: 1, notes: null, unit_price_cents: 235 }] });
     expect(JSON.stringify(parsed)).not.toContain("235");
   });
 

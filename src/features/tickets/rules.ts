@@ -21,11 +21,22 @@ export const KITCHEN_TEXT: Record<KitchenState, string> = {
   printed: "Sent to the kitchen",
 };
 
-export const KITCHEN_PRINTED_TEXT = "Kitchen Receipt Printed";
+/** What a table says: "saved" still needs a kitchen receipt, "printed" needs the customer receipt next. */
+export type KitchenMark = "saved" | "printed";
 
-/** True once a waiter has confirmed any kitchen receipt of this ticket printed. */
-export function kitchenPrinted(ticket: Pick<SavedTicket, "batches"> | null): boolean {
-  return (ticket?.batches ?? []).some((batch) => batch.kitchen === "printed");
+export const KITCHEN_MARK_TEXT: Record<KitchenMark, string> = {
+  saved: "Kitchen Receipt Saved",
+  printed: "Kitchen Receipt Printed",
+};
+
+/** From whether each order with items has its kitchen receipt confirmed printed. */
+export function kitchenMark(printed: readonly boolean[]): KitchenMark | null {
+  if (printed.length === 0) return null;
+  return printed.every(Boolean) ? "printed" : "saved";
+}
+
+export function ticketKitchenMark(ticket: Pick<SavedTicket, "batches"> | null): KitchenMark | null {
+  return kitchenMark((ticket?.batches ?? []).filter((batch) => batch.lines.length > 0).map((batch) => batch.kitchen === "printed"));
 }
 
 /** Database row -> ticket for the screen. */
@@ -56,6 +67,7 @@ export function buildTicket(
           quantity: line.quantity,
           totalCents: lineTotalCents(line.unit_price_cents, line.quantity),
           taxGroup: line.tax_group_code,
+          notes: line.notes,
         })),
     }));
   const lines = batches.flatMap((batch) => batch.lines);
@@ -108,8 +120,8 @@ export function batchesToSend(ticket: Pick<SavedTicket, "batches"> | null): Save
 export function orderLinesFromDraft(draft: Draft) {
   return draft.map((line) =>
     line.custom
-      ? { name: line.custom.name, priceCents: line.custom.priceCents, taxCategory: line.custom.taxCategory, quantity: line.quantity }
-      : { itemId: line.itemId, quantity: line.quantity },
+      ? { name: line.custom.name, priceCents: line.custom.priceCents, taxCategory: line.custom.taxCategory, quantity: line.quantity, notes: line.note ?? null }
+      : { itemId: line.itemId, quantity: line.quantity, notes: line.note ?? null },
   );
 }
 

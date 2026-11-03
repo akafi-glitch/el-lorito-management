@@ -7,7 +7,7 @@ import { buildMenu } from "./build";
 import { menuErrorMessage } from "./errors";
 import { formatCents, lineTotalCents, parseDollars } from "./money";
 import { parseCustomItem } from "./custom-item";
-import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setQuantity, type Draft } from "./order-draft";
+import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setItemNote, setQuantity, type Draft } from "./order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate, parseTimeOfDay, restaurantMinutes } from "./pricing";
 import { menuCategoryRowSchema, menuItemRowSchema, updateMenuItemSchema } from "./schema";
 import { normalizeText, searchMenu } from "./search";
@@ -72,6 +72,25 @@ describe("menu from the database", () => {
   it("leaves out a turned-off category", () => {
     const rows = z.array(menuCategoryRowSchema).parse(fixture.categories).map((row) => (row.code === "beer" ? { ...row, is_active: false } : row));
     expect(buildMenu(rows, z.array(menuItemRowSchema).parse(fixture.items)).categories).toHaveLength(25);
+  });
+});
+
+describe("a note on one item of the order", () => {
+  const draft: Draft = [
+    { itemId: 1, quantity: 1 },
+    { itemId: 2, quantity: 2 },
+  ];
+
+  it("stays on that item only", () => {
+    const noted = setItemNote(setItemNote(draft, 1, "No onions"), 2, "Extra rice");
+    expect(noted.map((line) => line.note)).toEqual(["No onions", "Extra rice"]);
+    expect(setItemNote(draft, 1, "No onions")[1]?.note).toBeUndefined();
+  });
+
+  it("survives changing the quantity, or adding one more", () => {
+    const noted = setItemNote(draft, 1, "No onions");
+    expect(setQuantity(noted, 1, 5)[0]?.note).toBe("No onions");
+    expect(addItem(noted, 1)[0]).toEqual({ itemId: 1, quantity: 2, note: "No onions" });
   });
 });
 

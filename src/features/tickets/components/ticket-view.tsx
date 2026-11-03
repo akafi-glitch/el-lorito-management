@@ -35,11 +35,14 @@ export function TicketView({
             ) : null}
             <ul className="flex flex-col divide-y divide-glaze">
               {batch.lines.map((line) => (
-                <li key={line.lineId} className="flex justify-between gap-3 py-2">
-                  <span className="text-ink">
-                    {line.quantity} × {line.name} <span className="text-sm text-muted">({formatCents(line.unitCents)})</span>
-                  </span>
-                  <span className="font-semibold tabular-nums text-ink">{formatCents(line.totalCents)}</span>
+                <li key={line.lineId} className="py-2">
+                  <div className="flex justify-between gap-3">
+                    <span className="text-ink">
+                      {line.quantity} × {line.name} <span className="text-sm text-muted">({formatCents(line.unitCents)})</span>
+                    </span>
+                    <span className="font-semibold tabular-nums text-ink">{formatCents(line.totalCents)}</span>
+                  </div>
+                  {line.notes ? <p className="mt-1 text-sm font-semibold text-ink">Note: {line.notes}</p> : null}
                 </li>
               ))}
             </ul>

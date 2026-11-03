@@ -181,7 +181,7 @@ export async function cancelOpenOrders(codes: string[]) {
 export async function batchesOf(ticketId: number) {
   const { data, error } = await db()
     .from("ticket_batches")
-    .select("id, batch_no, notes, employee_id, kitchen_printed_at, ticket_lines(item_name, quantity, unit_price_cents, tax_category_code, tax_group_code, is_custom, menu_item_id)")
+    .select("id, batch_no, notes, employee_id, kitchen_printed_at, ticket_lines(item_name, notes, quantity, unit_price_cents, tax_category_code, tax_group_code, is_custom, menu_item_id)")
     .eq("ticket_id", ticketId)
     .order("batch_no");
   if (error) throw error;

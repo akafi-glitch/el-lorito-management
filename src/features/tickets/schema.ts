@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { MAX_PRICE_CENTS } from "@/features/menu/money";
-import { MAX_QUANTITY } from "@/features/menu/order-draft";
+import { ITEM_NOTE_MAX, MAX_QUANTITY } from "@/features/menu/order-draft";
 import { TAX_CATEGORIES } from "@/features/menu/schema";
 import { tableCodeSchema } from "@/features/waiter/schema";
 
@@ -38,6 +38,7 @@ export const ticketRowSchema = z.object({
           late_surcharge_cents: cents,
           quantity: z.number().int().positive(),
           tax_group_code: z.enum(["food", "liquor"]),
+          notes: z.string().nullable(),
         }),
       ),
     }),
@@ -62,8 +63,14 @@ export type TicketTotalsRow = z.infer<typeof ticketTotalsRowSchema>;
 
 const quantity = z.number().int().min(1, "Quantities start at 1.").max(MAX_QUANTITY, `Quantities go up to ${MAX_QUANTITY}.`);
 
+const itemNote = z
+  .string()
+  .max(ITEM_NOTE_MAX, `Use ${ITEM_NOTE_MAX} characters or fewer for an item's note.`)
+  .transform((value) => value.trim() || null)
+  .nullable();
+
 const orderLine = z.union([
-  z.object({ itemId: z.number().int().positive(), quantity }),
+  z.object({ itemId: z.number().int().positive(), quantity, notes: itemNote.optional() }),
   z.object({
     name: z
       .string()
@@ -72,6 +79,7 @@ const orderLine = z.union([
     priceCents: z.number().int().min(0, "A price can't be negative.").max(MAX_PRICE_CENTS, "That price is too high."),
     taxCategory: z.enum(TAX_CATEGORIES, { message: "Choose the custom item's tax type." }),
     quantity,
+    notes: itemNote.optional(),
   }),
 ]);
 
@@ -111,6 +119,7 @@ export const changeTicketSchema = z.object({
         z.object({ op: z.literal("quantity"), lineId: z.number().int().positive(), quantity }),
         z.object({ op: z.literal("remove"), lineId: z.number().int().positive() }),
         z.object({ op: z.literal("notes"), batchId: z.number().int().positive(), notes }),
+        z.object({ op: z.literal("line_notes"), lineId: z.number().int().positive(), notes: itemNote }),
       ]),
     )
     .min(1)

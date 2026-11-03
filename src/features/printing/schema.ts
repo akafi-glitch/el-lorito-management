@@ -70,7 +70,7 @@ export const kitchenBatchRowSchema = z.object({
     /** Only on tickets made before orders moved to tables; its joined tables are named on the receipt. */
     visit: z.object({ visit_tables: z.array(z.object({ restaurant_tables: z.object({ label: z.string() }) })) }).nullable(),
   }),
-  ticket_lines: z.array(z.object({ line_no: z.number().int().positive(), item_name: z.string(), quantity: z.number().int().positive() })),
+  ticket_lines: z.array(z.object({ line_no: z.number().int().positive(), item_name: z.string(), quantity: z.number().int().positive(), notes: z.string().nullable() })),
 });
 
 export type KitchenBatchRow = z.infer<typeof kitchenBatchRowSchema>;

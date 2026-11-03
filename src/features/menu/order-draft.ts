@@ -7,12 +7,13 @@ import type { TaxCategory } from "./types";
  */
 
 export const MAX_QUANTITY = 99;
+export const ITEM_NOTE_MAX = 200;
 
 /** An item typed by the waiter: saved only on this order, never added to the menu. */
 export type CustomItem = { name: string; priceCents: number; taxCategory: TaxCategory };
 
 /** itemId is the menu item, or a negative number that only identifies a custom line on this screen. */
-export type DraftLine = { itemId: number; quantity: number; custom?: CustomItem };
+export type DraftLine = { itemId: number; quantity: number; custom?: CustomItem; note?: string };
 export type Draft = readonly DraftLine[];
 
 /** Adds one; a new item goes to the end of the order. */
@@ -32,6 +33,11 @@ export function addCustomItem(draft: Draft, custom: CustomItem, quantity: number
 export function setQuantity(draft: Draft, itemId: number, quantity: number): Draft {
   const clamped = Math.min(MAX_QUANTITY, Math.max(1, Math.trunc(quantity)));
   return draft.map((line) => (line.itemId === itemId ? { ...line, quantity: clamped } : line));
+}
+
+/** The note under one item, for the kitchen. */
+export function setItemNote(draft: Draft, itemId: number, note: string): Draft {
+  return draft.map((line) => (line.itemId === itemId ? { ...line, note } : line));
 }
 
 export function removeItem(draft: Draft, itemId: number): Draft {
