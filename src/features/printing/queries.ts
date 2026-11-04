@@ -11,7 +11,7 @@ import { kitchenBatchRowSchema } from "./schema";
 const KITCHEN_SELECT = `id, batch_no, notes,
   waiter:employees!ticket_batches_employee_id_fkey(employee_number),
   ticket:tickets!inner(ticket_number, own_table:restaurant_tables(label), visit:customer_visits(visit_tables(restaurant_tables(label)))),
-  ticket_lines(line_no, item_name, quantity, notes)`;
+  ticket_lines(line_no, item_name, quantity, notes, menu_item:menu_items(name_es))`;
 
 /** "10/27/2026 4:05 PM" in the restaurant's time zone. */
 export function formatReceiptTime(iso: string): string {

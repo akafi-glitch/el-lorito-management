@@ -63,6 +63,13 @@ export function receiptFromSnapshot(snapshot: CustomerSnapshot, formatTime: (iso
   };
 }
 
+/** "COMBO #5 (COMBINACIÓN #5)". When both names are the same, or there is no Spanish, one name is enough. */
+export function kitchenItemName(name: string, nameEs: string | null | undefined): string {
+  const english = name.toUpperCase();
+  const spanish = nameEs?.trim().toUpperCase();
+  return spanish && spanish !== english ? `${english} (${spanish})` : english;
+}
+
 /** One order -> one kitchen receipt: only this order's items, capitals for reading across a kitchen. */
 export function kitchenReceiptFromRow(row: KitchenBatchRow, isReprint: boolean, time: string): KitchenReceiptData {
   return {
@@ -79,7 +86,7 @@ export function kitchenReceiptFromRow(row: KitchenBatchRow, isReprint: boolean, 
     isReprint,
     lines: [...row.ticket_lines]
       .sort((a, b) => a.line_no - b.line_no)
-      .map((line) => ({ name: line.item_name.toUpperCase(), quantity: line.quantity, note: line.notes?.toUpperCase() ?? null })),
+      .map((line) => ({ name: kitchenItemName(line.item_name, line.menu_item?.name_es), quantity: line.quantity, note: line.notes?.toUpperCase() ?? null })),
     notes: row.notes?.toUpperCase() ?? null,
   };
 }
