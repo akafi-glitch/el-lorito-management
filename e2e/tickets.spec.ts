@@ -22,9 +22,23 @@ async function stubPrinting(page: Page) {
     };
   });
 }
+/** Keeps the receipt on the page after printing, by holding the print flow's wait, until the returned function runs. */
+async function keepReceiptOnPage(page: Page): Promise<() => Promise<void>> {
+  await page.evaluate(() => {
+    const w = window as unknown as { __keep: (() => void) | null };
+    const real = window.setTimeout.bind(window);
+    window.setTimeout = ((handler: () => void, ms?: number) => {
+      if (ms !== 1500) return real(handler, ms);
+      w.__keep = handler;
+      return 0;
+    }) as typeof window.setTimeout;
+  });
+  return async () => {
+    await page.evaluate(() => (window as unknown as { __keep: (() => void) | null }).__keep?.());
+  };
+}
 const prints = (page: Page) => page.evaluate(() => (window as unknown as { __prints: number }).__prints);
 const lastReceipt = (page: Page) => page.evaluate(() => (window as unknown as { __receipts: string[] }).__receipts.at(-1) ?? "");
-const answerYes = (page: Page) => page.click("dialog[open] button:has-text('Yes, it printed')");
 const BLUE = "rgb(29, 78, 216)";
 const GREEN = "rgb(21, 128, 61)";
 
@@ -34,7 +48,6 @@ async function tableInList(page: Page, section: string, code: string) {
   await page.selectOption("#pick-section", { label: section });
   return page.locator("nav[aria-labelledby='pick-table-heading'] a", { hasText: code });
 }
-const answerNo = (page: Page) => page.click("dialog[open] button:has-text('No, it didn')");
 
 async function ticketNumberOnScreen(page: Page): Promise<number> {
   const heading = page.locator("#saved-ticket-heading");
@@ -230,12 +243,13 @@ test.describe.serial("orders on a phone", () => {
 
       await item(page, "Lunch #3").tap();
       await page.fill("#order-notes", "No onions");
+      const letGo = await keepReceiptOnPage(page);
       // Press repeatedly: only one order may be saved and one receipt printed.
       await kitchenButton(page).tap();
-      await kitchenButton(page).tap({ force: true }).catch(() => {});
-      await kitchenButton(page).tap({ force: true }).catch(() => {});
-      await expect(page.locator("dialog[open] h2")).toHaveText("Did the kitchen receipt print?");
-      expect(await prints(page)).toBe(1); // and a stray tap doesn't dismiss the question
+      await kitchenButton(page).tap({ force: true, timeout: 500 }).catch(() => {});
+      await kitchenButton(page).tap({ force: true, timeout: 500 }).catch(() => {});
+      await expect.poll(() => prints(page)).toBe(1);
+      await expect(page.locator("dialog[open]")).toHaveCount(0); // nothing asks whether it printed
 
       const batches = await batchesOf(ticket.id);
       expect(batches).toHaveLength(before + 1);
@@ -270,12 +284,7 @@ test.describe.serial("orders on a phone", () => {
       expect(style.fontWeight).toBeGreaterThanOrEqual(700);
       expect(style.pageRule).toContain("size: 80mm auto");
 
-      await answerNo(page);
-      await expect(page.locator("dialog[open] h2")).toHaveText("The kitchen receipt didn't print");
-      await page.click("dialog[open] button:has-text('Print again')");
-      await expect(page.locator("dialog[open] h2")).toHaveText("Did the kitchen receipt print?");
-      expect(await prints(page)).toBe(2);
-      await answerYes(page);
+      await letGo();
       await expect(page.getByText("Sent to the kitchen. The order stays on the ticket.")).toBeVisible();
 
       // Printing never locks the ticket or loses anything.
@@ -307,13 +316,13 @@ test.describe.serial("orders on a phone", () => {
       await page.goto(`/waiter/01/tables/${table}`);
 
       await kitchenButton(page).tap();
-      await expect(page.locator("dialog[open] h2")).toHaveText("Did the kitchen receipt print?");
+      await expect.poll(() => prints(page)).toBe(1);
       const receipt = await lastReceipt(page);
       expect(receipt).toContain("1 × LUNCH #1");
       expect(receipt).toContain(`TICKET #${number}`);
       expect(receipt).not.toContain("COMBO");
       expect(receipt).not.toContain("LUNCH #3");
-      await answerYes(page);
+      await expect(page.getByText("Sent to the kitchen. The order stays on the ticket.")).toBeVisible();
       expect(await openTicketsAt(table)).toHaveLength(1);
       await expect(await tableInList(page, "X(1)", table)).toHaveCSS("background-color", BLUE);
     });
@@ -322,22 +331,35 @@ test.describe.serial("orders on a phone", () => {
       await stubPrinting(page);
       await page.goto(`/waiter/01/tables/${table}`);
       await page.getByRole("button", { name: "Reprint order 1 for the kitchen" }).tap();
-      await expect(page.locator("dialog[open] h2")).toHaveText("Did the kitchen receipt print?");
+      await expect.poll(() => prints(page)).toBe(1);
       expect(await lastReceipt(page)).toContain("REPRINT");
-      await answerYes(page);
+      await expect(page.locator("dialog[open]")).toHaveCount(0);
+      await expect(page.getByRole("button", { name: "Reprint order 2 for the kitchen" })).toBeEnabled();
+      await expect(page.getByRole("button", { name: "Reprint order 1 for the kitchen" })).toBeEnabled();
     });
 
-    test("customer receipt: everything saved, taxes, thermal width; a failed print doesn't finalize", async ({ page }) => {
+    test("the bill can't be printed over an unsaved order", async ({ page }) => {
+      await page.goto(`/waiter/01/tables/${table}`);
+      await item(page, "Lunch #2").tap();
+      await expect(customerButton(page)).toBeDisabled();
+      await expect(page.getByText("Save the new order first")).toBeVisible();
+      await page.tap("button[aria-label='Remove Lunch #2']");
+      await expect(customerButton(page)).toBeEnabled();
+    });
+
+    test("printing finalizes and resets the table, with everything on the receipt: the receipt reprints exactly, and the next order is a new ticket", async ({ page }) => {
       await stubPrinting(page);
       await page.goto(`/waiter/01/tables/${table}`);
       const number = await ticketNumberOnScreen(page);
-      const ticket = await ticketByNumber(number);
-      const totalBefore = await ticketTotal(number);
+      const total = await ticketTotal(number);
 
+      const ticket = await ticketByNumber(number);
+      const letGo = await keepReceiptOnPage(page);
       await customerButton(page).tap();
-      await expect(page.locator("dialog[open] h2")).toHaveText("Did the customer receipt print?");
-      await expect(page.locator("dialog[open]")).toContainText("Yes finalizes this ticket and resets the table");
-      const receipt = await lastReceipt(page);
+      await expect.poll(() => prints(page)).toBe(1);
+      await expect(page.locator("dialog[open]")).toHaveCount(0); // nothing asks whether it printed
+      const printed = await lastReceipt(page);
+      const receipt = printed;
       for (const part of ["EL LORITO", `TICKET #${number}`, "WAITER: 01", `TABLE: ${table}`, "TIME: ", "2 × Combo #5", "$18.80", "@ 9.40 each", "2 × House tequila shot", "1 × Horchata", "Food Subtotal", "Liquor Subtotal", "Food Tax (8.5%)", "Liquor Tax (10.5%)", "TOTAL", "THANK YOU!"]) {
         expect(receipt).toContain(part);
       }
@@ -351,45 +373,10 @@ test.describe.serial("orders on a phone", () => {
       });
       await page.emulateMedia({ media: "screen" });
       expect(width).toEqual({ display: "block", width: "80mm" });
+      await letGo();
 
-      // Opening the dialog changed nothing.
-      expect((await ticketByNumber(number)).status).toBe("open");
-
-      await answerNo(page);
-      expect((await ticketByNumber(number)).status).toBe("open");
-      await page.click("dialog[open] button:has-text('Back')");
-      expect((await printAttempts(ticket.id)).at(-1)?.outcome).toBe("not_printed");
-
-      // Leaving the question unanswered doesn't finalize either.
-      await customerButton(page).tap();
-      await expect(page.locator("dialog[open] h2")).toHaveText("Did the customer receipt print?");
-      await page.keyboard.press("Escape");
-      await expect(page.locator("dialog[open]")).toHaveCount(0);
-      expect((await ticketByNumber(number)).status).toBe("open");
-      expect((await printAttempts(ticket.id)).at(-1)?.outcome).toBe("unknown");
-      expect(await ticketTotal(number)).toBe(totalBefore);
-    });
-
-    test("the bill can't be printed over an unsaved order", async ({ page }) => {
-      await page.goto(`/waiter/01/tables/${table}`);
-      await item(page, "Lunch #2").tap();
-      await expect(customerButton(page)).toBeDisabled();
-      await expect(page.getByText("Save the new order first")).toBeVisible();
-      await page.tap("button[aria-label='Remove Lunch #2']");
-      await expect(customerButton(page)).toBeEnabled();
-    });
-
-    test("Yes finalizes and resets the table: the receipt reprints exactly, and the next order is a new ticket", async ({ page }) => {
-      await stubPrinting(page);
-      await page.goto(`/waiter/01/tables/${table}`);
-      const number = await ticketNumberOnScreen(page);
-      const total = await ticketTotal(number);
-
-      await customerButton(page).tap();
-      await expect(page.locator("dialog[open] h2")).toHaveText("Did the customer receipt print?");
-      const printed = await lastReceipt(page);
-      await answerYes(page);
       await expect(page.getByText(`Ticket #${number} is finalized. The table is ready for a new order.`)).toBeVisible();
+      expect((await printAttempts(ticket.id)).at(-1)?.outcome).toBe("printed");
 
       const final = await ticketByNumber(number);
       expect(final.status).toBe("finalized");
@@ -416,10 +403,10 @@ test.describe.serial("orders on a phone", () => {
       await page.reload();
       await page.locator(`a[aria-label^='Ticket ${number},']`).tap();
       await page.getByRole("button", { name: "Reprint Customer Receipt" }).tap();
-      await expect(page.locator("dialog[open] h2")).toHaveText("Did the copy of the receipt print?");
+      await expect.poll(() => prints(page)).toBe(1);
       const copy = await lastReceipt(page);
       expect(copy.replace("COPY", "")).toBe(printed);
-      await answerYes(page);
+      await expect(page.getByRole("button", { name: "Reprint Customer Receipt" })).toBeEnabled();
       await setItem("Combo #5", 940, true);
       await setTaxRate("food", 850);
       expect(await ticketTotal(number)).toBe(total);

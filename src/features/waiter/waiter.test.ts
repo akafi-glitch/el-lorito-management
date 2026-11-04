@@ -106,6 +106,8 @@ describe("section assignments", () => {
 
   it("a waiter with no section still gets every table", () => {
     expect(assignedSections(sections, { id: 99 }, waiters)).toEqual([]);
+    const mine = assignedSections(sections, kafi, waiters);
+    expect(mine[0]?.tables.map((table) => table.code)).toContain("X4"); // with their tables, ready to show
     expect(sections.length).toBe(8);
   });
 });

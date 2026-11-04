@@ -214,6 +214,14 @@ halfway through a save. No table rows change.
 Adds `ticket_lines.notes` (optional, up to 200 characters; existing lines have none). In `save_table_order` a line
 may carry `notes`, and `change_ticket` gains the change `line_notes`. Locked tickets refuse these like any other change.
 
+### Manager approval (`20261107010000_manager_approval`, Nov 4, 2026)
+
+`change_ticket` and `cancel_order` gain `p_approved_by` and refuse with `manager_approval_required` when, without it, a
+line of an order with `kitchen_printed_at` would be removed or lowered, or a ticket with such an order cancelled.
+`approving_manager(id)` refuses anyone but an active manager with a PIN on (`pin_not_allowed`). `pin_approve(number, user)`
+records a right PIN and clears the tries. Audit event `pin_approved`; `ticket_changed` and `ticket_cancelled` name the
+manager. No table rows change.
+
 ### PIN gate (`20261106010000_pin_gate`, Nov 2, 2026)
 
 | Object | Purpose | Key rules |

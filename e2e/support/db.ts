@@ -203,15 +203,16 @@ export async function finalizeTicket(ticketId: number, employeeId: number) {
 export async function cancelTicket(ticketId: number, employeeId: number) {
   const { data, error } = await db().from("tickets").select("version").eq("id", ticketId).single();
   if (error) throw error;
-  await rpc("cancel_order", { p_ticket_id: ticketId, p_expected_version: data.version, p_employee_id: employeeId, p_actor: null });
+  await rpc("cancel_order", { p_ticket_id: ticketId, p_expected_version: data.version, p_employee_id: employeeId, p_actor: null, p_approved_by: await employee(MANAGER.number, "Test Manager", "manager") });
 }
 
 /** Cancels whatever earlier runs left open at these tables, so each starts with a fresh order. */
 export async function cancelOpenOrders(codes: string[]) {
   const staff = await employee("99", "Test cleanup", "waiter");
+  const manager = await employee(MANAGER.number, "Test Manager", "manager");
   for (const code of codes) {
     for (const ticket of await openTicketsAt(code)) {
-      await rpc("cancel_order", { p_ticket_id: ticket.id, p_expected_version: ticket.version, p_employee_id: staff, p_actor: null });
+      await rpc("cancel_order", { p_ticket_id: ticket.id, p_expected_version: ticket.version, p_employee_id: staff, p_actor: null, p_approved_by: manager });
     }
   }
 }

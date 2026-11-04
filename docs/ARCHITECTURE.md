@@ -125,7 +125,7 @@ Browser printing, no printer driver code: the receipt is a small block placed di
 `<body>` that is hidden on screen; in print mode `globals.css` hides everything else and an
 `@page` rule sets the paper width. The order is always: the server records the attempt in the
 database, the receipt is built from what the database stored, then `window.print()` opens the dialog, then
-the waiter answers "Did it print?". Only a Yes to a customer receipt finalizes the ticket, in the database, using
+the print is saved as done with no question. A customer receipt finalizes the ticket, in the database, using
 that attempt's stored bill. The print actions don't refresh the page, so the question stays on screen; the page
 refreshes when the waiter is done.
 

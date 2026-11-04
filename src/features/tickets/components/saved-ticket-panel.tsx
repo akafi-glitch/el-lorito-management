@@ -9,6 +9,7 @@ import { TotalsBlock } from "@/features/billing/components/totals-block";
 import { computeTotals } from "@/features/billing/tax";
 import { formatCents } from "@/features/menu/money";
 import { ITEM_NOTE_MAX, MAX_QUANTITY } from "@/features/menu/order-draft";
+import { ManagerApproval } from "@/features/pin/components/manager-approval";
 import { printCustomerAction, printKitchenAction } from "@/features/printing/actions";
 import { PrintFlow, type PrintStart } from "@/features/printing/components/print-flow";
 
@@ -29,6 +30,9 @@ type SavedTicketPanelProps = {
 
 const OFFLINE = "Couldn't reach the server. Nothing was changed. Check the connection, then try again.";
 
+/** Something the kitchen already has is coming off: a manager has to approve it. */
+type Approval = { title: string; text: string; confirmLabel: string; send: (managerNumber: string, pin: string) => Promise<ChangeTicketResult>; done: string };
+
 /** The note being edited: on a whole order, or on one item. */
 type NoteTarget = { kind: "order"; batch: SavedBatch } | { kind: "item"; line: SavedLine };
 const KITCHEN_DOT: Record<SavedBatch["kitchen"], string> = {
@@ -48,6 +52,7 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
   const [editingNote, setEditingNote] = useState<NoteTarget | null>(null);
   const [noteText, setNoteText] = useState("");
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [approval, setApproval] = useState<Approval | null>(null);
   /** What this screen has changed that the saved ticket doesn't show yet. Null quantity: removed. */
   const [shown, setShown] = useState<ReadonlyMap<number, number | null>>(new Map());
 
@@ -109,6 +114,64 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
     send([{ op: "quantity", lineId: line.lineId, quantity }]);
   }
 
+  /** After the changes already on their way, so it starts from the version they leave. */
+  function askManager(ask: Omit<Approval, "send"> & { send: (version: number, manager: { managerNumber: string; pin: string }) => Promise<ChangeTicketResult> }) {
+    onNotice(null);
+    setApproval({
+      ...ask,
+      send: async (managerNumber, pin) => {
+        await queue.current;
+        return ask.send(version.current, { managerNumber, pin });
+      },
+    });
+  }
+
+  async function sendApproved(managerNumber: string, pin: string): Promise<string | null> {
+    if (!approval) return null;
+    const result = await approval.send(managerNumber, pin);
+    if (!result.ok) {
+      if (result.reload) onChanged();
+      return result.message;
+    }
+    version.current = result.version;
+    onNotice({ tone: "ok", text: approval.done });
+    setApproval(null);
+    onChanged();
+    return null;
+  }
+
+  function lowerPrinted(line: SavedLine) {
+    askManager({
+      title: `Take one ${line.name} off?`,
+      text: `The kitchen already has this order. A manager's PIN is needed to go from ${line.quantity} to ${line.quantity - 1}. Tell the kitchen too.`,
+      confirmLabel: "Approve",
+      done: `${line.name} changed. Tell the kitchen.`,
+      send: (current, manager) =>
+        changeTicketAction({ employeeNumber, ticketId: ticket.id, version: current, changes: [{ op: "quantity", lineId: line.lineId, quantity: line.quantity - 1 }] }, manager),
+    });
+  }
+
+  function removePrinted(line: SavedLine) {
+    askManager({
+      title: `Remove ${line.name}?`,
+      text: "The kitchen already has this order. A manager's PIN is needed to take it off the bill. Tell the kitchen too.",
+      confirmLabel: "Approve and remove",
+      done: `${line.name} removed. Tell the kitchen.`,
+      send: (current, manager) =>
+        changeTicketAction({ employeeNumber, ticketId: ticket.id, version: current, changes: [{ op: "remove", lineId: line.lineId }] }, manager),
+    });
+  }
+
+  function cancelPrinted() {
+    askManager({
+      title: `Cancel ticket #${ticket.number}?`,
+      text: "The kitchen already has part of this ticket. A manager's PIN is needed to cancel it. It stays in the history, marked cancelled, and this can't be undone.",
+      confirmLabel: "Approve and cancel",
+      done: `Ticket #${ticket.number} cancelled. Tell the kitchen.`,
+      send: (current, manager) => cancelTicketAction({ employeeNumber, ticketId: ticket.id, version: current }, manager),
+    });
+  }
+
   function removeLine(line: SavedLine) {
     setRemoving(null);
     onNotice(null);
@@ -152,8 +215,6 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
     return {
       job: {
         attemptIds: [result.attemptId],
-        title: result.isCopy ? "the copy of the receipt" : "the customer receipt",
-        question: result.isCopy ? "" : "Yes finalizes this ticket and resets the table for a new order.",
         content: { kind: "customer", receipt: result.receipt, isCopy: result.isCopy },
       },
     };
@@ -165,7 +226,7 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
       if (result.reload) onChanged();
       return { message: result.message };
     }
-    return { job: { attemptIds: result.attemptIds, title: "the kitchen receipt", question: "", content: { kind: "kitchen", receipts: result.receipts } } };
+    return { job: { attemptIds: result.attemptIds, content: { kind: "kitchen", receipts: result.receipts } } };
   }
 
   return (
@@ -210,20 +271,23 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
                           type="button"
                           aria-label={`One fewer saved ${line.name}`}
                           disabled={line.quantity <= 1}
-                          onClick={() => changeQuantity(line, line.quantity - 1)}
+                          onClick={() => (batch.kitchen === "printed" ? lowerPrinted(line) : changeQuantity(line, line.quantity - 1))}
                           className="flex size-11 items-center justify-center rounded-lg border border-glaze text-xl font-bold text-leaf hover:border-leaf active:scale-95 disabled:opacity-40"
                         >
                           −
                         </button>
-                        <button
-                          type="button"
-                          aria-label={`One more saved ${line.name}`}
-                          disabled={line.quantity >= MAX_QUANTITY}
-                          onClick={() => changeQuantity(line, line.quantity + 1)}
-                          className="flex size-11 items-center justify-center rounded-lg border border-glaze text-xl font-bold text-leaf hover:border-leaf active:scale-95 disabled:opacity-40"
-                        >
-                          +
-                        </button>
+                        {/* The kitchen wouldn't hear about more of a printed order: more goes in a new order, from the menu. */}
+                        {batch.kitchen === "printed" ? null : (
+                          <button
+                            type="button"
+                            aria-label={`One more saved ${line.name}`}
+                            disabled={line.quantity >= MAX_QUANTITY}
+                            onClick={() => changeQuantity(line, line.quantity + 1)}
+                            className="flex size-11 items-center justify-center rounded-lg border border-glaze text-xl font-bold text-leaf hover:border-leaf active:scale-95 disabled:opacity-40"
+                          >
+                            +
+                          </button>
+                        )}
                       </div>
                       <div className="flex items-center gap-1">
                         <button
@@ -240,7 +304,7 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
                         <button
                           type="button"
                           aria-label={`Remove saved ${line.name}`}
-                          onClick={() => setRemoving(line)}
+                          onClick={() => (batch.kitchen === "printed" ? removePrinted(line) : setRemoving(line))}
                           className="min-h-11 rounded-lg px-3 font-semibold text-danger hover:bg-danger/10"
                         >
                           Remove
@@ -300,7 +364,7 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
             start={startCustomerPrint}
             onError={(text) => onNotice({ tone: "error", text })}
             onDone={(printed) => {
-              if (printed && editable) onNotice({ tone: "ok", text: `Ticket #${ticket.number} is finalized. The table is ready for a new order.` });
+              if (printed && editable) onNotice({ tone: "ok", text: `Ticket #${ticket.number} is finalized. The table is ready for a new order. To print it again, open it under Earlier tickets.` });
               onChanged();
             }}
           />
@@ -311,7 +375,7 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
       {editable ? (
         <button
           type="button"
-          onClick={() => setConfirmCancel(true)}
+          onClick={() => (batches.some((batch) => batch.kitchen === "printed") ? cancelPrinted() : setConfirmCancel(true))}
           className="mt-3 min-h-12 w-full rounded-lg font-semibold text-danger hover:bg-danger/10"
         >
           Cancel this ticket
@@ -320,9 +384,7 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
 
       {removing ? (
         <Modal title={`Remove ${removing.name}?`} onClose={() => setRemoving(null)}>
-          <p className="text-lg text-ink">
-            It comes off the bill. If the kitchen already has it, tell them.
-          </p>
+          <p className="text-lg text-ink">It comes off the bill.</p>
           <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
             <button type="button" className={buttonClasses("secondary")} onClick={() => setRemoving(null)}>
               Keep it
@@ -359,6 +421,16 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
             </button>
           </div>
         </Modal>
+      ) : null}
+
+      {approval ? (
+        <ManagerApproval
+          title={approval.title}
+          text={approval.text}
+          confirmLabel={approval.confirmLabel}
+          submit={sendApproved}
+          onClose={() => setApproval(null)}
+        />
       ) : null}
 
       {confirmCancel ? (

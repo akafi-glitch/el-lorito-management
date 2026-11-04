@@ -60,6 +60,9 @@ database and runs every database test against it.
 | Finalizing, failed or cancelled printing, reprints, nothing can change | | `order_batches.test.sql`, `tickets.test.sql` | `tickets.spec.ts`; races 7, 8 |
 | Finish shift: names open tickets, closes the Waiter Section at once, refuses new orders, keeps everything, opens again on a new shift | `tickets.test.ts` | `finish_shift.test.sql`, race tests 10 and 11 | `finish-shift.spec.ts` |
 | Sign-in failures say the real reason; signing out affects only this device | `actions.test.ts` | | `auth.spec.ts` |
+| Own tables first, other sections on request | `waiter.test.ts` | | `waiter.spec.ts` |
+| Printing asks nothing and saves; reprints | | `printing.test.sql` | `tickets.spec.ts` |
+| Manager PIN to remove, lower, or cancel what the kitchen has; adding needs none | `tickets.test.ts` | `manager_approval.test.sql` | `manager-approval.spec.ts` |
 | PIN gate: both areas and a ticket by address, generic error, lockout, 15 minutes and 12 hours, Lock, cookie flags, audit, the rest needs no PIN | `pin.test.ts` | `pin_gate.test.sql`, `hardening.test.sql`, race test 12 | `pin-gate.spec.ts` |
 | Shift Report: only sold tickets, right total, open tickets named apart, prints numbers and totals only | `history.test.ts` | | `shift-report.spec.ts` |
 | Item notes: each item keeps its own, edited on the saved ticket, on the kitchen receipt, never on the customer's | `menu.test.ts`, `printing.test.ts` | `item_notes.test.sql` | `tickets.spec.ts` |
@@ -67,7 +70,7 @@ database and runs every database test against it.
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 3, 2026:** 334 unit tests, 560 database checks, 13 race tests, 87 browser tests.
+**Results, Nov 4, 2026:** 337 unit tests, 586 database checks, 13 race tests, 94 browser tests.
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for
