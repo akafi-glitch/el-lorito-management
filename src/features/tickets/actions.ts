@@ -15,10 +15,12 @@ import {
   changeTicketSchema,
   managerApprovalSchema,
   saveOrderSchema,
+  saveToGoOrderSchema,
   type CancelTicketInput,
   type ChangeTicketInput,
   type ManagerApprovalInput,
   type SaveOrderInput,
+  type SaveToGoOrderInput,
 } from "./schema";
 
 /**
@@ -34,18 +36,23 @@ export type SaveOrderResult =
 
 export type ChangeTicketResult = { ok: true; message: string; version: number } | { ok: false; message: string; reload: boolean };
 
-const savedRows = z
-  .array(
-    z.object({
-      ticket_id: z.number().int().positive(),
-      ticket_number: z.number().int().positive(),
-      version: z.number().int().positive(),
-      batch_id: z.number().int().positive(),
-      batch_no: z.number().int().positive(),
-      already_saved: z.boolean(),
-    }),
-  )
-  .length(1);
+const savedRow = z.object({
+  ticket_id: z.number().int().positive(),
+  ticket_number: z.number().int().positive(),
+  version: z.number().int().positive(),
+  batch_id: z.number().int().positive(),
+  batch_no: z.number().int().positive(),
+  already_saved: z.boolean(),
+});
+const savedRows = z.array(savedRow).length(1);
+
+function orderLinesForDatabase(lines: z.output<typeof saveOrderSchema>["lines"]) {
+  return lines.map((line) =>
+    "itemId" in line
+      ? { item_id: line.itemId, quantity: line.quantity, notes: line.notes }
+      : { name: line.name, price_cents: line.priceCents, tax_category: line.taxCategory, quantity: line.quantity, notes: line.notes },
+  );
+}
 
 async function activeEmployeeId(employeeNumber: string): Promise<{ id: number } | { message: string }> {
   const employee = await findEmployeeByNumber(employeeNumber);
@@ -78,11 +85,7 @@ export async function saveOrderAction(input: SaveOrderInput): Promise<SaveOrderR
     p_table_code: tableCode,
     p_employee_id: employee.id,
     p_client_key: clientKey,
-    p_lines: lines.map((line) =>
-      "itemId" in line
-        ? { item_id: line.itemId, quantity: line.quantity, notes: line.notes }
-        : { name: line.name, price_cents: line.priceCents, tax_category: line.taxCategory, quantity: line.quantity, notes: line.notes },
-    ),
+    p_lines: orderLinesForDatabase(lines),
     p_notes: notes,
     p_time_zone: serverEnv().APP_TIME_ZONE,
     p_actor: user.userId,
@@ -100,6 +103,41 @@ export async function saveOrderAction(input: SaveOrderInput): Promise<SaveOrderR
     version: row.version,
     batchId: row.batch_id,
     batchNo: row.batch_no,
+  };
+}
+
+/** A new to-go order. It answers with the spot it got, because the screen moves to that spot's page. */
+export async function saveToGoOrderAction(input: SaveToGoOrderInput): Promise<SaveOrderResult & { tableCode?: string }> {
+  const user = await requireActiveUser();
+  const parsed = saveToGoOrderSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, message: parsed.error.issues[0]?.message ?? "Check the order.", reload: false };
+
+  const { employeeNumber, clientKey, lines, notes } = parsed.data;
+  const employee = await activeEmployeeId(employeeNumber);
+  if ("message" in employee) return { ok: false, message: employee.message, reload: false };
+
+  const { data, error } = await createAdminClient().rpc("save_to_go_order", {
+    p_employee_id: employee.id,
+    p_client_key: clientKey,
+    p_lines: orderLinesForDatabase(lines),
+    p_notes: notes,
+    p_time_zone: serverEnv().APP_TIME_ZONE,
+    p_actor: user.userId,
+  });
+  if (error) return { ok: false, message: ticketErrorMessage(error), reload: shouldReload(error) };
+
+  const saved = z.array(savedRow.extend({ table_code: z.string() })).length(1).safeParse(data);
+  if (!saved.success) return { ok: false, message: "The order was saved but couldn't be shown. Refresh the page.", reload: true };
+  const row = saved.data[0]!;
+  return {
+    ok: true,
+    message: `Order saved on ticket #${row.ticket_number}.`,
+    ticketId: row.ticket_id,
+    ticketNumber: row.ticket_number,
+    version: row.version,
+    batchId: row.batch_id,
+    batchNo: row.batch_no,
+    tableCode: row.table_code,
   };
 }
 

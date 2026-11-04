@@ -9,6 +9,8 @@ export function ticketErrorMessage(error: DbError): string {
   switch (error.message) {
     case "restaurant_closed":
       return RESTAURANT_CLOSED_TEXT;
+    case "to_go_full":
+      return "All 30 to-go spots have an open order. Finish or cancel one first.";
     case "manager_approval_required":
       return "The kitchen already has this order, so a manager's PIN is needed to take anything off it. The page has been refreshed.";
     case "pin_not_allowed":

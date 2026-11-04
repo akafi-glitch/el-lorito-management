@@ -9,6 +9,7 @@
  * - A table with a saved order still needing its kitchen receipt is green. Once every order's receipt is
  *   confirmed printed it is blue, until the ticket is finished.
  * - Between shifts the restaurant is closed: nobody enters until a manager starts a shift.
+ * - To-go orders start from the section dropdown and go straight to the menu, with no table to choose.
  */
 
 import type { FloorMap } from "@/features/floor/layout";
@@ -71,6 +72,11 @@ export function waiterPath(employee: Pick<EmployeeRef, "number">): string {
 }
 
 /** A table's page for this waiter. */
+/** The page for a new to-go order. */
+export function toGoPath(basePath: string): string {
+  return `${basePath}/to-go`;
+}
+
 export function tablePath(basePath: string, tableCode: string): string {
   return `${basePath}/tables/${encodeURIComponent(tableCode)}`;
 }

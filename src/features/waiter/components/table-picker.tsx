@@ -1,13 +1,16 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { buttonClasses } from "@/components/ui/button";
 import { fetchMenuData } from "@/features/menu/use-menu-data";
 import { KITCHEN_MARK_TEXT } from "@/features/tickets/rules";
 
-import { tablePath, type PickerSection } from "../rules";
+import { tablePath, toGoPath, type PickerSection } from "../rules";
+
+const TO_GO_OPTION = "to-go-order";
 
 type TablePickerProps = {
   /** The sections a manager gave this waiter this shift, with their tables. */
@@ -45,6 +48,7 @@ function TableGrid({ tables, basePath }: { tables: PickerSection["tables"]; base
 
 /** The waiter's own tables, straight away. Another section is one tap further, for anyone. */
 export function TablePicker({ mine, others, basePath, menuVersion }: TablePickerProps) {
+  const router = useRouter();
   const [wantsOther, setWantsOther] = useState(false);
   const [sectionCode, setSectionCode] = useState("");
   const section = others.find((candidate) => candidate.code === sectionCode);
@@ -96,7 +100,10 @@ export function TablePicker({ mine, others, basePath, menuVersion }: TablePicker
               id="pick-section"
               className="min-h-14 w-full rounded-xl border-2 border-glaze bg-paper px-4 text-lg font-semibold text-ink focus:border-leaf focus:outline-none"
               value={sectionCode}
-              onChange={(event) => setSectionCode(event.target.value)}
+              onChange={(event) => {
+                if (event.target.value === TO_GO_OPTION) router.push(toGoPath(basePath));
+                else setSectionCode(event.target.value);
+              }}
             >
               <option value="">Choose a section…</option>
               {others.map((candidate) => (
@@ -104,6 +111,7 @@ export function TablePicker({ mine, others, basePath, menuVersion }: TablePicker
                   {candidate.name}
                 </option>
               ))}
+              <option value={TO_GO_OPTION}>To-Go Order</option>
             </select>
           </div>
 

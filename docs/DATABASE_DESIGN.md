@@ -222,6 +222,12 @@ line of an order with `kitchen_printed_at` would be removed or lowered, or a tic
 records a right PIN and clears the tries. Audit event `pin_approved`; `ticket_changed` and `ticket_cancelled` name the
 manager. No table rows change.
 
+### To-go orders (`20261109010000_to_go_orders`, Nov 4, 2026)
+
+Adds floor area and section `TOGO` with 30 `restaurant_tables` (`TOGO-1` to `TOGO-30`), which the app leaves out of the Floor
+and the staff board. `save_to_go_order(employee, key, lines, notes, time zone, actor)` takes the first spot with no open
+ticket, one caller at a time, and calls `save_table_order`. It refuses with `to_go_full` when all are taken.
+
 ### Spanish names (`20261108010000_menu_spanish`, Nov 4, 2026)
 
 Adds `menu_items.name_es`, filled for every item. Kitchen receipts read it through the line's `menu_item_id`; saved tickets

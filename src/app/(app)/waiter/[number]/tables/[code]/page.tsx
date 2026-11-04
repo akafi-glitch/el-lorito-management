@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionShell } from "@/components/section-shell";
+import { TO_GO_SECTION } from "@/features/floor/layout";
 import { buttonClasses } from "@/components/ui/button";
 import { ReprintButton } from "@/features/printing/components/reprint-button";
 import { employeeLabel } from "@/features/staff/rules";
@@ -75,7 +76,7 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
   const selected = wanted?.success ? (others.find((t) => t.number === wanted.data) ?? null) : null;
 
   return shell(
-    `Table ${table.label}`,
+    table.section_code === TO_GO_SECTION ? table.label : `Table ${table.label}`,
     <div className="flex flex-col gap-6">
       {mark ? (
         <p className={`self-start rounded-lg px-3 py-1.5 text-base font-bold text-white ${mark === "printed" ? "bg-status-kitchen" : "bg-status-saved"}`}>

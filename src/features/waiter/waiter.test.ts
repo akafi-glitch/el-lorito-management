@@ -8,7 +8,7 @@ import type { EmployeeRef } from "@/features/staff/rules";
 
 import fixture from "../../../tests/fixtures/floor-rows.json";
 
-import { assignedSections, cleanTypedNumber, lookupResult, pickerSections, tablePath, waiterPath, type WaiterBySection } from "./rules";
+import { assignedSections, cleanTypedNumber, lookupResult, pickerSections, tablePath, toGoPath, waiterPath, type WaiterBySection } from "./rules";
 import { employeeNumberSchema, tableCodeSchema } from "./schema";
 
 const rows = {
@@ -123,5 +123,11 @@ describe("links", () => {
     expect(tableCodeSchema.safeParse("BAR-2").success).toBe(true);
     expect(tableCodeSchema.safeParse("x10").success).toBe(false);
     expect(tableCodeSchema.safeParse("../etc").success).toBe(false);
+  });
+});
+
+describe("the to-go page", () => {
+  it("sits under the waiter's own link", () => {
+    expect(toGoPath("/waiter/01")).toBe("/waiter/01/to-go");
   });
 });

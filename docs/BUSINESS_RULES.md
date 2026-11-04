@@ -90,6 +90,11 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   sections a manager gave them this shift, with no section to choose. **Want to take order from another section?**
   opens a dropdown of every other section, and nothing limits a waiter to their own: this is flexibility for everyone.
   With no section given, the dropdown is there straight away. Assignments end with the shift.
+- **To-go orders (owner decision, Nov 4, 2026):** **To-Go Order** at the end of the section dropdown goes straight to the
+  menu, with no table to choose. Saving takes the first free to-go spot (To-Go 1 to To-Go 30), so customers' orders stay
+  apart and receipts and the history name the spot. Open to-go orders are listed on that page to get back to. After that
+  it works like any table: kitchen and customer receipts, notes, manager's PIN, and the same prices and tax. A spot is
+  free again once its ticket is finalized or cancelled. The spots never appear on the Floor or the staff board.
 - **Separate from the Floor (owner decision, Nov 2, 2026):** the Waiter Section never looks at whether a table
   is vacant, seated, or closed, or how many guests there are, and never asks. Orders don't seat anyone, change
   the chips, or move the rotation. Seating, chips, and clearing on the Floor never change an order. Both sides

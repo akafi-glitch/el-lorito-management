@@ -5,7 +5,7 @@ import { z } from "zod";
 
 import { createAdminClient } from "@/lib/supabase/admin";
 
-import { buildFloorMap, type FloorMap, type SectionStaff } from "./layout";
+import { buildFloorMap, TO_GO_SECTION, type FloorMap, type SectionStaff } from "./layout";
 import {
   assignmentLabelRowSchema,
   combinationRowSchema,
@@ -26,10 +26,11 @@ const loadFloorLayout = unstable_cache(
   async () => {
     const db = createAdminClient();
     const [areas, tables, combinations] = await Promise.all([
-      db.from("floor_areas").select("code, name, floor_row, floor_col, row_span, col_span, sort_order"),
+      db.from("floor_areas").select("code, name, floor_row, floor_col, row_span, col_span, sort_order").neq("code", TO_GO_SECTION),
       db
         .from("restaurant_tables")
-        .select("id, code, label, section_code, capacity, area_code, layout_row, layout_col, sort_order, is_active"),
+        .select("id, code, label, section_code, capacity, area_code, layout_row, layout_col, sort_order, is_active")
+        .neq("section_code", TO_GO_SECTION),
       db
         .from("table_combinations")
         .select("id, code, label, allows_over_twelve, is_active, sort_order, table_combination_members(table_id)"),
@@ -43,7 +44,7 @@ const loadFloorLayout = unstable_cache(
       combinations: z.array(combinationRowSchema).parse(combinations.data),
     };
   },
-  ["floor-layout-v2"],
+  ["floor-layout-v3"],
   { revalidate: 60 },
 );
 
@@ -56,7 +57,7 @@ export async function loadFloorMap(): Promise<FloorMap> {
 
   const [layout, sections, openTables, nextSection, rotation, assignments] = await Promise.all([
     loadFloorLayout(),
-    db.from("sections").select("code, name, kind, rotation_order, is_open, open_to_all_waiters, sort_order"),
+    db.from("sections").select("code, name, kind, rotation_order, is_open, open_to_all_waiters, sort_order").neq("code", TO_GO_SECTION),
     db
       .from("visit_tables")
       .select("table_id, visit_id, customer_visits!inner(id, version, guest_count, chips_status, cleared_at)")

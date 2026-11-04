@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { TO_GO_SECTION } from "@/features/floor/layout";
 import { serverEnv } from "@/lib/env";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -78,7 +79,7 @@ export async function loadStaffBoard(): Promise<StaffBoard> {
   const db = createAdminClient();
   const [shift, sections, assignments, employees, rotation, nextSection, openTickets] = await Promise.all([
     db.from("shifts").select("id, started_at").is("ended_at", null).maybeSingle(),
-    db.from("sections").select("code, name, open_to_all_waiters, sort_order"),
+    db.from("sections").select("code, name, open_to_all_waiters, sort_order").neq("code", TO_GO_SECTION),
     db.from("current_assignments").select("section_code, duty, employee_id"),
     loadEmployees(),
     db.rpc("current_rotation"),

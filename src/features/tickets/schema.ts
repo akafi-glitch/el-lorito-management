@@ -109,6 +109,10 @@ export const saveOrderSchema = z.object({
 
 export type SaveOrderInput = z.input<typeof saveOrderSchema>;
 
+/** A new to-go order: the database chooses its spot. */
+export const saveToGoOrderSchema = saveOrderSchema.omit({ tableCode: true });
+export type SaveToGoOrderInput = z.input<typeof saveToGoOrderSchema>;
+
 export const changeTicketSchema = z.object({
   employeeNumber,
   ticketId: z.number().int().positive(),
