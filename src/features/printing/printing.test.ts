@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { printErrorMessage } from "./errors";
-import { kitchenReceiptFromRow, printableWidthMm, receiptFromSnapshot, RESTAURANT } from "./receipt";
+import { kitchenItemName, kitchenReceiptFromRow, printableWidthMm, receiptFromSnapshot, RESTAURANT } from "./receipt";
 import {
   customerAttemptRowsSchema,
   customerSnapshotSchema,
@@ -47,8 +47,8 @@ const kitchenRow: KitchenBatchRow = {
     visit: { visit_tables: [{ restaurant_tables: { label: "X8" } }, { restaurant_tables: { label: "X6" } }, { restaurant_tables: { label: "X7" } }] },
   },
   ticket_lines: [
-    { line_no: 2, item_name: "Beef tacos", quantity: 3, notes: "Extra salsa" },
-    { line_no: 1, item_name: "Chicken fajitas", quantity: 2, notes: null },
+    { line_no: 2, item_name: "Beef tacos", quantity: 3, notes: "Extra salsa", menu_item: { name_es: "Tacos de res" } },
+    { line_no: 1, item_name: "Chicken fajitas", quantity: 2, notes: null, menu_item: { name_es: "Fajitas de pollo" } },
   ],
 };
 
@@ -99,6 +99,28 @@ describe("the customer receipt", () => {
   });
 });
 
+describe("Spanish names on the kitchen receipt", () => {
+  it("come in brackets, in capitals, with their accents", () => {
+    expect(kitchenItemName("Combo #5", "Combinación #5")).toBe("COMBO #5 (COMBINACIÓN #5)");
+    expect(kitchenItemName("Jarritos pineapple", "Jarritos de piña")).toBe("JARRITOS PINEAPPLE (JARRITOS DE PIÑA)");
+  });
+
+  it("are left out when they would only repeat the name", () => {
+    expect(kitchenItemName("Taco", "Taco")).toBe("TACO");
+    expect(kitchenItemName("Chile con queso", "Chile con queso")).toBe("CHILE CON QUESO");
+  });
+
+  it("are left out for a custom item, which has none", () => {
+    expect(kitchenItemName("Birthday flan", null)).toBe("BIRTHDAY FLAN");
+    expect(kitchenItemName("Birthday flan", undefined)).toBe("BIRTHDAY FLAN");
+    expect(kitchenReceiptFromRow({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Birthday flan", quantity: 1, notes: null, menu_item: null }] }, false, "x").lines[0]?.name).toBe("BIRTHDAY FLAN");
+  });
+
+  it("are not on the customer's bill: it has only the saved English name", () => {
+    expect(JSON.stringify(receiptFromSnapshot(snapshot, () => "x"))).not.toMatch(/combinaci/i);
+  });
+});
+
 describe("the kitchen receipt", () => {
   const receipt = kitchenReceiptFromRow(kitchenRow, false, "11/02/2026 7:35 PM");
 
@@ -112,8 +134,8 @@ describe("the kitchen receipt", () => {
       time: "11/02/2026 7:35 PM",
       isReprint: false,
       lines: [
-        { name: "CHICKEN FAJITAS", quantity: 2, note: null },
-        { name: "BEEF TACOS", quantity: 3, note: "EXTRA SALSA" },
+        { name: "CHICKEN FAJITAS (FAJITAS DE POLLO)", quantity: 2, note: null },
+        { name: "BEEF TACOS (TACOS DE RES)", quantity: 3, note: "EXTRA SALSA" },
       ],
       notes: "NO ONIONS",
     });
@@ -138,7 +160,7 @@ describe("the kitchen receipt", () => {
   });
 
   it("reads only what it needs from the database: a price in the row is ignored", () => {
-    const parsed = kitchenBatchRowSchema.parse({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Taco", quantity: 1, notes: null, unit_price_cents: 235 }] });
+    const parsed = kitchenBatchRowSchema.parse({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Taco", quantity: 1, notes: null, menu_item: null, unit_price_cents: 235 }] });
     expect(JSON.stringify(parsed)).not.toContain("235");
   });
 

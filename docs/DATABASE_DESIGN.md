@@ -222,6 +222,11 @@ line of an order with `kitchen_printed_at` would be removed or lowered, or a tic
 records a right PIN and clears the tries. Audit event `pin_approved`; `ticket_changed` and `ticket_cancelled` name the
 manager. No table rows change.
 
+### Spanish names (`20261108010000_menu_spanish`, Nov 4, 2026)
+
+Adds `menu_items.name_es`, filled for every item. Kitchen receipts read it through the line's `menu_item_id`; saved tickets
+and customer receipts are untouched.
+
 ### PIN gate (`20261106010000_pin_gate`, Nov 2, 2026)
 
 | Object | Purpose | Key rules |

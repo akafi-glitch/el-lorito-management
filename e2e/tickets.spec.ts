@@ -257,8 +257,8 @@ test.describe.serial("orders on a phone", () => {
       for (const part of ["EL LORITO — KITCHEN", `TICKET #${number}`, `TABLE: ${table}`, "WAITER: 01", "TIME: ", "1 × LUNCH #3", "NOTE: NO ONIONS"]) {
         expect(receipt).toContain(part);
       }
-      expect(receipt).toContain("2 × COMBO #5> EXTRA RICE"); // each note under its own item
-      expect(receipt).toContain("1 × DOMESTIC BEER> COLD GLASS");
+      expect(receipt).toContain("2 × COMBO #5 (COMBINACIÓN #5)> EXTRA RICE"); // Spanish in brackets, each note under its item
+      expect(receipt).toContain("1 × DOMESTIC BEER (CERVEZA NACIONAL)> COLD GLASS");
       // All three unsent orders went together; nothing about money anywhere.
       expect(receipt).toContain("2 × COMBO #5");
       expect(receipt).not.toMatch(/\$|\d+\.\d\d|TAX|TOTAL|SUBTOTAL|PRICE/i);
@@ -364,7 +364,7 @@ test.describe.serial("orders on a phone", () => {
         expect(receipt).toContain(part);
       }
       expect(receipt).not.toContain("Kafi");
-      expect(receipt).not.toMatch(/extra rice|cold glass/i); // item notes are for the kitchen
+      expect(receipt).not.toMatch(/extra rice|cold glass|combinaci|cerveza/i); // item notes and Spanish are for the kitchen
 
       await page.emulateMedia({ media: "print" });
       const width = await page.evaluate(() => {
