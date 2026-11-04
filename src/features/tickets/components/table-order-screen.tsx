@@ -12,7 +12,9 @@ import { printKitchenAction } from "@/features/printing/actions";
 import { PrintFlow, type PrintStart } from "@/features/printing/components/print-flow";
 import { requestRefresh } from "@/features/sync/refresh";
 
-import { saveOrderAction } from "../actions";
+import { tablePath } from "@/features/waiter/rules";
+
+import { saveOrderAction, saveToGoOrderAction, type SaveOrderResult } from "../actions";
 import { batchesToSend, orderLinesFromDraft } from "../rules";
 import { NOTE_MAX } from "../schema";
 import type { SavedTicket } from "../types";
@@ -21,7 +23,10 @@ import { SavedTicketPanel } from "./saved-ticket-panel";
 
 type TableOrderScreenProps = {
   employeeNumber: string;
-  tableCode: string;
+  /** Null for a new to-go order, which gets its spot when it is saved. */
+  tableCode: string | null;
+  /** For a new to-go order: "/waiter/01", to move to the spot's own page once saved. */
+  toGoBasePath?: string;
   /** The table's open ticket, or null until the first order is saved. */
   ticket: SavedTicket | null;
   menuVersion: number;
@@ -36,7 +41,7 @@ const OFFLINE = "Couldn't reach the server. Nothing was saved. Check the connect
  * One table: what is saved on its ticket, and the new order being built. The order stays on the device
  * until Save Order or Print Kitchen Receipt; the database then sets the prices of menu items.
  */
-export function TableOrderScreen({ employeeNumber, tableCode, ticket, menuVersion, timeZone, nowIso, paperWidthMm }: TableOrderScreenProps) {
+export function TableOrderScreen({ employeeNumber, tableCode, toGoBasePath, ticket, menuVersion, timeZone, nowIso, paperWidthMm }: TableOrderScreenProps) {
   const router = useRouter();
   const { data, failed, retry } = useMenuData(menuVersion);
   const [notice, setNotice] = useState<Notice | null>(null);
@@ -45,12 +50,15 @@ export function TableOrderScreen({ employeeNumber, tableCode, ticket, menuVersio
   const [saving, setSaving] = useState(false);
   /** One key per order as it stands: pressing Save twice sends the same key, so it saves once. */
   const clientKey = useRef<string | null>(null);
+  /** The page a new to-go order moves to, once it is saved and printing is over. */
+  const spotPage = useRef<string | null>(null);
 
   const dirty = draft.length > 0;
   const hasToSend = batchesToSend(ticket).length > 0;
 
   function refresh() {
-    if (!requestRefresh()) router.refresh();
+    if (spotPage.current) router.replace(spotPage.current);
+    else if (!requestRefresh()) router.refresh();
   }
 
   function setDraft(update: (current: Draft) => Draft) {
@@ -82,18 +90,15 @@ export function TableOrderScreen({ employeeNumber, tableCode, ticket, menuVersio
   /** Saves the order on screen as a new order on the ticket. Null when it was refused (already said why). */
   async function saveDraft() {
     clientKey.current ??= crypto.randomUUID();
-    const result = await saveOrderAction({
-      employeeNumber,
-      tableCode,
-      clientKey: clientKey.current,
-      lines: orderLinesFromDraft(draft),
-      notes,
-    });
+    const order = { employeeNumber, clientKey: clientKey.current, lines: orderLinesFromDraft(draft), notes };
+    const result: SaveOrderResult & { tableCode?: string } =
+      tableCode === null ? await saveToGoOrderAction(order) : await saveOrderAction({ ...order, tableCode });
     if (!result.ok) {
       showError(result.message);
       if (result.reload) refresh();
       return null;
     }
+    if (toGoBasePath && result.tableCode) spotPage.current = tablePath(toGoBasePath, result.tableCode);
     setDraftState([]);
     setNotesState("");
     clientKey.current = null;
@@ -173,7 +178,7 @@ export function TableOrderScreen({ employeeNumber, tableCode, ticket, menuVersio
           nowIso={nowIso}
           draft={draft}
           onDraftChange={setDraft}
-          orderTitle={ticket ? `New order for ticket #${ticket.number}` : "New order"}
+          orderTitle={ticket ? `New order for ticket #${ticket.number}` : tableCode === null ? "New to-go order" : "New order"}
           orderFooter={
             <div className="flex flex-col gap-3">
               <div className="flex flex-col gap-1.5">

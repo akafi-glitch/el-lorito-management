@@ -12,6 +12,17 @@ describe("taking food off an order the kitchen has", () => {
   });
 });
 
+describe("a to-go order", () => {
+  it("has no table in what the screen sends", () => {
+    const parsed = saveToGoOrderSchema.parse({ employeeNumber: "01", clientKey: crypto.randomUUID(), notes: null, lines: [{ itemId: 1, quantity: 1 }] });
+    expect("tableCode" in parsed).toBe(false);
+  });
+
+  it("says so when every spot is taken", () => {
+    expect(refusalText({ message: "to_go_full" })).toMatch(/All 30 to-go spots/);
+  });
+});
+
 describe("an order sent while the restaurant is closed", () => {
   it("says so, and reloads the screen", () => {
     expect(refusalText({ message: "restaurant_closed" })).toBe(RESTAURANT_CLOSED_TEXT);
@@ -24,7 +35,7 @@ import { addCustomItem, addItem, type Draft } from "@/features/menu/order-draft"
 
 import { shouldReload, ticketErrorMessage } from "./errors";
 import { batchesToSend, buildTicket, currentTicket, kitchenMark, kitchenState, orderLinesFromDraft, ticketKitchenMark, withTicket, KITCHEN_MARK_TEXT } from "./rules";
-import { cancelTicketSchema, changeTicketSchema, saveOrderSchema, ticketNumberParamSchema, ticketRowSchema, ticketTotalsRowSchema, type TicketRow, type TicketTotalsRow } from "./schema";
+import { cancelTicketSchema, changeTicketSchema, saveOrderSchema, saveToGoOrderSchema, ticketNumberParamSchema, ticketRowSchema, ticketTotalsRowSchema, type TicketRow, type TicketTotalsRow } from "./schema";
 import type { SavedBatch, SavedTicket } from "./types";
 
 const line = (id: number, no: number, overrides: Partial<TicketRow["ticket_batches"][number]["ticket_lines"][number]> = {}) => ({

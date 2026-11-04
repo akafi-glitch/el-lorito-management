@@ -254,5 +254,21 @@ else
   echo "  FAIL: allowed=$ALLOWED"; cat "$work"/k*.out; fail=1
 fi
 
+echo "Race 13: two waiters start a to-go order at the same moment"
+"${PSQL[@]}" -c "select public.start_shift(null)" >/dev/null
+"${PSQL[@]}" -c "select public.cancel_order(t.id, t.version, $EMP, null, (select e.id from public.employees e join public.employee_pins p on p.employee_id = e.id and p.disabled_at is null where e.is_active and e.role_code = 'manager' limit 1)) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.section_code = 'TOGO' and t.status = 'open'" >/dev/null
+K11=$("${PSQL[@]}" -c "select gen_random_uuid()"); K12=$("${PSQL[@]}" -c "select gen_random_uuid()")
+TOGO() { echo "select table_code from public.save_to_go_order($EMP, '$1'::uuid, '$(ORDER_LINE "$2" 1)', null, 'America/Chicago', null)"; }
+( "${PSQL[@]}" -c "begin; $(TOGO "$K11" Taco); select pg_sleep(1); commit;" >"$work/l1.out" 2>&1; echo $? >"$work/l1.code" ) &
+sleep 0.2
+( "${PSQL[@]}" -c "$(TOGO "$K12" Horchata);" >"$work/l2.out" 2>&1; echo $? >"$work/l2.code" ) &
+wait
+SPOTS=$("${PSQL[@]}" -c "select count(distinct t.table_id) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.section_code = 'TOGO' and t.status = 'open'")
+if [ "$(cat "$work/l1.code")" = 0 ] && [ "$(cat "$work/l2.code")" = 0 ] && [ "$SPOTS" = 2 ]; then
+  echo "  PASS: two orders, two spots; neither was added to the other"
+else
+  echo "  FAIL: spots=$SPOTS"; cat "$work"/l*.out; fail=1
+fi
+
 exit $fail
 

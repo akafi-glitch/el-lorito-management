@@ -49,6 +49,9 @@ export type FloorCombination = {
   allowsOverTwelve: boolean;
 };
 
+/** To-go orders use spots in their own section and area, which never appear on the Floor. */
+export const TO_GO_SECTION = "TOGO";
+
 export type FloorMap = {
   areas: FloorArea[];
   /** Every section in display order. */

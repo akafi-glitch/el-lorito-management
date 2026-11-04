@@ -64,6 +64,7 @@ database and runs every database test against it.
 | Printing asks nothing and saves; reprints | | `printing.test.sql` | `tickets.spec.ts` |
 | Manager PIN to remove, lower, or cancel what the kitchen has; adding needs none | `tickets.test.ts` | `manager_approval.test.sql` | `manager-approval.spec.ts` |
 | Spanish names: every item has one, in brackets on kitchen receipts only | `printing.test.ts` | `menu_spanish.test.sql` | `tickets.spec.ts` |
+| To-go orders: straight to the menu, own spot, not on the Floor, then like any table | `waiter.test.ts`, `tickets.test.ts` | `to_go_orders.test.sql`, race test 13 | `to-go.spec.ts` |
 | PIN gate: both areas and a ticket by address, generic error, lockout, 15 minutes and 12 hours, Lock, cookie flags, audit, the rest needs no PIN | `pin.test.ts` | `pin_gate.test.sql`, `hardening.test.sql`, race test 12 | `pin-gate.spec.ts` |
 | Shift Report: only sold tickets, right total, open tickets named apart, prints numbers and totals only | `history.test.ts` | | `shift-report.spec.ts` |
 | Item notes: each item keeps its own, edited on the saved ticket, on the kitchen receipt, never on the customer's | `menu.test.ts`, `printing.test.ts` | `item_notes.test.sql` | `tickets.spec.ts` |
@@ -71,7 +72,7 @@ database and runs every database test against it.
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 4, 2026:** 341 unit tests, 594 database checks, 13 race tests, 94 browser tests.
+**Results, Nov 4, 2026:** 344 unit tests, 616 database checks, 14 race tests, 101 browser tests.
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for

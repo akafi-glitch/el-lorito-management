@@ -52,7 +52,7 @@ select set_eq(
 select set_eq(
   $$ select label from public.restaurant_tables where section_code = 'BAR' $$,
   array['Bar 1','Bar 2','Bar 3','Bar 4'], 'Four Bar spots, tracked as tables');
-select is((select count(*)::int from public.restaurant_tables), 45, '45 tables in total');
+select is((select count(*)::int from public.restaurant_tables where section_code <> 'TOGO'), 45, '45 tables on the Floor');
 
 -- Chairs, as drawn ----------------------------------------------------------------------
 select set_eq(
@@ -65,7 +65,7 @@ select is(
   (select count(*)::int from public.restaurant_tables where capacity = 4), 25,
   '25 tables have 4 chairs (A 5, B 5, C 3, X(1) 3, X(2) 3, P 6)');
 select is(
-  (select count(*)::int from public.restaurant_tables where capacity is null), 7,
+  (select count(*)::int from public.restaurant_tables where capacity is null and section_code <> 'TOGO'), 7,
   'Party and Bar capacities stay unknown (7 tables)');
 select is(
   (select count(*)::int from public.restaurant_tables t join public.sections s on s.code = t.section_code

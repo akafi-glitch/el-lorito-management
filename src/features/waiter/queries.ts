@@ -2,6 +2,7 @@ import "server-only";
 
 import { z } from "zod";
 
+import { TO_GO_SECTION } from "@/features/floor/layout";
 import { employeeNumberKey, ROLES, type EmployeeRef } from "@/features/staff/rules";
 import { kitchenMark, type KitchenMark } from "@/features/tickets/rules";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -16,7 +17,12 @@ const employeeRow = z.object({
   is_active: z.boolean(),
 });
 
-const tableRow = z.object({ id: z.string(), code: z.string(), label: z.string() });
+const tableRow = z.object({ id: z.string(), code: z.string(), label: z.string(), section_code: z.string() });
+const openToGoRow = z.object({
+  ticket_number: z.number().int().positive(),
+  own_table: z.object({ code: z.string(), label: z.string() }),
+  ticket_batches: z.array(z.object({ kitchen_printed_at: z.string().nullable(), ticket_lines: z.array(z.object({ id: z.number() })) })),
+});
 
 const openOrderRow = z.object({
   own_table: z.object({ code: z.string() }),
@@ -52,7 +58,7 @@ export async function findEmployeeByNumber(typed: string): Promise<EmployeeRef |
 
 /** One table by its code, whatever is happening on the Floor. Null when there is none. */
 export async function findTableByCode(code: string): Promise<z.infer<typeof tableRow> | null> {
-  const { data, error } = await createAdminClient().from("restaurant_tables").select("id, code, label").eq("code", code).maybeSingle();
+  const { data, error } = await createAdminClient().from("restaurant_tables").select("id, code, label, section_code").eq("code", code).maybeSingle();
   if (error) throw new Error(`Could not look up the table: ${error.message}`);
   return data ? tableRow.parse(data) : null;
 }
@@ -74,6 +80,29 @@ export async function loadTableKitchenMarks(): Promise<Map<string, KitchenMark>>
         return mark ? [[row.own_table.code, mark] as const] : [];
       }),
   );
+}
+
+export type OpenToGoOrder = { ticketNumber: number; code: string; label: string; kitchen: KitchenMark | null };
+
+/** To-go orders still open, so a waiter can get back to them. */
+export async function loadOpenToGoOrders(): Promise<OpenToGoOrder[]> {
+  const { data, error } = await createAdminClient()
+    .from("tickets")
+    .select("ticket_number, own_table:restaurant_tables!inner(code, label, section_code), ticket_batches(kitchen_printed_at, ticket_lines(id))")
+    .eq("status", "open")
+    .eq("legacy_single_order", false)
+    .eq("own_table.section_code", TO_GO_SECTION)
+    .order("ticket_number");
+  if (error) throw new Error(`Could not load the to-go orders: ${error.message}`);
+  return z
+    .array(openToGoRow)
+    .parse(data)
+    .map((row) => ({
+      ticketNumber: row.ticket_number,
+      code: row.own_table.code,
+      label: row.own_table.label,
+      kitchen: kitchenMark(row.ticket_batches.filter((batch) => batch.ticket_lines.length > 0).map((batch) => batch.kitchen_printed_at !== null)),
+    }));
 }
 
 /** The waiter on each section in the open shift. */

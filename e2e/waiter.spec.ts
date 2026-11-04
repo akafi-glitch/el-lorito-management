@@ -51,7 +51,7 @@ test.describe.serial("waiter section", () => {
   test("another section is one question away: exactly its tables, and nothing about who is seated", async ({ page }) => {
     await page.goto("/waiter/01");
     await page.getByRole("button", { name: ANOTHER }).click();
-    await expect(page.locator("#pick-section option")).toHaveText(["Choose a section…", "A", "B", "C", "X(2)", "P", "Party", "Bar"]); // not their own
+    await expect(page.locator("#pick-section option")).toHaveText(["Choose a section…", "A", "B", "C", "X(2)", "P", "Party", "Bar", "To-Go Order"]); // not their own
     await expect(myTables(page)).toHaveCount(8); // their own stay on screen
     await page.selectOption("#pick-section", { label: "X(2)" });
     await expect(tableLinks(page)).toHaveText(["X1", "X2", "X3", "X10", "X11", "X12"]); // X2 has 4 guests seated
@@ -70,7 +70,7 @@ test.describe.serial("waiter section", () => {
     await page.goto("/waiter/05");
     await expect(page.locator("main")).toContainText("A manager hasn't given you a section this shift.");
     await expect(page.getByRole("button", { name: ANOTHER })).toHaveCount(0);
-    await expect(page.locator("#pick-section option")).toHaveText(["Choose a section…", "A", "B", "C", "X(1)", "X(2)", "P", "Party", "Bar"]);
+    await expect(page.locator("#pick-section option")).toHaveText(["Choose a section…", "A", "B", "C", "X(1)", "X(2)", "P", "Party", "Bar", "To-Go Order"]);
     await page.selectOption("#pick-section", { label: "X(1)" });
     await expect(tableLinks(page)).toHaveText(["X4", "X5", "X6", "X7", "X8", "X9", "X13", "X14"]);
   });
