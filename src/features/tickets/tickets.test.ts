@@ -4,6 +4,14 @@ import { RESTAURANT_CLOSED_TEXT } from "@/features/waiter/rules";
 
 import { shouldReload as refusalReloads, ticketErrorMessage as refusalText } from "./errors";
 
+describe("taking food off an order the kitchen has", () => {
+  it("says a manager is needed, and reloads the screen, which may be out of date", () => {
+    expect(refusalText({ message: "manager_approval_required" })).toMatch(/manager's PIN/);
+    expect(refusalReloads({ message: "manager_approval_required" })).toBe(true);
+    expect(refusalText({ message: "pin_not_allowed" })).toMatch(/can't approve/);
+  });
+});
+
 describe("an order sent while the restaurant is closed", () => {
   it("says so, and reloads the screen", () => {
     expect(refusalText({ message: "restaurant_closed" })).toBe(RESTAURANT_CLOSED_TEXT);

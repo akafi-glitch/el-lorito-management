@@ -55,8 +55,8 @@ export function pickerSections(map: Pick<FloorMap, "areas" | "sections">, kitche
   });
 }
 
-/** The sections assigned to this waiter this shift: shown for information, and picked first. */
-export function assignedSections(sections: readonly Pick<PickerSection, "code" | "name">[], me: Pick<EmployeeRef, "id">, waiters: WaiterBySection) {
+/** The sections a manager gave this waiter this shift: their tables, shown first. */
+export function assignedSections<T extends Pick<PickerSection, "code">>(sections: readonly T[], me: Pick<EmployeeRef, "id">, waiters: WaiterBySection): T[] {
   return sections.filter((section) => waiters.get(section.code)?.id === me.id);
 }
 

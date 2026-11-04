@@ -47,9 +47,10 @@ test.describe.serial("live updates across devices", () => {
     const kafi = await employee("01", "Kafi", "waiter");
     await assign("X-1", "waiter", kafi);
     await page.goto("/waiter/01");
-    await expect(page.locator("main")).toContainText("Assigned this shift: X(1)");
+    await expect(page.getByTestId("my-tables")).toContainText("Section X(1)");
     await assign("A", "waiter", kafi);
-    await expect(page.locator("main")).toContainText("Assigned this shift: A, X(1)");
+    await expect(page.getByTestId("my-tables")).toContainText("Section A");
+    await expect(page.getByTestId("my-tables")).toContainText("Section X(1)");
 
     await seat(["A4"], 2);
     await page.goto("/waiter/01/tables/A4");

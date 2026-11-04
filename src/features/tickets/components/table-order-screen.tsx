@@ -129,8 +129,6 @@ export function TableOrderScreen({ employeeNumber, tableCode, ticket, menuVersio
     return {
       job: {
         attemptIds: result.attemptIds,
-        title: "the kitchen receipt",
-        question: "",
         content: { kind: "kitchen", receipts: result.receipts },
       },
     };

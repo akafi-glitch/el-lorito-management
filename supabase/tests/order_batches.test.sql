@@ -273,7 +273,7 @@ select is((select total_cents from public.ticket_history where ticket_number = 1
 select ok(not has_table_privilege('authenticated', 'public.ticket_history', 'select') and not has_table_privilege('anon', 'public.ticket_batches', 'select'),
   'browsers can''t read the history or the orders');
 select ok(not has_function_privilege('authenticated', 'public.save_order(bigint, bigint, uuid, jsonb, text, text, uuid, timestamptz)', 'execute')
-          and not has_function_privilege('anon', 'public.change_ticket(bigint, integer, bigint, jsonb, uuid)', 'execute')
+          and not has_function_privilege('anon', 'public.change_ticket(bigint, integer, bigint, jsonb, uuid, bigint)', 'execute')
           and not has_function_privilege('authenticated', 'public.request_customer_receipt(bigint, integer, bigint, uuid, uuid)', 'execute')
           and not has_function_privilege('authenticated', 'public.request_kitchen_print(bigint, bigint[], bigint, uuid, uuid)', 'execute'),
   'browsers can''t order, change, or print');

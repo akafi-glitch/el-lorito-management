@@ -86,9 +86,10 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Identify:** the waiter types their employee number (01 and 1 are the same). Unknown numbers and
   turned-off employees are refused. The number says who is working; it is not a password (the
   administrator sign-in protects the app).
-- **Any table:** Select Section, then a list shows exactly that section's tables, from the database. Tapping a
-  table goes straight to its order page. Nothing limits a waiter to their assigned section and there is no
-  warning. Their section this shift is shown, and picked first, only as a convenience.
+- **Their own tables first (owner decision, Nov 4, 2026):** after the number, a waiter sees only the tables of the
+  sections a manager gave them this shift, with no section to choose. **Want to take order from another section?**
+  opens a dropdown of every other section, and nothing limits a waiter to their own: this is flexibility for everyone.
+  With no section given, the dropdown is there straight away. Assignments end with the shift.
 - **Separate from the Floor (owner decision, Nov 2, 2026):** the Waiter Section never looks at whether a table
   is vacant, seated, or closed, or how many guests there are, and never asks. Orders don't seat anyone, change
   the chips, or move the rotation. Seating, chips, and clearing on the Floor never change an order. Both sides
@@ -175,9 +176,13 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Shows:** EL LORITO — KITCHEN, ticket, table, waiter number (of that order), order number, date and time,
   quantities and item names in large bold capitals, each item's note under it, and the order's note. **Never any price, subtotal, tax, or total:**
   the receipt's data has no place for them.
-- After each print the waiter answers "Did the kitchen receipt print?". An order waiting for an answer isn't
-  sent again by accident; a No sends it next time. Printing never locks or finalizes anything.
-- A changed quantity on an order the kitchen already has is not re-sent: the waiter tells the kitchen.
+- **No question after printing (owner decision, Nov 4, 2026):** the print dialog opens and the order is saved as
+  printed. If paper didn't come out, the waiter uses Reprint. Printing a kitchen receipt never locks anything.
+- **After a kitchen receipt (owner decision, Nov 4, 2026):** waiters add food or liquor themselves, as a new order,
+  so the kitchen gets a receipt for it; a printed line has no + button. Taking anything off needs a manager's employee
+  number and PIN, the same as for Order History, each time: removing an item, lowering a quantity, or cancelling a
+  ticket with a printed order. The database refuses these without a manager, and records which one approved. Wrong PINs
+  count toward the same 5-try lockout. Nothing is re-sent to the kitchen: the waiter tells them.
 
 ## Customer receipts and finalizing (Built Nov 2, 2026)
 
@@ -186,9 +191,9 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   food tax 8.5%, liquor tax 10.5%, total, THANK YOU! All saved orders are included; the same item at the same
   price is one line.
 - **It can't be printed over unsaved items:** the waiter saves or removes the new order first.
-- **No false claims:** the browser can't tell whether paper came out. Opening the print dialog changes nothing.
-  The waiter is asked "Did the customer receipt print?". **Yes finalizes the ticket**; No, or leaving the
-  question unanswered, leaves it open, and each attempt is on record as printed, not printed, or unknown.
+- **No question after printing (owner decision, Nov 4, 2026):** **tapping Print Customer Receipt finalizes the
+  ticket** and resets the table, even if the print dialog is cancelled or no paper comes out: the browser can't tell.
+  The receipt can be printed again from Earlier tickets on the table's page.
 - **The exact bill is kept:** the ticket keeps the bill from the attempt that was confirmed, with its totals
   frozen. If the ticket changed after that receipt was made, Yes is refused and nothing is finalized.
 - **Once finalized:** no more orders or tickets for that group, and no change to items, quantities, prices,

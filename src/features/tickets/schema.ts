@@ -128,6 +128,10 @@ export const changeTicketSchema = z.object({
 
 export type ChangeTicketInput = z.input<typeof changeTicketSchema>;
 
+/** A manager's number and PIN, for one approval. Whether they are right is decided only on the server. */
+export const managerApprovalSchema = z.object({ managerNumber: z.string(), pin: z.string() });
+export type ManagerApprovalInput = z.infer<typeof managerApprovalSchema>;
+
 export const cancelTicketSchema = z.object({
   employeeNumber,
   ticketId: z.number().int().positive(),

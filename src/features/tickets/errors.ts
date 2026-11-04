@@ -9,6 +9,10 @@ export function ticketErrorMessage(error: DbError): string {
   switch (error.message) {
     case "restaurant_closed":
       return RESTAURANT_CLOSED_TEXT;
+    case "manager_approval_required":
+      return "The kitchen already has this order, so a manager's PIN is needed to take anything off it. The page has been refreshed.";
+    case "pin_not_allowed":
+      return "That manager can't approve this. Ask another manager.";
     case "empty_ticket":
       return "Add at least one item before saving.";
     case "invalid_lines":
@@ -55,6 +59,7 @@ export function ticketErrorMessage(error: DbError): string {
 export function shouldReload(error: DbError): boolean {
   return [
     "restaurant_closed",
+    "manager_approval_required",
     "table_not_found",
     "visit_not_found",
     "visit_closed",

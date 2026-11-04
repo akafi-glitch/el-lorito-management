@@ -18,7 +18,7 @@ export type SavedLine = {
   notes: string | null;
 };
 
-/** Where an order stands with the kitchen. Only a waiter's "Yes, it printed" makes it "printed". */
+/** Where an order stands with the kitchen. "failed" is only on older orders, from when waiters were asked. */
 export type KitchenState = "not-sent" | "waiting" | "failed" | "printed";
 
 export type SavedBatch = {

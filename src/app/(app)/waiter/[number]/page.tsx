@@ -33,18 +33,16 @@ export default async function WaiterTablesPage({ params }: Props) {
   const [floor, waiters, marks] = await Promise.all([loadFloorMap(), loadWaitersBySection(), loadTableKitchenMarks()]);
   const sections = pickerSections(floor, marks);
   const mine = assignedSections(sections, me, waiters);
+  const others = sections.filter((section) => !mine.includes(section));
 
   return (
     <SectionShell
       title={employeeLabel(me)}
-      description={`${ROLE_LABEL[me.role]}. Any waiter can open any table.`}
+      description={`${ROLE_LABEL[me.role]}. Your tables for this shift.`}
       live={{ watch: ["staff", "tickets"], versions }}
     >
       <div className="flex flex-col gap-6">
-        <TablePicker sections={sections} basePath={waiterPath(me)} initialSection={mine[0]?.code ?? null} menuVersion={versions.menu} />
-        <p className="text-center text-base text-muted">
-          {mine.length > 0 ? `Assigned this shift: ${mine.map((section) => section.name).join(", ")}` : "No section assigned this shift."}
-        </p>
+        <TablePicker mine={mine} others={others} basePath={waiterPath(me)} menuVersion={versions.menu} />
         <div className="flex justify-center">
           <Link href="/waiter" className={buttonClasses("secondary")}>
             Not you? Change number

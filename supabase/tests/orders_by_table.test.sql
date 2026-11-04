@@ -104,7 +104,7 @@ select is((select visit_id from public.tickets where id = (select ticket_id from
 
 -- Security -------------------------------------------------------------------------------------------------
 select ok(not has_function_privilege('anon', 'public.save_table_order(text, bigint, uuid, jsonb, text, text, uuid, timestamptz)', 'execute')
-  and not has_function_privilege('authenticated', 'public.cancel_order(bigint, integer, bigint, uuid)', 'execute'), 'browsers can''t call the new functions');
+  and not has_function_privilege('authenticated', 'public.cancel_order(bigint, integer, bigint, uuid, bigint)', 'execute'), 'browsers can''t call the new functions');
 
 select * from finish();
 rollback;
