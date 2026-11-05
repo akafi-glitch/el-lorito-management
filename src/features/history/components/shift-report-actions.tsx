@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useState, useTransition } from "react";
-import { createPortal } from "react-dom";
+import { useState, useTransition } from "react";
+import { createPortal, flushSync } from "react-dom";
 
 import { buttonClasses } from "@/components/ui/button";
 import { formatCents } from "@/features/menu/money";
@@ -53,26 +53,22 @@ export function PrintShiftReport({
 }) {
   const [printedAt, setPrintedAt] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (printedAt === null) return;
-    const frame = requestAnimationFrame(() => {
-      window.print();
-      setPrintedAt(null);
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [printedAt]);
-
+  // Nothing to wait for, so the report goes on the page and prints inside the tap, which Safari allows.
+  // It stays on the page, hidden on screen: Safari builds its preview after print() has returned.
   function print() {
-    setPrintedAt(
-      new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "numeric", minute: "2-digit" })
-        .format(new Date())
-        .replace(",", ""),
+    flushSync(() =>
+      setPrintedAt(
+        new Intl.DateTimeFormat("en-US", { timeZone, year: "numeric", month: "2-digit", day: "2-digit", hour: "numeric", minute: "2-digit" })
+          .format(new Date())
+          .replace(",", ""),
+      ),
     );
+    window.print();
   }
 
   return (
     <>
-      <button type="button" disabled={report.lines.length === 0 || printedAt !== null} onClick={print} className={buttonClasses("primary", "min-h-14 w-full text-lg sm:w-auto")}>
+      <button type="button" disabled={report.lines.length === 0} onClick={print} className={buttonClasses("primary", "min-h-14 w-full text-lg sm:w-auto")}>
         Print Shift Report
       </button>
       {printedAt === null

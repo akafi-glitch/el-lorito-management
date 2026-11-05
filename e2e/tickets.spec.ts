@@ -1,5 +1,7 @@
 import { devices, expect, test, type Page } from "@playwright/test";
 
+import { answerNo, answerYes, lastReceipt, prints, stubPrinting, waitForPrint } from "./support/print";
+
 import { batchesOf, cancelOpenOrders, employee, freeTables, openTicketsAt, printAttempts, saveOrder, setItem, setTaxRate, startShift, ticketByNumber, ticketTotal } from "./support/db";
 
 const item = (page: Page, name: string) => page.locator(`button[aria-label^='Add ${name},']`).first();
@@ -10,35 +12,6 @@ const saveOrderButton = (page: Page) => page.getByRole("button", { name: "Save O
 const kitchenButton = (page: Page) => page.getByRole("button", { name: "Print Kitchen Receipt", exact: true });
 const customerButton = (page: Page) => page.getByRole("button", { name: "Print Customer Receipt", exact: true });
 
-/** The browser's print dialog can't be driven in a test: count the calls and keep the receipt text. */
-async function stubPrinting(page: Page) {
-  await page.addInitScript(() => {
-    const w = window as unknown as { __prints: number; __receipts: string[]; print: () => void };
-    w.__prints = 0;
-    w.__receipts = [];
-    w.print = () => {
-      w.__prints += 1;
-      w.__receipts.push(document.querySelector(".receipt-print")?.textContent ?? "");
-    };
-  });
-}
-/** Keeps the receipt on the page after printing, by holding the print flow's wait, until the returned function runs. */
-async function keepReceiptOnPage(page: Page): Promise<() => Promise<void>> {
-  await page.evaluate(() => {
-    const w = window as unknown as { __keep: (() => void) | null };
-    const real = window.setTimeout.bind(window);
-    window.setTimeout = ((handler: () => void, ms?: number) => {
-      if (ms !== 1500) return real(handler, ms);
-      w.__keep = handler;
-      return 0;
-    }) as typeof window.setTimeout;
-  });
-  return async () => {
-    await page.evaluate(() => (window as unknown as { __keep: (() => void) | null }).__keep?.());
-  };
-}
-const prints = (page: Page) => page.evaluate(() => (window as unknown as { __prints: number }).__prints);
-const lastReceipt = (page: Page) => page.evaluate(() => (window as unknown as { __receipts: string[] }).__receipts.at(-1) ?? "");
 const BLUE = "rgb(29, 78, 216)";
 const GREEN = "rgb(21, 128, 61)";
 
@@ -243,13 +216,13 @@ test.describe.serial("orders on a phone", () => {
 
       await item(page, "Lunch #3").tap();
       await page.fill("#order-notes", "No onions");
-      const letGo = await keepReceiptOnPage(page);
       // Press repeatedly: only one order may be saved and one receipt printed.
       await kitchenButton(page).tap();
       await kitchenButton(page).tap({ force: true, timeout: 500 }).catch(() => {});
       await kitchenButton(page).tap({ force: true, timeout: 500 }).catch(() => {});
-      await expect.poll(() => prints(page)).toBe(1);
-      await expect(page.locator("dialog[open]")).toHaveCount(0); // nothing asks whether it printed
+      await waitForPrint(page, 1);
+      await expect(page.locator("dialog[open] h2")).toHaveText("Did the kitchen receipt print?");
+      expect(await prints(page)).toBe(1); // and a stray tap doesn't dismiss the question
 
       const batches = await batchesOf(ticket.id);
       expect(batches).toHaveLength(before + 1);
@@ -284,7 +257,12 @@ test.describe.serial("orders on a phone", () => {
       expect(style.fontWeight).toBeGreaterThanOrEqual(700);
       expect(style.pageRule).toContain("size: 80mm auto");
 
-      await letGo();
+      await answerNo(page);
+      await expect(page.locator("dialog[open] h2")).toHaveText("The kitchen receipt didn't print");
+      await page.click("dialog[open] button:has-text('Print again')");
+      await waitForPrint(page, 2);
+      await expect(page.locator("dialog[open] h2")).toHaveText("Did the kitchen receipt print?");
+      await answerYes(page);
       await expect(page.getByText("Sent to the kitchen. The order stays on the ticket.")).toBeVisible();
 
       // Printing never locks the ticket or loses anything.
@@ -316,12 +294,13 @@ test.describe.serial("orders on a phone", () => {
       await page.goto(`/waiter/01/tables/${table}`);
 
       await kitchenButton(page).tap();
-      await expect.poll(() => prints(page)).toBe(1);
+      await waitForPrint(page, 1);
       const receipt = await lastReceipt(page);
       expect(receipt).toContain("1 × LUNCH #1");
       expect(receipt).toContain(`TICKET #${number}`);
       expect(receipt).not.toContain("COMBO");
       expect(receipt).not.toContain("LUNCH #3");
+      await answerYes(page);
       await expect(page.getByText("Sent to the kitchen. The order stays on the ticket.")).toBeVisible();
       expect(await openTicketsAt(table)).toHaveLength(1);
       await expect(await tableInList(page, "X(1)", table)).toHaveCSS("background-color", BLUE);
@@ -331,11 +310,10 @@ test.describe.serial("orders on a phone", () => {
       await stubPrinting(page);
       await page.goto(`/waiter/01/tables/${table}`);
       await page.getByRole("button", { name: "Reprint order 1 for the kitchen" }).tap();
-      await expect.poll(() => prints(page)).toBe(1);
+      await waitForPrint(page, 1);
       expect(await lastReceipt(page)).toContain("REPRINT");
-      await expect(page.locator("dialog[open]")).toHaveCount(0);
-      await expect(page.getByRole("button", { name: "Reprint order 2 for the kitchen" })).toBeEnabled();
-      await expect(page.getByRole("button", { name: "Reprint order 1 for the kitchen" })).toBeEnabled();
+      await expect(page.locator("dialog[open] h2")).toHaveText("Did the kitchen receipt print?");
+      await answerYes(page);
     });
 
     test("the bill can't be printed over an unsaved order", async ({ page }) => {
@@ -347,17 +325,18 @@ test.describe.serial("orders on a phone", () => {
       await expect(customerButton(page)).toBeEnabled();
     });
 
-    test("printing finalizes and resets the table, with everything on the receipt: the receipt reprints exactly, and the next order is a new ticket", async ({ page }) => {
+    test("Yes finalizes and resets the table, with everything on the receipt: the receipt reprints exactly, and the next order is a new ticket", async ({ page }) => {
       await stubPrinting(page);
       await page.goto(`/waiter/01/tables/${table}`);
       const number = await ticketNumberOnScreen(page);
       const total = await ticketTotal(number);
 
       const ticket = await ticketByNumber(number);
-      const letGo = await keepReceiptOnPage(page);
       await customerButton(page).tap();
-      await expect.poll(() => prints(page)).toBe(1);
-      await expect(page.locator("dialog[open]")).toHaveCount(0); // nothing asks whether it printed
+      await waitForPrint(page, 1);
+      await expect(page.locator("dialog[open] h2")).toHaveText("Did the customer receipt print?");
+      await expect(page.locator("dialog[open]")).toContainText("Yes finalizes this ticket and resets the table");
+      expect((await ticketByNumber(number)).status).toBe("open"); // opening the dialog changed nothing
       const printed = await lastReceipt(page);
       const receipt = printed;
       for (const part of ["EL LORITO", `TICKET #${number}`, "WAITER: 01", `TABLE: ${table}`, "TIME: ", "2 × Combo #5", "$18.80", "@ 9.40 each", "2 × House tequila shot", "1 × Horchata", "Food Subtotal", "Liquor Subtotal", "Food Tax (8.5%)", "Liquor Tax (10.5%)", "TOTAL", "THANK YOU!"]) {
@@ -373,7 +352,7 @@ test.describe.serial("orders on a phone", () => {
       });
       await page.emulateMedia({ media: "screen" });
       expect(width).toEqual({ display: "block", width: "80mm" });
-      await letGo();
+      await answerYes(page);
 
       await expect(page.getByText(`Ticket #${number} is finalized. The table is ready for a new order.`)).toBeVisible();
       expect((await printAttempts(ticket.id)).at(-1)?.outcome).toBe("printed");
@@ -403,10 +382,11 @@ test.describe.serial("orders on a phone", () => {
       await page.reload();
       await page.locator(`a[aria-label^='Ticket ${number},']`).tap();
       await page.getByRole("button", { name: "Reprint Customer Receipt" }).tap();
-      await expect.poll(() => prints(page)).toBe(1);
+      await waitForPrint(page, 1);
+      await expect(page.locator("dialog[open] h2")).toHaveText("Did the copy of the receipt print?");
       const copy = await lastReceipt(page);
       expect(copy.replace("COPY", "")).toBe(printed);
-      await expect(page.getByRole("button", { name: "Reprint Customer Receipt" })).toBeEnabled();
+      await answerYes(page);
       await setItem("Combo #5", 940, true);
       await setTaxRate("food", 850);
       expect(await ticketTotal(number)).toBe(total);

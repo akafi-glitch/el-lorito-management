@@ -134,6 +134,8 @@ export function TableOrderScreen({ employeeNumber, tableCode, toGoBasePath, tick
     return {
       job: {
         attemptIds: result.attemptIds,
+        title: "the kitchen receipt",
+        question: "",
         content: { kind: "kitchen", receipts: result.receipts },
       },
     };

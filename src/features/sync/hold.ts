@@ -1,5 +1,5 @@
 /**
- * "Don't refresh right now": a print question on screen must not be swapped away by a refresh.
+ * "Don't refresh right now": a receipt being printed, or the question after it, must not be swapped away by a refresh.
  * Anyone can hold; refreshes wait until every hold is released.
  */
 let holds = 0;

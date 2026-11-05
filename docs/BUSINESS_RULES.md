@@ -184,8 +184,11 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Shows:** EL LORITO — KITCHEN, ticket, table, waiter number (of that order), order number, date and time,
   quantities and item names in large bold capitals, each item's note under it, and the order's note. **Never any price, subtotal, tax, or total:**
   the receipt's data has no place for them.
-- **No question after printing (owner decision, Nov 4, 2026):** the print dialog opens and the order is saved as
-  printed. If paper didn't come out, the waiter uses Reprint. Printing a kitchen receipt never locks anything.
+- After each print the waiter answers "Did the kitchen receipt print?" (owner decision, brought back Nov 4, 2026). An
+  order waiting for an answer isn't sent again by accident; a No sends it next time. Printing never locks or finalizes
+  anything.
+- **On an iPad:** Safari blocks printing that doesn't come straight from a tap, so once the receipt is ready, a **Print
+  now** button opens the print window. Other browsers print straight away while the tap still counts.
 - **After a kitchen receipt (owner decision, Nov 4, 2026):** waiters add food or liquor themselves, as a new order,
   so the kitchen gets a receipt for it; a printed line has no + button. Taking anything off needs a manager's employee
   number and PIN, the same as for Order History, each time: removing an item, lowering a quantity, or cancelling a
@@ -199,9 +202,10 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   food tax 8.5%, liquor tax 10.5%, total, THANK YOU! All saved orders are included; the same item at the same
   price is one line.
 - **It can't be printed over unsaved items:** the waiter saves or removes the new order first.
-- **No question after printing (owner decision, Nov 4, 2026):** **tapping Print Customer Receipt finalizes the
-  ticket** and resets the table, even if the print dialog is cancelled or no paper comes out: the browser can't tell.
-  The receipt can be printed again from Earlier tickets on the table's page.
+- **No false claims:** the browser can't tell whether paper came out. Opening the print dialog changes nothing.
+  The waiter is asked "Did the customer receipt print?". **Yes finalizes the ticket**; No, or leaving the
+  question unanswered, leaves it open, and each attempt is on record as printed, not printed, or unknown. After Yes, the
+  receipt can be printed again from Earlier tickets on the table's page.
 - **The exact bill is kept:** the ticket keeps the bill from the attempt that was confirmed, with its totals
   frozen. If the ticket changed after that receipt was made, Yes is refused and nothing is finalized.
 - **Once finalized:** no more orders or tickets for that group, and no change to items, quantities, prices,

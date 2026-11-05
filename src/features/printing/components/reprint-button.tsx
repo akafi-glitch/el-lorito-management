@@ -34,6 +34,8 @@ export function ReprintButton({
     return {
       job: {
         attemptIds: [result.attemptId],
+        title: "the copy of the receipt",
+        question: "",
         content: { kind: "customer", receipt: result.receipt, isCopy: result.isCopy },
       },
     };

@@ -215,6 +215,8 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
     return {
       job: {
         attemptIds: [result.attemptId],
+        title: result.isCopy ? "the copy of the receipt" : "the customer receipt",
+        question: result.isCopy ? "" : "Yes finalizes this ticket and resets the table for a new order.",
         content: { kind: "customer", receipt: result.receipt, isCopy: result.isCopy },
       },
     };
@@ -226,7 +228,7 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
       if (result.reload) onChanged();
       return { message: result.message };
     }
-    return { job: { attemptIds: result.attemptIds, content: { kind: "kitchen", receipts: result.receipts } } };
+    return { job: { attemptIds: result.attemptIds, title: "the kitchen receipt", question: "", content: { kind: "kitchen", receipts: result.receipts } } };
   }
 
   return (

@@ -61,7 +61,7 @@ database and runs every database test against it.
 | Finish shift: names open tickets, closes the Waiter Section at once, refuses new orders, keeps everything, opens again on a new shift | `tickets.test.ts` | `finish_shift.test.sql`, race tests 10 and 11 | `finish-shift.spec.ts` |
 | Sign-in failures say the real reason; signing out affects only this device | `actions.test.ts` | | `auth.spec.ts` |
 | Own tables first, other sections on request | `waiter.test.ts` | | `waiter.spec.ts` |
-| Printing asks nothing and saves; reprints | | `printing.test.sql` | `tickets.spec.ts` |
+| Printing on an iPad: from a tap, receipt stays for the preview, one tap one print, only Yes finalizes, no duplicate ticket | `print-timing.test.ts` | `printing.test.sql` | `ipad-printing.spec.ts` (Chromium and WebKit as an iPad), `tickets.spec.ts` |
 | Manager PIN to remove, lower, or cancel what the kitchen has; adding needs none | `tickets.test.ts` | `manager_approval.test.sql` | `manager-approval.spec.ts` |
 | Spanish names: every item has one, in brackets on kitchen receipts only | `printing.test.ts` | `menu_spanish.test.sql` | `tickets.spec.ts` |
 | To-go orders: straight to the menu, own spot, not on the Floor, then like any table | `waiter.test.ts`, `tickets.test.ts` | `to_go_orders.test.sql`, race test 13 | `to-go.spec.ts` |
@@ -72,14 +72,14 @@ database and runs every database test against it.
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 4, 2026:** 344 unit tests, 616 database checks, 14 race tests, 101 browser tests.
+**Results, Nov 4, 2026:** 351 unit tests, 616 database checks, 14 race tests, 115 browser tests (7 of them in WebKit as an iPad).
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for
 Supabase Auth; never the live project (`e2e/support/env.ts` refuses it). Real Supabase, real Auth, and Realtime
 run in CI on the pull request.
 
-**Not tested anywhere:** a physical thermal printer. The print layout was checked in print mode, at the configured
+**Not tested anywhere:** a physical thermal printer, or a real iPad print dialog. The print layout was checked in print mode, at the configured
 width. Please print one kitchen receipt and one customer receipt on the real printer before relying on it.
 
 ## Phase 1 tests (48 unit tests, 10 database checks)
