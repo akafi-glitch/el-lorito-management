@@ -30,7 +30,11 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 1000 } } }],
+  projects: [
+    { name: "chromium", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 1000 } } },
+    // Safari's engine with an iPad's screen and browser name, for printing. It can't drive a real print dialog.
+    { name: "ipad-safari", testMatch: "ipad-printing.spec.ts", use: { ...devices["iPad (gen 7)"] } },
+  ],
   webServer: {
     command: `npx next start -p ${port}`,
     url: `http://127.0.0.1:${port}/api/health`,

@@ -1,17 +1,12 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { auditFrom, batchesOf, cancelOpenOrders, clearPinAttempts, employee, MANAGER, openTicketsAt, saveOrder, setItem, setManagerPin, startShift, ticketByNumber } from "./support/db";
+import { answerYes, stubPrinting, waitForPrint } from "./support/print";
 
 const TABLE = "P4";
 const approval = (page: Page) => page.getByTestId("manager-approval");
 const alert = (page: Page) => approval(page).locator("[role=alert]");
 const saved = (page: Page) => page.locator("section[aria-labelledby='saved-ticket-heading']");
-
-async function stubPrinting(page: Page) {
-  await page.addInitScript(() => {
-    (window as unknown as { print: () => void }).print = () => {};
-  });
-}
 
 /** Saves an order and prints it for the kitchen, through the screens. */
 async function orderAndPrint(page: Page, waiter: number) {
@@ -19,7 +14,10 @@ async function orderAndPrint(page: Page, waiter: number) {
   await stubPrinting(page);
   await page.goto(`/waiter/01/tables/${TABLE}`);
   await page.getByRole("button", { name: "Print Kitchen Receipt", exact: true }).click();
+  await waitForPrint(page, 1);
+  await answerYes(page);
   await expect(page.getByText("Sent to the kitchen. The order stays on the ticket.")).toBeVisible();
+  await expect(page.locator("main")).toContainText("Kitchen Receipt Printed");
 }
 
 async function givePin(page: Page, number: string, pin: string, confirm: string) {

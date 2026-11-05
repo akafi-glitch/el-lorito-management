@@ -19,10 +19,10 @@ import {
 } from "./schema";
 
 /**
- * Printing actions. The database records every print BEFORE the browser's print dialog opens. When the
- * dialog has been opened the print is saved as done (owner decision, Nov 4, 2026): for a customer receipt
- * that finalizes the ticket, in the database, in one transaction. These actions don't refresh the page
- * themselves, so the receipt stays on the page for the printer.
+ * Printing actions. The database records every print BEFORE the browser's print dialog opens, and
+ * nothing is finalized by opening a dialog: only the waiter's "Yes, it printed" for a customer
+ * receipt finalizes the ticket, in the database, in one transaction. These actions don't refresh the
+ * page themselves, so the receipt and the question stay on screen until the waiter is done.
  */
 
 export type KitchenPrintResult =
@@ -92,7 +92,7 @@ export async function printCustomerAction(input: PrintCustomerInput): Promise<Cu
   return { ok: true, attemptId: row.attempt_id, receipt: receiptFromSnapshot(row.receipt, formatReceiptTime), isCopy: row.is_copy };
 }
 
-/** Saves a print as done. For a customer receipt this finalizes the ticket (see record_print_outcome). */
+/** The waiter's answer. Yes to a customer receipt finalizes the ticket (see record_print_outcome). */
 export async function recordPrintOutcomeAction(input: PrintOutcomeInput): Promise<OutcomeResult> {
   const user = await requireActiveUser();
   const parsed = printOutcomeSchema.safeParse(input);

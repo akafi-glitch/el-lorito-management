@@ -1,6 +1,7 @@
 import { expect, test, type Page } from "@playwright/test";
 
 import { auditFrom, cancelOpenOrders, employee, openTicketsAt, setItem, startShift, ticketByNumber } from "./support/db";
+import { answerYes, lastReceipt, stubPrinting, waitForPrint } from "./support/print";
 
 const SPOTS = ["TOGO-1", "TOGO-2", "TOGO-3"];
 const saved = (page: Page) => page.locator("section[aria-labelledby='saved-ticket-heading']");
@@ -8,15 +9,6 @@ const addTaco = async (page: Page) => {
   await page.fill("#menu-search", "Taco");
   await page.locator("button[aria-label^='Add Taco,']").first().click();
 };
-const stubPrinting = (page: Page) =>
-  page.addInitScript(() => {
-    const w = window as unknown as { __receipts: string[]; print: () => void };
-    w.__receipts = [];
-    w.print = () => {
-      w.__receipts.push(document.querySelector(".receipt-print")?.textContent ?? "");
-    };
-  });
-const lastReceipt = (page: Page) => page.evaluate(() => (window as unknown as { __receipts: string[] }).__receipts.at(-1) ?? "");
 
 test.describe.serial("to-go orders", () => {
   test.beforeAll(async () => {
@@ -97,8 +89,10 @@ test.describe.serial("to-go orders", () => {
     await page.goto("/waiter/01/to-go");
     await addTaco(page);
     await page.getByRole("button", { name: "Print Kitchen Receipt", exact: true }).click();
-    await expect(page).toHaveURL(/\/tables\/TOGO-3$/, { timeout: 15_000 });
+    await waitForPrint(page, 1);
     expect(await lastReceipt(page)).toContain("TABLE: TO-GO 3");
+    await answerYes(page);
+    await expect(page).toHaveURL(/\/tables\/TOGO-3$/, { timeout: 15_000 });
     await expect(page.locator("main")).toContainText("Kitchen Receipt Printed");
     await expect(saved(page)).toContainText("Sent to the kitchen");
   });
@@ -108,9 +102,11 @@ test.describe.serial("to-go orders", () => {
     const ticket = (await openTicketsAt("TOGO-1"))[0]!;
     await page.goto("/waiter/01/tables/TOGO-1");
     await page.getByRole("button", { name: "Print Customer Receipt", exact: true }).click();
+    await waitForPrint(page, 1);
+    expect(await lastReceipt(page)).toContain("TABLE: To-Go 1");
+    await answerYes(page);
     await expect(page.getByText(`Ticket #${ticket.ticket_number} is finalized.`)).toBeVisible();
     expect((await ticketByNumber(ticket.ticket_number)).status).toBe("finalized");
-    expect(await lastReceipt(page)).toContain("TABLE: To-Go 1");
 
     await page.goto("/waiter/01/to-go");
     await addTaco(page);

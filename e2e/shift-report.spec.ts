@@ -84,6 +84,7 @@ test.describe.serial("management: shift report", () => {
   test("prints ticket numbers, totals, and the shift total, and nothing else", async ({ page }) => {
     await page.addInitScript(() => {
       window.print = () => {
+        (window as unknown as { printEvent: string }).printEvent = window.event?.type ?? "none";
         (window as unknown as { printed: string[] }).printed.push(document.querySelector("[data-testid=shift-report-print]")?.textContent ?? "");
       };
       (window as unknown as { printed: string[] }).printed = [];
@@ -100,9 +101,13 @@ test.describe.serial("management: shift report", () => {
     expect(printed).not.toContain("Taco");
     expect(printed).not.toContain("WAITER");
 
-    // Leaves the screen as it was, ready to print again.
+    // It prints straight from the tap, which Safari allows.
+    expect(await page.evaluate(() => (window as unknown as { printEvent: string }).printEvent)).toBe("click");
+
+    // It stays on the page for a preview built later, hidden on screen, ready to print again.
+    await expect(page.locator("[data-testid=shift-report-print]")).toBeHidden();
+    await expect(page.locator("[data-testid=shift-report-print]")).toHaveCount(1);
     await expect(page.getByRole("button", { name: "Print Shift Report" })).toBeEnabled();
-    await expect(page.locator("[data-testid=shift-report-print]")).toHaveCount(0);
   });
 
   test("nothing to print: says so, and the button is off", async ({ page }) => {

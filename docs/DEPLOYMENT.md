@@ -130,7 +130,7 @@ If you change an environment variable in Vercel, **redeploy** (Deployments → �
      will be #1001; you can use a real order for this check.
    - In the browser's print dialog choose the thermal printer, **paper size 80 mm** (or 58 mm),
      **margins: none**, **scale: 100%**, and untick **Headers and footers**. Chrome remembers these.
-   - Nothing asks whether it printed. If no paper came out, use Reprint.
+   - Answer **"Did it print?"** honestly; No offers **Print again**.
    - If the receipt is cut off or too narrow, set `RECEIPT_PAPER_WIDTH_MM` (step 3.4) and redeploy.
 7. Sign out on shared devices you don't want left signed in. Signing out only affects that device. To lock out a lost tablet at once:
    **Management → Sign-in accounts → Turn off** its account (every page and action checks this).
