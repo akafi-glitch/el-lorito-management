@@ -1,7 +1,7 @@
 # Menu names in Spanish
 
-What kitchen receipts print in brackets. Customer receipts and the waiter's menu stay in English.
-Where both are the same, nothing extra prints. To correct a name, tell whoever maintains the app, or change `menu_items.name_es`.
+What kitchen receipts print, instead of the English name. Customer receipts and the waiter's menu stay in English.
+To correct a name, tell whoever maintains the app, or change `menu_items.name_es`.
 
 ## Lunch
 

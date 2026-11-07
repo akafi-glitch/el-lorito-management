@@ -72,7 +72,7 @@ database and runs every database test against it.
 | Upgrade keeps old data | | Old schema + data, then the new migrations: every old ticket, line, total, visit, and table ID compared | |
 | Reloads: one at a time, none twice for one change | `sync.test.ts` | | `live.spec.ts` |
 
-**Results, Nov 4, 2026:** 351 unit tests, 616 database checks, 14 race tests, 115 browser tests (7 of them in WebKit as an iPad).
+**Results, Nov 7, 2026:** 350 unit tests, 616 database checks, 14 race tests, 115 browser tests (7 of them in WebKit as an iPad).
 
 **How these were run locally:** this computer has no Docker, so not on `supabase start`. PostgreSQL 17 (the
 live project's version) with pgTAP, Supabase-like roles and `auth` schema, real PostgREST, and a stand-in for
