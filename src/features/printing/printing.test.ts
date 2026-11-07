@@ -100,19 +100,16 @@ describe("the customer receipt", () => {
 });
 
 describe("Spanish names on the kitchen receipt", () => {
-  it("come in brackets, in capitals, with their accents", () => {
-    expect(kitchenItemName("Combo #5", "Combinación #5")).toBe("COMBO #5 (COMBINACIÓN #5)");
-    expect(kitchenItemName("Jarritos pineapple", "Jarritos de piña")).toBe("JARRITOS PINEAPPLE (JARRITOS DE PIÑA)");
-  });
-
-  it("are left out when they would only repeat the name", () => {
+  it("are the only name, in capitals, with their accents", () => {
+    expect(kitchenItemName("Combo #5", "Combinación #5")).toBe("COMBINACIÓN #5");
+    expect(kitchenItemName("Jarritos pineapple", "Jarritos de piña")).toBe("JARRITOS DE PIÑA");
     expect(kitchenItemName("Taco", "Taco")).toBe("TACO");
-    expect(kitchenItemName("Chile con queso", "Chile con queso")).toBe("CHILE CON QUESO");
   });
 
-  it("are left out for a custom item, which has none", () => {
+  it("fall back to the item's own name for a custom item, which has none", () => {
     expect(kitchenItemName("Birthday flan", null)).toBe("BIRTHDAY FLAN");
     expect(kitchenItemName("Birthday flan", undefined)).toBe("BIRTHDAY FLAN");
+    expect(kitchenItemName("Birthday flan", "  ")).toBe("BIRTHDAY FLAN");
     expect(kitchenReceiptFromRow({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Birthday flan", quantity: 1, notes: null, menu_item: null }] }, false, "x").lines[0]?.name).toBe("BIRTHDAY FLAN");
   });
 
@@ -134,8 +131,8 @@ describe("the kitchen receipt", () => {
       time: "11/02/2026 7:35 PM",
       isReprint: false,
       lines: [
-        { name: "CHICKEN FAJITAS (FAJITAS DE POLLO)", quantity: 2, note: null },
-        { name: "BEEF TACOS (TACOS DE RES)", quantity: 3, note: "EXTRA SALSA" },
+        { name: "FAJITAS DE POLLO", quantity: 2, note: null },
+        { name: "TACOS DE RES", quantity: 3, note: "EXTRA SALSA" },
       ],
       notes: "NO ONIONS",
     });

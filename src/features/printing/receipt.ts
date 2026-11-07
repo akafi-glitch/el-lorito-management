@@ -63,11 +63,9 @@ export function receiptFromSnapshot(snapshot: CustomerSnapshot, formatTime: (iso
   };
 }
 
-/** "COMBO #5 (COMBINACIÓN #5)". When both names are the same, or there is no Spanish, one name is enough. */
+/** The kitchen reads Spanish only (owner decision, Nov 7, 2026): "COMBINACIÓN #5". A custom item has none, so it keeps its name. */
 export function kitchenItemName(name: string, nameEs: string | null | undefined): string {
-  const english = name.toUpperCase();
-  const spanish = nameEs?.trim().toUpperCase();
-  return spanish && spanish !== english ? `${english} (${spanish})` : english;
+  return (nameEs?.trim() || name).toUpperCase();
 }
 
 /** One order -> one kitchen receipt: only this order's items, capitals for reading across a kitchen. */

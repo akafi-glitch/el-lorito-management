@@ -138,42 +138,44 @@
     border-top: 2px dashed #000;
   }
   .kitchen-title {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 800;
     text-align: center;
   }
   .kitchen-reprint {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 800;
     text-align: center;
   }
   .kitchen-ticket {
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 800;
     margin-top: 2mm;
   }
   .kitchen-meta {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
   }
   .kitchen-time {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 700;
   }
   .kitchen-item {
-    font-size: 22px;
+    display: flex;
+    gap: 1.5mm;
+    font-size: 20px;
     font-weight: 800;
     line-height: 1.25;
     margin: 1.5mm 0;
   }
   .kitchen-item-note {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 800;
     line-height: 1.25;
-    margin: 0 0 1.5mm 4mm;
+    margin: 0 0 1.5mm 5mm;
   }
   .kitchen-note {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
   }
 }

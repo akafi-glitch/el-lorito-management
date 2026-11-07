@@ -227,13 +227,14 @@ test.describe.serial("orders on a phone", () => {
       const batches = await batchesOf(ticket.id);
       expect(batches).toHaveLength(before + 1);
       const receipt = await lastReceipt(page);
-      for (const part of ["EL LORITO — KITCHEN", `TICKET #${number}`, `TABLE: ${table}`, "WAITER: 01", "TIME: ", "1 × LUNCH #3", "NOTE: NO ONIONS"]) {
+      for (const part of ["EL LORITO — KITCHEN", `TICKET #${number}`, `TABLE: ${table}`, "WAITER: 01", "TIME: ", "1 × ALMUERZO #3", "NOTE: NO ONIONS"]) {
         expect(receipt).toContain(part);
       }
-      expect(receipt).toContain("2 × COMBO #5 (COMBINACIÓN #5)> EXTRA RICE"); // Spanish in brackets, each note under its item
-      expect(receipt).toContain("1 × DOMESTIC BEER (CERVEZA NACIONAL)> COLD GLASS");
+      expect(receipt).toContain("•2 × COMBINACIÓN #5> EXTRA RICE"); // Spanish only, a bullet for each item, its note under it
+      expect(receipt).toContain("•1 × CERVEZA NACIONAL> COLD GLASS");
+      expect(receipt).not.toMatch(/COMBO #5|DOMESTIC BEER|LUNCH #3/); // no English names for the kitchen
       // All three unsent orders went together; nothing about money anywhere.
-      expect(receipt).toContain("2 × COMBO #5");
+      expect(receipt).toContain("2 × COMBINACIÓN #5");
       expect(receipt).not.toMatch(/\$|\d+\.\d\d|TAX|TOTAL|SUBTOTAL|PRICE/i);
 
       // In print mode: only the receipt shows, on the configured paper width, large and bold.
@@ -253,7 +254,7 @@ test.describe.serial("orders on a phone", () => {
       await page.emulateMedia({ media: "screen" });
       expect(style.display).toBe("block");
       expect(style.width).toBe("80mm");
-      expect(style.fontSize).toBeGreaterThanOrEqual(20);
+      expect(style.fontSize).toBe(20); // two sizes smaller than before, still bold
       expect(style.fontWeight).toBeGreaterThanOrEqual(700);
       expect(style.pageRule).toContain("size: 80mm auto");
 
@@ -296,10 +297,10 @@ test.describe.serial("orders on a phone", () => {
       await kitchenButton(page).tap();
       await waitForPrint(page, 1);
       const receipt = await lastReceipt(page);
-      expect(receipt).toContain("1 × LUNCH #1");
+      expect(receipt).toContain("1 × ALMUERZO #1");
       expect(receipt).toContain(`TICKET #${number}`);
-      expect(receipt).not.toContain("COMBO");
-      expect(receipt).not.toContain("LUNCH #3");
+      expect(receipt).not.toContain("COMBINACI");
+      expect(receipt).not.toContain("ALMUERZO #3");
       await answerYes(page);
       await expect(page.getByText("Sent to the kitchen. The order stays on the ticket.")).toBeVisible();
       expect(await openTicketsAt(table)).toHaveLength(1);

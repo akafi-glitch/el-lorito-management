@@ -178,8 +178,8 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Print Kitchen Receipt** saves what is on screen first, then prints every order not printed yet,
   each with its own heading. Later receipts show only new orders. A chosen order can be reprinted, marked
   REPRINT so it isn't cooked twice.
-- **Spanish (owner decision, Nov 4, 2026):** each item prints with its Spanish name in brackets, such as
-  COMBO #5 (COMBINACIÓN #5), and one name when both are the same or for a custom item. Only on kitchen receipts:
+- **Spanish (owner decisions, Nov 4 and 7, 2026):** each item prints with its Spanish name only, such as
+  • 2 × COMBINACIÓN #5, with a bullet in front of each item. A custom item keeps the name the waiter typed. Only on kitchen receipts:
   customer receipts and the waiter's menu stay in English. The names are in `MENU_SPANISH.md`.
 - **Shows:** EL LORITO — KITCHEN, ticket, table, waiter number (of that order), order number, date and time,
   quantities and item names in large bold capitals, each item's note under it, and the order's note. **Never any price, subtotal, tax, or total:**
