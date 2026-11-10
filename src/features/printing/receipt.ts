@@ -27,9 +27,32 @@ export type KitchenReceiptData = {
   time: string;
   /** Another copy of an order already requested: the kitchen must not cook it twice. */
   isReprint: boolean;
-  lines: { name: string; quantity: number; note: string | null }[];
+  lines: KitchenLine[];
   notes: string | null;
 };
+
+/** Where an item goes on the kitchen receipt (owner decision, Nov 10, 2026): food first, then drinks, then appetizers. */
+export type KitchenGroup = "food" | "drinks" | "appetizers";
+export type KitchenLine = { name: string; quantity: number; note: string | null; group: KitchenGroup };
+
+export const KITCHEN_GROUP_ORDER: readonly KitchenGroup[] = ["food", "drinks", "appetizers"];
+export const KITCHEN_GROUP_TITLE: Record<KitchenGroup, string | null> = { food: null, drinks: "DRINKS", appetizers: "APPETIZERS" };
+
+const DRINK_CATEGORIES = new Set(["soft-drinks", "other-beverages", "aguas-frescas", "jarritos-bottled-drinks", "beer", "cocktails"]);
+
+/** By the menu's category. A custom item has none, so liquor tax makes it a drink. */
+export function kitchenGroup(categoryCode: string | null | undefined, taxGroup: "food" | "liquor"): KitchenGroup {
+  if (categoryCode === "appetizers") return "appetizers";
+  if (categoryCode ? DRINK_CATEGORIES.has(categoryCode) : taxGroup === "liquor") return "drinks";
+  return "food";
+}
+
+/** The lines in the order the kitchen reads them: each group together, keeping the order they were added in. */
+export function groupKitchenLines(lines: readonly KitchenLine[]): { group: KitchenGroup; title: string | null; lines: KitchenLine[] }[] {
+  return KITCHEN_GROUP_ORDER.map((group) => ({ group, title: KITCHEN_GROUP_TITLE[group], lines: lines.filter((line) => line.group === group) })).filter(
+    (section) => section.lines.length > 0,
+  );
+}
 
 export const RESTAURANT = { name: "EL LORITO", kitchenTitle: "EL LORITO — KITCHEN" } as const;
 
@@ -84,7 +107,12 @@ export function kitchenReceiptFromRow(row: KitchenBatchRow, isReprint: boolean, 
     isReprint,
     lines: [...row.ticket_lines]
       .sort((a, b) => a.line_no - b.line_no)
-      .map((line) => ({ name: kitchenItemName(line.item_name, line.menu_item?.name_es), quantity: line.quantity, note: line.notes?.toUpperCase() ?? null })),
+      .map((line) => ({
+        name: kitchenItemName(line.item_name, line.menu_item?.name_es),
+        quantity: line.quantity,
+        note: line.notes?.toUpperCase() ?? null,
+        group: kitchenGroup(line.menu_item?.category?.code, line.tax_group_code),
+      })),
     notes: row.notes?.toUpperCase() ?? null,
   };
 }

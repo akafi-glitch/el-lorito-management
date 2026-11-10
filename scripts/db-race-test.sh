@@ -121,14 +121,17 @@ sleep 0.2
 wait
 T=$("${PSQL[@]}" -c "select count(*) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C4' and t.status = 'open' and not t.legacy_single_order")
 B=$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C4' and t.status = 'open' and not t.legacy_single_order")
-if [ "$(cat "$work/t1.code")" = 0 ] && [ "$(cat "$work/t2.code")" = 0 ] && [ "$T" = 1 ] && [ "$B" = 2 ]; then
-  echo "  PASS: one ticket, two orders, nobody seated"
+# Neither order has gone to the kitchen, so the second save adds to the first (owner decision, Nov 10, 2026).
+L=$("${PSQL[@]}" -c "select count(*) from public.ticket_lines l join public.tickets t on t.id = l.ticket_id join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C4' and t.status = 'open' and not t.legacy_single_order")
+if [ "$(cat "$work/t1.code")" = 0 ] && [ "$(cat "$work/t2.code")" = 0 ] && [ "$T" = 1 ] && [ "$B" = 1 ] && [ "$L" = 2 ]; then
+  echo "  PASS: one ticket, one order with both items, nobody seated"
 else
   echo "  FAIL: tickets=$T orders=$B"; cat "$work/t1.out" "$work/t2.out"; fail=1
 fi
 
 echo "Race 5: two waiters send the first order at one table at the same moment"
 reset_tables "C5"
+"${PSQL[@]}" -c "select public.cancel_order(t.id, t.version, $EMP, null) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C5' and t.status = 'open' and not t.legacy_single_order" >/dev/null
 VISIT=$("${PSQL[@]}" -c "select public.seat_party(array['C5'], 2, null)")
 K1=$("${PSQL[@]}" -c "select gen_random_uuid()"); K2=$("${PSQL[@]}" -c "select gen_random_uuid()")
 ( "${PSQL[@]}" -c "begin; $(SAVE "$VISIT" "$K1" Taco); select pg_sleep(1); commit;" >"$work/o1.out" 2>&1; echo $? >"$work/o1.code" ) &
@@ -137,8 +140,9 @@ sleep 0.3
 wait
 if [ "$(cat "$work/o1.code")" = 0 ] && [ "$(cat "$work/o2.code")" = 0 ] \
    && [ "$("${PSQL[@]}" -c "select count(*) from public.tickets where visit_id = $VISIT")" = 1 ] \
-   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id where t.visit_id = $VISIT")" = 2 ]; then
-  echo "  PASS: one ticket, two orders; nothing overwritten"
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id where t.visit_id = $VISIT")" = 1 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_lines l join public.tickets t on t.id = l.ticket_id where t.visit_id = $VISIT")" = 2 ]; then
+  echo "  PASS: one ticket, one order with both items; nothing overwritten"
 else
   echo "  FAIL"; cat "$work/o1.out" "$work/o2.out"; fail=1
 fi
@@ -150,8 +154,9 @@ sleep 0.3
 ( "${PSQL[@]}" -c "$(SAVE "$VISIT" "$K3" Taco);" >"$work/d2.out" 2>&1; echo $? >"$work/d2.code" ) &
 wait
 if [ "$(cat "$work/d1.code")" = 0 ] && [ "$(cat "$work/d2.code")" = 0 ] \
-   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where client_key = '$K3'")" = 1 ] \
-   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id where t.visit_id = $VISIT")" = 3 ]; then
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.order_save_keys where client_key = '$K3'")" = 1 ] \
+   && [ "$("${PSQL[@]}" -c "select l.quantity from public.ticket_lines l join public.tickets t on t.id = l.ticket_id where t.visit_id = $VISIT and l.item_name = 'Taco'")" = 2 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id where t.visit_id = $VISIT")" = 1 ]; then
   echo "  PASS: saved once; the second press got the same order back"
 else
   echo "  FAIL"; cat "$work/d1.out" "$work/d2.out"; fail=1
@@ -167,7 +172,7 @@ sleep 0.3
 wait
 if [ "$(cat "$work/f1.code")" = 0 ] && [ "$(cat "$work/f2.code")" = 0 ] \
    && [ "$("${PSQL[@]}" -c "select status from public.tickets where id = $TID")" = finalized ] \
-   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where ticket_id = $TID")" = 3 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where ticket_id = $TID")" = 1 ] \
    && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches where client_key = '$K4' and ticket_id <> $TID")" = 1 ]; then
   echo "  PASS: finalized first; the late order waited and started the table's next ticket"
 else
@@ -176,6 +181,7 @@ fi
 
 echo "Race 8: two devices confirm the same customer receipt at the same moment"
 reset_tables "C4"
+"${PSQL[@]}" -c "select public.cancel_order(t.id, t.version, $EMP, null) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C4' and t.status = 'open' and not t.legacy_single_order" >/dev/null
 VISIT=$("${PSQL[@]}" -c "select public.seat_party(array['C4'], 2, null)")
 K5=$("${PSQL[@]}" -c "select gen_random_uuid()")
 "${PSQL[@]}" -c "$(SAVE "$VISIT" "$K5" Taco)" >/dev/null
@@ -194,6 +200,7 @@ fi
 
 echo "Race 9: a save and a kitchen print at the same moment (deadlock check)"
 reset_tables "C3"
+"${PSQL[@]}" -c "select public.cancel_order(t.id, t.version, $EMP, null) from public.tickets t join public.restaurant_tables rt on rt.id = t.table_id where rt.code = 'C3' and t.status = 'open' and not t.legacy_single_order" >/dev/null
 VISIT=$("${PSQL[@]}" -c "select public.seat_party(array['C3'], 2, null)")
 K6=$("${PSQL[@]}" -c "select gen_random_uuid()"); K7=$("${PSQL[@]}" -c "select gen_random_uuid()")
 "${PSQL[@]}" -c "$(SAVE "$VISIT" "$K6" Taco)" >/dev/null

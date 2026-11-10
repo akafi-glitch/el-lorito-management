@@ -146,7 +146,13 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 ## Tickets and orders (Rebuilt Nov 2, 2026)
 
 - **One open ticket per table:** adding items never makes a new ticket: each submitted order is a batch on the
-  table's open ticket, with its own ID, waiter, time, and one optional note. Numbers start at 1001 and never
+  table's open ticket, with its own ID, waiter, time, and one optional note.
+- **One order until the kitchen prints (owner decision, Nov 10, 2026):** saving again never starts a new order while the
+  table's latest order has no kitchen receipt printed or waiting for an answer: everything goes on it, and the waiter can
+  add and remove freely. An item already on it gets more quantity at the price it was saved at, and a different note is
+  kept beside the first ("No onions / Extra salsa"). The order note keeps both notes. What can't fit on one order (more
+  than 99 of an item, more than 100 items) is refused with "Print the kitchen receipt first". After the kitchen receipt
+  prints, the next save is a new order. Numbers start at 1001 and never
   reset; a refused save uses no number.
 - **The customer receipt resets the table:** when the waiter confirms it printed, the ticket is finalized and the
   table is ready again. The next order starts a new ticket. Cancelling a ticket frees the table the same way. If
@@ -178,6 +184,9 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Print Kitchen Receipt** saves what is on screen first, then prints every order not printed yet,
   each with its own heading. Later receipts show only new orders. A chosen order can be reprinted, marked
   REPRINT so it isn't cooked twice.
+- **Groups (owner decision, Nov 10, 2026):** food first; then **DRINKS** (soft drinks, other beverages, aguas frescas,
+  Jarritos and bottled drinks, beer, cocktails); then **APPETIZERS**, each title in red (a black-only printer prints it
+  black). A custom item taxed as liquor is a drink. Within a group, items stay in the order they were added.
 - **Spanish (owner decisions, Nov 4 and 7, 2026):** each item prints with its Spanish name only, such as
   • 2 × COMBINACIÓN #5, with a bullet in front of each item. A custom item keeps the name the waiter typed. Only on kitchen receipts:
   customer receipts and the waiter's menu stay in English. The names are in `MENU_SPANISH.md`.

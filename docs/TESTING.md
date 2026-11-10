@@ -65,6 +65,7 @@ database and runs every database test against it.
 | Manager PIN to remove, lower, or cancel what the kitchen has; adding needs none | `tickets.test.ts` | `manager_approval.test.sql` | `manager-approval.spec.ts` |
 | Spanish names: every item has one, in brackets on kitchen receipts only | `printing.test.ts` | `menu_spanish.test.sql` | `tickets.spec.ts` |
 | To-go orders: straight to the menu, own spot, not on the Floor, then like any table | `waiter.test.ts`, `tickets.test.ts` | `to_go_orders.test.sql`, race test 13 | `to-go.spec.ts` |
+| One order until the kitchen prints; kitchen receipt grouped food, drinks, appetizers | `printing.test.ts` | `one_order_until_kitchen.test.sql` | `tickets.spec.ts` |
 | PIN gate: both areas and a ticket by address, generic error, lockout, 15 minutes and 12 hours, Lock, cookie flags, audit, the rest needs no PIN | `pin.test.ts` | `pin_gate.test.sql`, `hardening.test.sql`, race test 12 | `pin-gate.spec.ts` |
 | Shift Report: only sold tickets, right total, open tickets named apart, prints numbers and totals only | `history.test.ts` | | `shift-report.spec.ts` |
 | Item notes: each item keeps its own, edited on the saved ticket, on the kitchen receipt, never on the customer's | `menu.test.ts`, `printing.test.ts` | `item_notes.test.sql` | `tickets.spec.ts` |

@@ -328,6 +328,7 @@ describe("messages", () => {
   it("explain refusals in plain words, naming the ticket or item", () => {
     expect(ticketErrorMessage({ message: "ticket_finalized", details: "1042" })).toContain("Ticket #1042 is finalized");
     expect(ticketErrorMessage({ message: "stale_ticket" })).toContain("Someone else just changed this ticket");
+    expect(ticketErrorMessage({ message: "order_full", details: "1042" })).toContain("Print the kitchen receipt first");
     expect(ticketErrorMessage({ message: "item_unavailable", details: "Taco" })).toContain("Taco is turned off");
     expect(ticketErrorMessage({ message: "invalid_custom_item" })).toContain("tax type");
     expect(ticketErrorMessage({ message: "visit_closed" })).toContain("has been cleared");

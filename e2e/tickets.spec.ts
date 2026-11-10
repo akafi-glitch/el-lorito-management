@@ -143,8 +143,8 @@ test.describe.serial("orders on a phone", () => {
 
     const number = await ticketNumberOnScreen(page);
     const batches = await batchesOf((await ticketByNumber(number)).id);
-    expect(batches).toHaveLength(2);
-    expect(batches[1]?.ticket_lines[0]).toMatchObject({
+    expect(batches).toHaveLength(1); // the kitchen hasn't got the order yet, so the item joins it
+    expect(batches[0]?.ticket_lines.find((l) => l.is_custom)).toMatchObject({
       item_name: "House tequila shot",
       unit_price_cents: 700,
       quantity: 2,
@@ -225,16 +225,19 @@ test.describe.serial("orders on a phone", () => {
       expect(await prints(page)).toBe(1); // and a stray tap doesn't dismiss the question
 
       const batches = await batchesOf(ticket.id);
-      expect(batches).toHaveLength(before + 1);
+      expect(batches).toHaveLength(before); // added to the order the kitchen hasn't got yet, not a new one
       const receipt = await lastReceipt(page);
-      for (const part of ["EL LORITO — KITCHEN", `TICKET #${number}`, `TABLE: ${table}`, "WAITER: 01", "TIME: ", "1 × ALMUERZO #3", "NOTE: NO ONIONS"]) {
+      for (const part of ["EL LORITO — KITCHEN", `TICKET #${number}`, `TABLE: ${table}`, "WAITER: 01", "TIME: ", "1 × ALMUERZO #3", "NOTE: EXTRA SPICY / NO ONIONS"]) { // the order's note, then this save's, on one order
         expect(receipt).toContain(part);
       }
       expect(receipt).toContain("•2 × COMBINACIÓN #5> EXTRA RICE"); // Spanish only, a bullet for each item, its note under it
       expect(receipt).toContain("•1 × CERVEZA NACIONAL> COLD GLASS");
       expect(receipt).not.toMatch(/COMBO #5|DOMESTIC BEER|LUNCH #3/); // no English names for the kitchen
-      // All three unsent orders went together; nothing about money anywhere.
-      expect(receipt).toContain("2 × COMBINACIÓN #5");
+      // Food first, then the drinks under their own title, even though Lunch #3 was added last.
+      expect(receipt.indexOf("ALMUERZO #3")).toBeGreaterThan(receipt.indexOf("COMBINACIÓN #5"));
+      expect(receipt.indexOf("DRINKS")).toBeGreaterThan(receipt.indexOf("ALMUERZO #3"));
+      expect(receipt.indexOf("CERVEZA NACIONAL")).toBeGreaterThan(receipt.indexOf("DRINKS"));
+      // Nothing about money anywhere.
       expect(receipt).not.toMatch(/\$|\d+\.\d\d|TAX|TOTAL|SUBTOTAL|PRICE/i);
 
       // In print mode: only the receipt shows, on the configured paper width, large and bold.
@@ -249,6 +252,7 @@ test.describe.serial("orders on a phone", () => {
           fontWeight: Number(line.fontWeight),
           mainHidden: getComputedStyle(document.querySelector("main")!.parentElement!).display === "none",
           pageRule: root.querySelector("style")?.textContent ?? "",
+          titleColor: getComputedStyle(root.querySelector(".kitchen-group-title")!).color,
         };
       });
       await page.emulateMedia({ media: "screen" });
@@ -257,6 +261,7 @@ test.describe.serial("orders on a phone", () => {
       expect(style.fontSize).toBe(20); // two sizes smaller than before, still bold
       expect(style.fontWeight).toBeGreaterThanOrEqual(700);
       expect(style.pageRule).toContain("size: 80mm auto");
+      expect(style.titleColor).toBe("rgb(192, 0, 0)"); // the group titles print red
 
       await answerNo(page);
       await expect(page.locator("dialog[open] h2")).toHaveText("The kitchen receipt didn't print");

@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { formatRate } from "@/features/billing/tax";
 import { formatCents } from "@/features/menu/money";
 
-import { printableWidthMm, receiptAmount, type KitchenReceiptData, type ReceiptData } from "../receipt";
+import { groupKitchenLines, printableWidthMm, receiptAmount, type KitchenReceiptData, type ReceiptData } from "../receipt";
 
 export function paperStyle(paperWidthMm: 58 | 80) {
   const width = printableWidthMm(paperWidthMm);
@@ -75,15 +75,20 @@ export function KitchenReceipts({ receipts, paperWidthMm }: { receipts: readonly
           <div className="kitchen-meta">ORDER: {receipt.orderNumber}</div>
           <div className="kitchen-time">TIME: {receipt.time}</div>
           <hr />
-          {receipt.lines.map((line, lineIndex) => (
-            <div key={lineIndex}>
-              <div className="kitchen-item">
-                <span aria-hidden="true">•</span>
-                <span>
-                  {line.quantity} × {line.name}
-                </span>
-              </div>
-              {line.note ? <div className="kitchen-item-note">&gt; {line.note}</div> : null}
+          {groupKitchenLines(receipt.lines).map((section) => (
+            <div key={section.group} data-group={section.group}>
+              {section.title ? <div className="kitchen-group-title">{section.title}</div> : null}
+              {section.lines.map((line, lineIndex) => (
+                <div key={lineIndex}>
+                  <div className="kitchen-item">
+                    <span aria-hidden="true">•</span>
+                    <span>
+                      {line.quantity} × {line.name}
+                    </span>
+                  </div>
+                  {line.note ? <div className="kitchen-item-note">&gt; {line.note}</div> : null}
+                </div>
+              ))}
             </div>
           ))}
           {receipt.notes ? (

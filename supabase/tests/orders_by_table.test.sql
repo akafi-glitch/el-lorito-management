@@ -42,10 +42,10 @@ select is(pg_temp.seated('A1'), 0::bigint, 'the Floor still shows the table vaca
 -- One open ticket per table --------------------------------------------------------------------------
 create temp table second_order as select * from pg_temp.save('A1', 2, 'musfika', 'Horchata');
 select is((select ticket_id from second_order), (select ticket_id from first_order), 'another waiter''s order goes on the same ticket');
-select is((select batch_no from second_order), 2, 'as order 2');
-select is((select employee_id from public.ticket_batches where id = (select batch_id from second_order)), pg_temp.id('musfika'), 'with that waiter on it');
+select is((select batch_no from second_order), 1, 'added to order 1, which the kitchen hasn''t got yet');
+select is((select count(*)::int from public.ticket_lines where batch_id = (select batch_id from first_order)), 2, 'with both items on it');
 select is((select already_saved from pg_temp.save('A1', 2, 'musfika', 'Horchata')), true, 'pressing Save twice saves once');
-select is((select count(*)::int from public.ticket_batches where ticket_id = (select ticket_id from first_order)), 2, 'still two orders');
+select is((select count(*)::int from public.ticket_batches where ticket_id = (select ticket_id from first_order)), 1, 'still one order');
 select throws_ok($$ insert into public.tickets (table_id, employee_id) select table_id, employee_id from public.tickets where id = (select ticket_id from first_order) $$,
   '23505', null, 'the database refuses a second open ticket at a table');
 select throws_ok($$ select * from pg_temp.save('NOPE', 3, 'kafi', 'Taco') $$, 'P0001', 'table_not_found', 'an unknown table is refused');
@@ -74,7 +74,7 @@ select is((select ticket_id from pg_temp.save('B1', 8, 'kafi', 'Taco')), (select
 -- Everything else works without a visit ----------------------------------------------------------------
 select lives_ok($$ select public.change_ticket((select ticket_id from first_order), (select version from public.tickets where id = (select ticket_id from first_order)), pg_temp.id('kafi'),
   jsonb_build_array(jsonb_build_object('op', 'notes', 'batch_id', (select batch_id from first_order), 'notes', 'No onions')), pg_temp.actor()) $$, 'lines and notes can change');
-select is((select count(*)::int from public.request_kitchen_print((select ticket_id from first_order), null, pg_temp.id('kafi'), pg_temp.key(20), pg_temp.actor())), 2, 'kitchen receipts print');
+select is((select count(*)::int from public.request_kitchen_print((select ticket_id from first_order), null, pg_temp.id('kafi'), pg_temp.key(20), pg_temp.actor())), 1, 'kitchen receipts print');
 
 create temp table bill as select * from public.request_customer_receipt((select ticket_id from first_order),
   (select version from public.tickets where id = (select ticket_id from first_order)), pg_temp.id('kafi'), pg_temp.key(21), pg_temp.actor());
