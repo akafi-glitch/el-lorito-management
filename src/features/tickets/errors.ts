@@ -32,6 +32,8 @@ export function ticketErrorMessage(error: DbError): string {
       return "That ticket isn't on this table. The page has been refreshed.";
     case "ticket_finalized":
       return `${ticket} is finalized: the customer receipt was printed, so nothing more can be added or changed.`;
+    case "order_full":
+      return "This order can't take that much more before the kitchen gets it. Print the kitchen receipt first, then add the rest.";
     case "invalid_custom_item":
       return "Check the custom item: it needs a name, a price of $0.00 or more, and a tax type.";
     case "invalid_notes":

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { printErrorMessage } from "./errors";
-import { kitchenItemName, kitchenReceiptFromRow, printableWidthMm, receiptFromSnapshot, RESTAURANT } from "./receipt";
+import { groupKitchenLines, kitchenGroup, kitchenItemName, kitchenReceiptFromRow, printableWidthMm, receiptFromSnapshot, RESTAURANT } from "./receipt";
 import {
   customerAttemptRowsSchema,
   customerSnapshotSchema,
@@ -47,8 +47,8 @@ const kitchenRow: KitchenBatchRow = {
     visit: { visit_tables: [{ restaurant_tables: { label: "X8" } }, { restaurant_tables: { label: "X6" } }, { restaurant_tables: { label: "X7" } }] },
   },
   ticket_lines: [
-    { line_no: 2, item_name: "Beef tacos", quantity: 3, notes: "Extra salsa", menu_item: { name_es: "Tacos de res" } },
-    { line_no: 1, item_name: "Chicken fajitas", quantity: 2, notes: null, menu_item: { name_es: "Fajitas de pollo" } },
+    { line_no: 2, item_name: "Beef tacos", quantity: 3, notes: "Extra salsa", tax_group_code: "food", menu_item: { name_es: "Tacos de res", category: { code: "a-la-carte" } } },
+    { line_no: 1, item_name: "Chicken fajitas", quantity: 2, notes: null, tax_group_code: "food", menu_item: { name_es: "Fajitas de pollo", category: { code: "fajitas" } } },
   ],
 };
 
@@ -99,6 +99,32 @@ describe("the customer receipt", () => {
   });
 });
 
+describe("the kitchen receipt's groups", () => {
+  it("puts drinks and appetizers apart from food, by the menu's category", () => {
+    for (const code of ["soft-drinks", "beer", "jarritos-bottled-drinks", "cocktails", "other-beverages", "aguas-frescas"]) {
+      expect(kitchenGroup(code, "food")).toBe("drinks");
+    }
+    expect(kitchenGroup("appetizers", "food")).toBe("appetizers");
+    for (const code of ["lunch", "combination-dinners", "nachos", "dessert", "side-orders"]) expect(kitchenGroup(code, "food")).toBe("food");
+  });
+
+  it("makes a custom item a drink when it is taxed as liquor", () => {
+    expect(kitchenGroup(null, "liquor")).toBe("drinks");
+    expect(kitchenGroup(null, "food")).toBe("food");
+  });
+
+  it("lists food first, then drinks, then appetizers, each in the order added, with titles only where there are items", () => {
+    const line = (name: string, group: "food" | "drinks" | "appetizers") => ({ name, quantity: 1, note: null, group });
+    const sections = groupKitchenLines([line("BEER", "drinks"), line("DIP", "appetizers"), line("TACO", "food"), line("MARGARITA", "drinks"), line("COMBO", "food")]);
+    expect(sections.map((section) => [section.title, section.lines.map((item) => item.name)])).toEqual([
+      [null, ["TACO", "COMBO"]],
+      ["DRINKS", ["BEER", "MARGARITA"]],
+      ["APPETIZERS", ["DIP"]],
+    ]);
+    expect(groupKitchenLines([line("BEER", "drinks")]).map((section) => section.title)).toEqual(["DRINKS"]);
+  });
+});
+
 describe("Spanish names on the kitchen receipt", () => {
   it("are the only name, in capitals, with their accents", () => {
     expect(kitchenItemName("Combo #5", "Combinación #5")).toBe("COMBINACIÓN #5");
@@ -110,7 +136,7 @@ describe("Spanish names on the kitchen receipt", () => {
     expect(kitchenItemName("Birthday flan", null)).toBe("BIRTHDAY FLAN");
     expect(kitchenItemName("Birthday flan", undefined)).toBe("BIRTHDAY FLAN");
     expect(kitchenItemName("Birthday flan", "  ")).toBe("BIRTHDAY FLAN");
-    expect(kitchenReceiptFromRow({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Birthday flan", quantity: 1, notes: null, menu_item: null }] }, false, "x").lines[0]?.name).toBe("BIRTHDAY FLAN");
+    expect(kitchenReceiptFromRow({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Birthday flan", quantity: 1, notes: null, tax_group_code: "food", menu_item: null }] }, false, "x").lines[0]?.name).toBe("BIRTHDAY FLAN");
   });
 
   it("are not on the customer's bill: it has only the saved English name", () => {
@@ -131,8 +157,8 @@ describe("the kitchen receipt", () => {
       time: "11/02/2026 7:35 PM",
       isReprint: false,
       lines: [
-        { name: "FAJITAS DE POLLO", quantity: 2, note: null },
-        { name: "TACOS DE RES", quantity: 3, note: "EXTRA SALSA" },
+        { name: "FAJITAS DE POLLO", quantity: 2, note: null, group: "food" },
+        { name: "TACOS DE RES", quantity: 3, note: "EXTRA SALSA", group: "food" },
       ],
       notes: "NO ONIONS",
     });
@@ -140,7 +166,7 @@ describe("the kitchen receipt", () => {
 
   it("has no prices, subtotals, taxes, or totals anywhere: the data has no place for them", () => {
     expect(JSON.stringify(receipt)).not.toMatch(/cents|price|total|tax|\$/i);
-    expect(Object.keys(receipt.lines[0]!)).toEqual(["name", "quantity", "note"]);
+    expect(Object.keys(receipt.lines[0]!)).toEqual(["name", "quantity", "note", "group"]);
   });
 
   it("drops the note line when there is no note", () => {
@@ -157,7 +183,7 @@ describe("the kitchen receipt", () => {
   });
 
   it("reads only what it needs from the database: a price in the row is ignored", () => {
-    const parsed = kitchenBatchRowSchema.parse({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Taco", quantity: 1, notes: null, menu_item: null, unit_price_cents: 235 }] });
+    const parsed = kitchenBatchRowSchema.parse({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Taco", quantity: 1, notes: null, tax_group_code: "food", menu_item: null, unit_price_cents: 235 }] });
     expect(JSON.stringify(parsed)).not.toContain("235");
   });
 

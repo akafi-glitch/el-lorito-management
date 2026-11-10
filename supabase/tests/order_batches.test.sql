@@ -25,10 +25,23 @@ insert into ids select 'musfika', public.add_employee('02', 'Musfika', 'waiter',
 insert into ids select 'luis', public.add_employee('04', 'Luis', 'waiter', pg_temp.actor());
 select public.update_employee(pg_temp.id('luis'), 'Luis', 'waiter', false, pg_temp.actor());
 insert into ids select 'visit', public.seat_party(array['X2'], 4, pg_temp.actor());
+-- This file is about a ticket with several orders. Since Nov 10, 2026 a save adds to the order the kitchen
+-- hasn't got yet (one_order_until_kitchen.test.sql), so until "Changing what is saved" each order here is
+-- marked as gone to the kitchen right after it saves, and each save starts a new order as it would then.
+create temp table settings (each_order_sent boolean);
+insert into settings values (true);
 create function pg_temp.save(p_key integer, p_employee text, p_lines jsonb, p_notes text default null)
 returns table (ticket_id bigint, ticket_number bigint, version integer, batch_id bigint, batch_no integer, already_saved boolean)
-language sql as $$
-  select * from public.save_order(pg_temp.id('visit'), pg_temp.id(p_employee), pg_temp.key(p_key), p_lines, p_notes, 'America/Chicago', pg_temp.actor()) $$;
+language plpgsql as $$
+#variable_conflict use_column
+begin
+  return query select * from public.save_order(pg_temp.id('visit'), pg_temp.id(p_employee), pg_temp.key(p_key), p_lines, p_notes, 'America/Chicago', pg_temp.actor());
+  if (select each_order_sent from settings) then
+    update public.ticket_batches b set kitchen_printed_at = now()
+     where b.kitchen_printed_at is null
+       and b.ticket_id = (select t.id from public.tickets t where t.visit_id = pg_temp.id('visit') and not t.legacy_single_order);
+  end if;
+end $$;
 create function pg_temp.ticket() returns public.tickets language sql as $$ select * from public.tickets where visit_id = pg_temp.id('visit') and not legacy_single_order $$;
 
 create temp table saved as select * from pg_temp.save(1, 'kafi', jsonb_build_array(pg_temp.line('Combo #5', 2), pg_temp.line('Domestic beer', 1)), '  No onions  ');
@@ -98,6 +111,9 @@ select throws_ok($$ insert into public.tickets (visit_id, employee_id) values (p
   '23505', null, 'the database itself allows one active ticket per group');
 
 -- Changing what is saved ---------------------------------------------------------------------------------------------
+-- From here on, nothing has gone to the kitchen: the orders above are unprinted again.
+update settings set each_order_sent = false;
+update public.ticket_batches b set kitchen_printed_at = null where b.ticket_id = (pg_temp.ticket()).id;
 create function pg_temp.line_id(p_name text, p_batch integer) returns bigint language sql as $$
   select l.id from public.ticket_lines l join public.ticket_batches b on b.id = l.batch_id
    where l.item_name = p_name and b.batch_no = p_batch and l.ticket_id = (pg_temp.ticket()).id $$;

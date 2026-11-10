@@ -222,6 +222,15 @@ line of an order with `kitchen_printed_at` would be removed or lowered, or a tic
 records a right PIN and clears the tries. Audit event `pin_approved`; `ticket_changed` and `ticket_cancelled` name the
 manager. No table rows change.
 
+### One order until the kitchen prints (`20261110010000_one_order_until_kitchen`, Nov 10, 2026)
+
+`save_table_order` adds to the ticket's latest order while it has no kitchen receipt printed or awaiting an answer,
+raising an item's quantity when it is already there (at its saved price, with a different note added beside the first).
+What can't fit on one order is refused with `order_full`, never split into a new order. `order_save_keys` keeps the key of each
+save that added to an order, so the same press still saves once.
+`lock_open_visit_for_update` now takes `FOR NO KEY UPDATE`: the previous build's `save_order` and a kitchen print's
+history entry for the same visit could deadlock under `FOR UPDATE`. Two saves, or a save and a clear, still wait for each other.
+
 ### To-go orders (`20261109010000_to_go_orders`, Nov 4, 2026)
 
 Adds floor area and section `TOGO` with 30 `restaurant_tables` (`TOGO-1` to `TOGO-30`), which the app leaves out of the Floor
