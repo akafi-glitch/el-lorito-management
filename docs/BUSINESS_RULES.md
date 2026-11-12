@@ -206,6 +206,8 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 
 ## Customer receipts and finalizing (Built Nov 2, 2026)
 
+- **Easy to read (owner decision, Nov 11, 2026):** the customer receipt prints all bold, 3px bigger than before:
+  15px text, 19px restaurant name, 18px total. The shift report keeps its smaller size.
 - **Shows:** EL LORITO, ticket number (the same as the kitchen's), waiter number only, table (joined tables as
   "X6 + X7 + X8"), date and time, each item with quantity, price, and line total, food subtotal, liquor subtotal,
   food tax 8.5%, liquor tax 10.5%, total, THANK YOU! All saved orders are included; the same item at the same

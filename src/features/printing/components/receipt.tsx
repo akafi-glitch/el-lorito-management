@@ -23,7 +23,7 @@ export function PageRule({ paperWidthMm }: { paperWidthMm: 58 | 80 }) {
  */
 export function Receipt({ receipt, paperWidthMm, isCopy }: { receipt: ReceiptData; paperWidthMm: 58 | 80; isCopy: boolean }) {
   return createPortal(
-    <div className="receipt-print" data-testid="receipt" style={paperStyle(paperWidthMm)}>
+    <div className="receipt-print customer-receipt" data-testid="receipt" style={paperStyle(paperWidthMm)}>
       <PageRule paperWidthMm={paperWidthMm} />
       <div className="receipt-center">
         <div className="receipt-title">{receipt.restaurantName}</div>

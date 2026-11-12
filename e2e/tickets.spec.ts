@@ -354,10 +354,28 @@ test.describe.serial("orders on a phone", () => {
       await page.emulateMedia({ media: "print" });
       const width = await page.evaluate(() => {
         const root = document.querySelector<HTMLElement>("[data-testid=receipt]")!;
-        return { display: getComputedStyle(root).display, width: root.style.width };
+        const font = (selector: string) => {
+          const style = getComputedStyle(root.querySelector(selector)!);
+          return [parseFloat(style.fontSize), Number(style.fontWeight)];
+        };
+        return {
+          display: getComputedStyle(root).display,
+          width: root.style.width,
+          line: font(".receipt-line"),
+          title: font(".receipt-title"),
+          total: font(".receipt-total"),
+          fits: [...root.querySelectorAll<HTMLElement>(".receipt-row")].every((row) => row.scrollWidth <= row.clientWidth),
+        };
       });
       await page.emulateMedia({ media: "screen" });
-      expect(width).toEqual({ display: "block", width: "80mm" });
+      expect(width).toEqual({
+        display: "block",
+        width: "80mm",
+        line: [15, 700], // 3px bigger than before, and bold, to be easy to read
+        title: [19, 800],
+        total: [18, 800],
+        fits: true, // nothing runs past the paper's edge
+      });
       await answerYes(page);
 
       await expect(page.getByText(`Ticket #${number} is finalized. The table is ready for a new order.`)).toBeVisible();
