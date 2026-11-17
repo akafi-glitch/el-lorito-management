@@ -270,7 +270,9 @@
    "price_cents": 950,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 14
+   "sort_order": 14,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 2,
@@ -280,7 +282,9 @@
    "price_cents": 850,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 13
+   "sort_order": 13,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 3,
@@ -290,7 +294,9 @@
    "price_cents": 950,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 12
+   "sort_order": 12,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 4,
@@ -300,7 +306,9 @@
    "price_cents": 925,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 11
+   "sort_order": 11,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 5,
@@ -310,7 +318,9 @@
    "price_cents": 1050,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 10
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 6,
@@ -320,7 +330,9 @@
    "price_cents": 799,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 9
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 7,
@@ -330,7 +342,9 @@
    "price_cents": 760,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 8,
@@ -340,7 +354,9 @@
    "price_cents": 799,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 9,
@@ -350,7 +366,9 @@
    "price_cents": 825,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 10,
@@ -360,7 +378,9 @@
    "price_cents": 799,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 11,
@@ -370,7 +390,9 @@
    "price_cents": 749,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 12,
@@ -380,7 +402,9 @@
    "price_cents": 760,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 13,
@@ -390,7 +414,9 @@
    "price_cents": 799,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 14,
@@ -400,7 +426,9 @@
    "price_cents": 825,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 15,
@@ -410,7 +438,9 @@
    "price_cents": 519,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 16,
@@ -420,7 +450,9 @@
    "price_cents": 519,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 17,
@@ -430,7 +462,9 @@
    "price_cents": 499,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 18,
@@ -440,7 +474,9 @@
    "price_cents": 499,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 19,
@@ -450,7 +486,9 @@
    "price_cents": 519,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 20,
@@ -460,7 +498,9 @@
    "price_cents": 899,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 21,
@@ -470,7 +510,9 @@
    "price_cents": 1200,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 22,
@@ -480,7 +522,9 @@
    "price_cents": 990,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 23,
@@ -490,7 +534,9 @@
    "price_cents": 950,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 24,
@@ -500,7 +546,9 @@
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 25,
@@ -510,7 +558,9 @@
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 26,
@@ -520,7 +570,9 @@
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 27,
@@ -530,7 +582,9 @@
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 28,
@@ -540,7 +594,9 @@
    "price_cents": 599,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 29,
@@ -550,7 +606,9 @@
    "price_cents": 425,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 22
+   "sort_order": 22,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 30,
@@ -560,17 +618,21 @@
    "price_cents": 525,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 21
+   "sort_order": 21,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 31,
    "category_id": 4,
-   "name": "Chimichanga",
+   "name": "Chimichanga (Side order)",
    "description": null,
    "price_cents": 625,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 20
+   "sort_order": 20,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 32,
@@ -580,7 +642,9 @@
    "price_cents": 559,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 19
+   "sort_order": 19,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 33,
@@ -590,7 +654,9 @@
    "price_cents": 650,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 18
+   "sort_order": 18,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 34,
@@ -600,7 +666,9 @@
    "price_cents": 525,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 17
+   "sort_order": 17,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 35,
@@ -610,7 +678,9 @@
    "price_cents": 425,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 16
+   "sort_order": 16,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 36,
@@ -620,7 +690,9 @@
    "price_cents": 525,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 15
+   "sort_order": 15,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 37,
@@ -630,7 +702,9 @@
    "price_cents": 325,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 14
+   "sort_order": 14,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 38,
@@ -640,7 +714,9 @@
    "price_cents": 325,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 13
+   "sort_order": 13,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 39,
@@ -650,7 +726,9 @@
    "price_cents": 399,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 12
+   "sort_order": 12,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 40,
@@ -660,7 +738,9 @@
    "price_cents": 325,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 11
+   "sort_order": 11,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 41,
@@ -670,7 +750,9 @@
    "price_cents": 325,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 10
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 42,
@@ -680,7 +762,9 @@
    "price_cents": 725,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 9
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 43,
@@ -690,7 +774,9 @@
    "price_cents": 425,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 44,
@@ -700,7 +786,9 @@
    "price_cents": 375,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 45,
@@ -710,7 +798,9 @@
    "price_cents": 275,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 46,
@@ -720,7 +810,9 @@
    "price_cents": 235,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 47,
@@ -730,7 +822,9 @@
    "price_cents": 525,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 48,
@@ -740,7 +834,9 @@
    "price_cents": 325,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 49,
@@ -750,7 +846,9 @@
    "price_cents": 325,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 50,
@@ -760,7 +858,9 @@
    "price_cents": 475,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 51,
@@ -770,7 +870,9 @@
    "price_cents": 900,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 52,
@@ -780,7 +882,9 @@
    "price_cents": 860,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 53,
@@ -790,7 +894,9 @@
    "price_cents": 860,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 54,
@@ -800,7 +906,9 @@
    "price_cents": 850,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 55,
@@ -810,7 +918,9 @@
    "price_cents": 850,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 56,
@@ -820,7 +930,9 @@
    "price_cents": 850,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 57,
@@ -830,7 +942,9 @@
    "price_cents": 750,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 58,
@@ -840,107 +954,129 @@
    "price_cents": 650,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 59,
    "category_id": 6,
-   "name": "10. Mac and cheese and fries",
-   "description": null,
+   "name": "Kids Plate #10",
+   "description": "Mac and cheese and fries",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 10
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 60,
    "category_id": 6,
-   "name": "9. Pizza and fries",
-   "description": null,
+   "name": "Kids Plate #9",
+   "description": "Pizza and fries",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 9
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 61,
    "category_id": 6,
-   "name": "8. Grilled cheese and fries",
-   "description": null,
+   "name": "Kids Plate #8",
+   "description": "Grilled cheese and fries",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 62,
    "category_id": 6,
-   "name": "7. Hamburger and fries",
-   "description": null,
+   "name": "Kids Plate #7",
+   "description": "Hamburger and fries",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 63,
    "category_id": 6,
-   "name": "6. Corn dog and fries",
-   "description": null,
+   "name": "Kids Plate #6",
+   "description": "Corn dog and fries",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 64,
    "category_id": 6,
-   "name": "5. Chicken tenders with fries",
-   "description": null,
+   "name": "Kids Plate #5",
+   "description": "Chicken tenders with fries",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 65,
    "category_id": 6,
-   "name": "4. Burrito and taco",
-   "description": null,
+   "name": "Kids Plate #4",
+   "description": "Burrito and taco",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 66,
    "category_id": 6,
-   "name": "3. Cheese quesadilla and rice",
-   "description": null,
+   "name": "Kids Plate #3",
+   "description": "Cheese quesadilla and rice",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 67,
    "category_id": 6,
-   "name": "2. Taco, rice and beans",
-   "description": null,
+   "name": "Kids Plate #2",
+   "description": "Taco, rice and beans",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 68,
    "category_id": 6,
-   "name": "1. Enchilada, rice and beans",
-   "description": null,
+   "name": "Kids Plate #1",
+   "description": "Enchilada, rice and beans",
    "price_cents": 699,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 69,
@@ -950,7 +1086,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 24
+   "sort_order": 24,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 70,
@@ -960,7 +1098,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 23
+   "sort_order": 23,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 71,
@@ -970,7 +1110,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 22
+   "sort_order": 22,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 72,
@@ -980,7 +1122,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 21
+   "sort_order": 21,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 73,
@@ -990,7 +1134,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 20
+   "sort_order": 20,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 74,
@@ -1000,7 +1146,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 19
+   "sort_order": 19,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 75,
@@ -1010,7 +1158,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 18
+   "sort_order": 18,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 76,
@@ -1020,7 +1170,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 17
+   "sort_order": 17,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 77,
@@ -1030,7 +1182,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 16
+   "sort_order": 16,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 78,
@@ -1040,7 +1194,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 15
+   "sort_order": 15,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 79,
@@ -1050,7 +1206,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 14
+   "sort_order": 14,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 80,
@@ -1060,7 +1218,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 13
+   "sort_order": 13,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 81,
@@ -1070,7 +1230,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 12
+   "sort_order": 12,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 82,
@@ -1080,7 +1242,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 11
+   "sort_order": 11,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 83,
@@ -1090,7 +1254,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 10
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 84,
@@ -1100,7 +1266,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 9
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 85,
@@ -1110,7 +1278,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 86,
@@ -1120,7 +1290,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 87,
@@ -1130,7 +1302,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 88,
@@ -1140,7 +1314,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 89,
@@ -1150,7 +1326,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 90,
@@ -1160,7 +1338,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 91,
@@ -1170,7 +1350,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 92,
@@ -1180,7 +1362,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 93,
@@ -1190,7 +1374,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 94,
@@ -1200,7 +1386,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 95,
@@ -1210,7 +1398,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 96,
@@ -1220,7 +1410,9 @@
    "price_cents": 950,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 97,
@@ -1230,7 +1422,9 @@
    "price_cents": 849,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 98,
@@ -1240,7 +1434,9 @@
    "price_cents": 1150,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 99,
@@ -1250,7 +1446,9 @@
    "price_cents": 950,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 100,
@@ -1260,7 +1458,9 @@
    "price_cents": 925,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 101,
@@ -1270,7 +1470,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 102,
@@ -1280,7 +1482,9 @@
    "price_cents": 940,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 103,
@@ -1289,8 +1493,10 @@
    "description": "Sour cream, grated cheese, tortillas, jalapenos, pico de gallo or hot sauce",
    "price_cents": 150,
    "tax_category_code": "food",
-   "is_available": true,
-   "sort_order": 1
+   "is_available": false,
+   "sort_order": 200103,
+   "parent_item_id": null,
+   "is_retired": true
   },
   {
    "id": 104,
@@ -1300,7 +1506,9 @@
    "price_cents": 125,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 105,
@@ -1310,7 +1518,9 @@
    "price_cents": 100,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 106,
@@ -1320,7 +1530,9 @@
    "price_cents": 150,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 107,
@@ -1330,7 +1542,9 @@
    "price_cents": 125,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 108,
@@ -1340,7 +1554,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 109,
@@ -1350,7 +1566,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 110,
@@ -1360,7 +1578,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 111,
@@ -1370,7 +1590,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 112,
@@ -1380,7 +1602,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 113,
@@ -1390,7 +1614,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 114,
@@ -1400,7 +1626,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 115,
@@ -1410,7 +1638,9 @@
    "price_cents": 1050,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 116,
@@ -1420,7 +1650,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 117,
@@ -1430,7 +1662,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 118,
@@ -1440,7 +1674,9 @@
    "price_cents": 850,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 119,
@@ -1450,7 +1686,9 @@
    "price_cents": 2499,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 120,
@@ -1460,7 +1698,9 @@
    "price_cents": 2399,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 121,
@@ -1470,7 +1710,9 @@
    "price_cents": 1399,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 122,
@@ -1480,7 +1722,9 @@
    "price_cents": 1499,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 123,
@@ -1490,7 +1734,9 @@
    "price_cents": 1599,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 124,
@@ -1500,7 +1746,9 @@
    "price_cents": 1399,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 125,
@@ -1510,7 +1758,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 126,
@@ -1520,7 +1770,9 @@
    "price_cents": 1499,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 127,
@@ -1530,7 +1782,9 @@
    "price_cents": 1199,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 128,
@@ -1540,7 +1794,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 129,
@@ -1550,7 +1806,9 @@
    "price_cents": 1499,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 130,
@@ -1560,7 +1818,9 @@
    "price_cents": 1499,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 131,
@@ -1570,7 +1830,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 10
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 132,
@@ -1580,7 +1842,9 @@
    "price_cents": 1899,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 9
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 133,
@@ -1590,7 +1854,9 @@
    "price_cents": 1599,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 134,
@@ -1600,7 +1866,9 @@
    "price_cents": 1449,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 135,
@@ -1610,7 +1878,9 @@
    "price_cents": 1249,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 136,
@@ -1620,7 +1890,9 @@
    "price_cents": 1599,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 137,
@@ -1630,7 +1902,9 @@
    "price_cents": 925,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 138,
@@ -1640,7 +1914,9 @@
    "price_cents": 1199,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 139,
@@ -1650,7 +1926,9 @@
    "price_cents": 1149,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 140,
@@ -1660,7 +1938,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 141,
@@ -1670,7 +1950,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 142,
@@ -1680,7 +1962,9 @@
    "price_cents": 1399,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 143,
@@ -1690,7 +1974,9 @@
    "price_cents": 1299,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 144,
@@ -1700,7 +1986,9 @@
    "price_cents": 1249,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 145,
@@ -1710,7 +1998,9 @@
    "price_cents": 1199,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 146,
@@ -1720,7 +2010,9 @@
    "price_cents": 1199,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 147,
@@ -1730,7 +2022,9 @@
    "price_cents": 1225,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 148,
@@ -1740,7 +2034,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 10
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 149,
@@ -1750,7 +2046,9 @@
    "price_cents": 950,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 9
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 150,
@@ -1760,7 +2058,9 @@
    "price_cents": 950,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 151,
@@ -1770,7 +2070,9 @@
    "price_cents": 1025,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 152,
@@ -1780,7 +2082,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 153,
@@ -1790,7 +2094,9 @@
    "price_cents": 999,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 154,
@@ -1800,7 +2106,9 @@
    "price_cents": 950,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 155,
@@ -1810,7 +2118,9 @@
    "price_cents": 1099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 156,
@@ -1820,7 +2130,9 @@
    "price_cents": 2099,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 157,
@@ -1830,7 +2142,9 @@
    "price_cents": 1399,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 158,
@@ -1840,7 +2154,9 @@
    "price_cents": 375,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 159,
@@ -1850,7 +2166,9 @@
    "price_cents": 375,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 160,
@@ -1860,7 +2178,9 @@
    "price_cents": 425,
    "tax_category_code": "food",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 161,
@@ -1869,8 +2189,10 @@
    "description": "Coke, Coke Zero, Diet Coke, Pibb, Fanta (Orange), Sprite, Root Beer, Cream Soda, Minute Maid Lemonade or Raspberry Tea",
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
-   "is_available": true,
-   "sort_order": 1
+   "is_available": false,
+   "sort_order": 200161,
+   "parent_item_id": null,
+   "is_retired": true
   },
   {
    "id": 162,
@@ -1880,7 +2202,9 @@
    "price_cents": 250,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 163,
@@ -1890,7 +2214,9 @@
    "price_cents": 250,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 164,
@@ -1900,7 +2226,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 165,
@@ -1910,7 +2238,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 166,
@@ -1920,7 +2250,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 167,
@@ -1930,7 +2262,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 168,
@@ -1940,7 +2274,9 @@
    "price_cents": 325,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 169,
@@ -1950,7 +2286,9 @@
    "price_cents": 325,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 170,
@@ -1960,7 +2298,9 @@
    "price_cents": 325,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 171,
@@ -1970,7 +2310,9 @@
    "price_cents": 325,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 11
+   "sort_order": 11,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 172,
@@ -1980,7 +2322,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 10
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 173,
@@ -1990,7 +2334,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 9
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 174,
@@ -2000,7 +2346,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 175,
@@ -2010,7 +2358,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 176,
@@ -2020,7 +2370,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 177,
@@ -2030,7 +2382,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 178,
@@ -2040,7 +2394,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 179,
@@ -2050,7 +2406,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 180,
@@ -2060,7 +2418,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 181,
@@ -2070,7 +2430,9 @@
    "price_cents": 299,
    "tax_category_code": "nonalcoholic",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 182,
@@ -2080,7 +2442,9 @@
    "price_cents": 799,
    "tax_category_code": "beer",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 183,
@@ -2090,7 +2454,9 @@
    "price_cents": 399,
    "tax_category_code": "beer",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 184,
@@ -2100,7 +2466,9 @@
    "price_cents": 575,
    "tax_category_code": "beer",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 185,
@@ -2110,7 +2478,9 @@
    "price_cents": 325,
    "tax_category_code": "beer",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 186,
@@ -2120,7 +2490,9 @@
    "price_cents": 650,
    "tax_category_code": "beer",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 187,
@@ -2130,7 +2502,9 @@
    "price_cents": 525,
    "tax_category_code": "beer",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 188,
@@ -2140,7 +2514,9 @@
    "price_cents": 499,
    "tax_category_code": "beer",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 189,
@@ -2150,7 +2526,9 @@
    "price_cents": 525,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 22
+   "sort_order": 22,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 190,
@@ -2160,7 +2538,9 @@
    "price_cents": 575,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 21
+   "sort_order": 21,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 191,
@@ -2170,7 +2550,9 @@
    "price_cents": 875,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 20
+   "sort_order": 20,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 192,
@@ -2180,7 +2562,9 @@
    "price_cents": 625,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 19
+   "sort_order": 19,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 193,
@@ -2190,7 +2574,9 @@
    "price_cents": 575,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 18
+   "sort_order": 18,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 194,
@@ -2200,7 +2586,9 @@
    "price_cents": 625,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 17
+   "sort_order": 17,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 195,
@@ -2210,7 +2598,9 @@
    "price_cents": 525,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 16
+   "sort_order": 16,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 196,
@@ -2220,7 +2610,9 @@
    "price_cents": 575,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 15
+   "sort_order": 15,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 197,
@@ -2230,7 +2622,9 @@
    "price_cents": 575,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 14
+   "sort_order": 14,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 198,
@@ -2240,7 +2634,9 @@
    "price_cents": 875,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 13
+   "sort_order": 13,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 199,
@@ -2250,7 +2646,9 @@
    "price_cents": 625,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 12
+   "sort_order": 12,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 200,
@@ -2260,7 +2658,9 @@
    "price_cents": 625,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 11
+   "sort_order": 11,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 201,
@@ -2270,7 +2670,9 @@
    "price_cents": 575,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 10
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 202,
@@ -2280,7 +2682,9 @@
    "price_cents": 875,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 9
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 203,
@@ -2290,7 +2694,9 @@
    "price_cents": 875,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 8
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 204,
@@ -2300,7 +2706,9 @@
    "price_cents": 875,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 7
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 205,
@@ -2310,7 +2718,9 @@
    "price_cents": 699,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 6
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 206,
@@ -2320,7 +2730,9 @@
    "price_cents": 775,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 5
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 207,
@@ -2330,7 +2742,9 @@
    "price_cents": 275,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 4
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 208,
@@ -2340,7 +2754,9 @@
    "price_cents": 699,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 3
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 209,
@@ -2350,7 +2766,9 @@
    "price_cents": 775,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 2
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
   },
   {
    "id": 210,
@@ -2360,7 +2778,405 @@
    "price_cents": 425,
    "tax_category_code": "cocktail",
    "is_available": true,
-   "sort_order": 1
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 211,
+   "category_id": 10,
+   "name": "Hot sauce",
+   "description": null,
+   "price_cents": 150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 212,
+   "category_id": 10,
+   "name": "Pico de gallo",
+   "description": null,
+   "price_cents": 150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 213,
+   "category_id": 10,
+   "name": "Jalapeños",
+   "description": null,
+   "price_cents": 150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 214,
+   "category_id": 10,
+   "name": "Tortillas",
+   "description": null,
+   "price_cents": 150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 215,
+   "category_id": 10,
+   "name": "Grated cheese",
+   "description": null,
+   "price_cents": 150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 216,
+   "category_id": 10,
+   "name": "Sour cream",
+   "description": null,
+   "price_cents": 150,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 217,
+   "category_id": 21,
+   "name": "Raspberry Tea",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 10,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 218,
+   "category_id": 21,
+   "name": "Minute Maid Lemonade",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 9,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 219,
+   "category_id": 21,
+   "name": "Cream Soda",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 8,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 220,
+   "category_id": 21,
+   "name": "Root Beer",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 7,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 221,
+   "category_id": 21,
+   "name": "Sprite",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 6,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 222,
+   "category_id": 21,
+   "name": "Fanta (Orange)",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 5,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 223,
+   "category_id": 21,
+   "name": "Pibb",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 224,
+   "category_id": 21,
+   "name": "Diet Coke",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 3,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 225,
+   "category_id": 21,
+   "name": "Coke Zero",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 2,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 226,
+   "category_id": 21,
+   "name": "Coke",
+   "description": null,
+   "price_cents": 299,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 1,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 227,
+   "category_id": 23,
+   "name": "Mango (No Refills)",
+   "description": null,
+   "price_cents": 325,
+   "tax_category_code": "nonalcoholic",
+   "is_available": true,
+   "sort_order": 4,
+   "parent_item_id": null,
+   "is_retired": false
+  },
+  {
+   "id": 228,
+   "category_id": 4,
+   "name": "Steak quesadilla (Beef)",
+   "description": null,
+   "price_cents": 650,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100181,
+   "parent_item_id": 33,
+   "is_retired": false
+  },
+  {
+   "id": 229,
+   "category_id": 4,
+   "name": "Steak quesadilla (Chicken)",
+   "description": null,
+   "price_cents": 650,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100182,
+   "parent_item_id": 33,
+   "is_retired": false
+  },
+  {
+   "id": 230,
+   "category_id": 8,
+   "name": "Taco salad (Beef)",
+   "description": "Deep-fried flour tortilla shell filled with choice of beef or chicken, lettuce, tomatoes, grated cheese and sour cream",
+   "price_cents": 849,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100011,
+   "parent_item_id": 97,
+   "is_retired": false
+  },
+  {
+   "id": 231,
+   "category_id": 8,
+   "name": "Taco salad (Chicken)",
+   "description": "Deep-fried flour tortilla shell filled with choice of beef or chicken, lettuce, tomatoes, grated cheese and sour cream",
+   "price_cents": 849,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100012,
+   "parent_item_id": 97,
+   "is_retired": false
+  },
+  {
+   "id": 232,
+   "category_id": 14,
+   "name": "Beef or chicken fajitas (Beef)",
+   "description": "Strips of beef or chicken cooked with tomatoes, onions and bell peppers; served with rice, beans, flour tortillas, guacamole salad and sour cream",
+   "price_cents": 1399,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100011,
+   "parent_item_id": 124,
+   "is_retired": false
+  },
+  {
+   "id": 233,
+   "category_id": 14,
+   "name": "Beef or chicken fajitas (Chicken)",
+   "description": "Strips of beef or chicken cooked with tomatoes, onions and bell peppers; served with rice, beans, flour tortillas, guacamole salad and sour cream",
+   "price_cents": 1399,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100012,
+   "parent_item_id": 124,
+   "is_retired": false
+  },
+  {
+   "id": 234,
+   "category_id": 19,
+   "name": "Taquitos Mexicanos (Beef)",
+   "description": "Three rolled and fried corn tortillas stuffed with beef or chicken; served with lettuce, guacamole, sour cream and rice",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100061,
+   "parent_item_id": 152,
+   "is_retired": false
+  },
+  {
+   "id": 235,
+   "category_id": 19,
+   "name": "Taquitos Mexicanos (Chicken)",
+   "description": "Three rolled and fried corn tortillas stuffed with beef or chicken; served with lettuce, guacamole, sour cream and rice",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100062,
+   "parent_item_id": 152,
+   "is_retired": false
+  },
+  {
+   "id": 236,
+   "category_id": 19,
+   "name": "Quesadilla Grande (Beef)",
+   "description": "Flour tortilla grilled and stuffed with cheese, chopped beef and beans; served with guacamole, lettuce, sour cream and rice",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100051,
+   "parent_item_id": 153,
+   "is_retired": false
+  },
+  {
+   "id": 237,
+   "category_id": 19,
+   "name": "Quesadilla Grande (Chicken)",
+   "description": "Flour tortilla grilled and stuffed with cheese, chopped beef and beans; served with guacamole, lettuce, sour cream and rice",
+   "price_cents": 999,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100052,
+   "parent_item_id": 153,
+   "is_retired": false
+  },
+  {
+   "id": 238,
+   "category_id": 19,
+   "name": "Chimichanga (Beef)",
+   "description": "Chunks of beef or chicken and refried beans wrapped in a flour tortilla and fried; topped with cheese and served with guacamole salad",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100041,
+   "parent_item_id": 154,
+   "is_retired": false
+  },
+  {
+   "id": 239,
+   "category_id": 19,
+   "name": "Chimichanga (Chicken)",
+   "description": "Chunks of beef or chicken and refried beans wrapped in a flour tortilla and fried; topped with cheese and served with guacamole salad",
+   "price_cents": 950,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100042,
+   "parent_item_id": 154,
+   "is_retired": false
+  },
+  {
+   "id": 240,
+   "category_id": 19,
+   "name": "Monterrey (Beef)",
+   "description": "Fried flat flour tortilla topped with beans, choice of chicken or ground beef, lettuce, sour cream, pico de gallo, tomatoes and guacamole",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100031,
+   "parent_item_id": 155,
+   "is_retired": false
+  },
+  {
+   "id": 241,
+   "category_id": 19,
+   "name": "Monterrey (Chicken)",
+   "description": "Fried flat flour tortilla topped with beans, choice of chicken or ground beef, lettuce, sour cream, pico de gallo, tomatoes and guacamole",
+   "price_cents": 1099,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100032,
+   "parent_item_id": 155,
+   "is_retired": false
+  },
+  {
+   "id": 242,
+   "category_id": 4,
+   "name": "Chimichanga (Side order) (Beef)",
+   "description": null,
+   "price_cents": 625,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100201,
+   "parent_item_id": 31,
+   "is_retired": false
+  },
+  {
+   "id": 243,
+   "category_id": 4,
+   "name": "Chimichanga (Side order) (Chicken)",
+   "description": null,
+   "price_cents": 625,
+   "tax_category_code": "food",
+   "is_available": true,
+   "sort_order": 100202,
+   "parent_item_id": 31,
+   "is_retired": false
   }
  ]
 }

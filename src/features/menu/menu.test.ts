@@ -37,14 +37,56 @@ describe("menu from the database", () => {
     expect(menu.categories.at(-1)?.name).toBe("Cocktails");
   });
 
-  it("has the 206 items of the menu file plus 4 cheese-dip add-ons", () => {
-    expect(allItems).toHaveLength(210);
+  it("has the menu file's items, the 4 cheese-dip add-ons, and the Nov 16, 2026 lists", () => {
+    // 206 + 4, minus "Soft drink" and "Extras (each)" (retired), plus 10 soft drinks, 6 extras, and Mango.
+    expect(allItems).toHaveLength(225);
     expect(menu.categories.find((c) => c.code === "cheese-dip-add-ons")?.items.map((i) => [i.name, i.priceCents])).toEqual([
       ["Cheese dip on lunch enchilada", 125],
       ["Cheese dip on lunch burrito", 150],
       ["Cheese dip on combo enchilada", 100],
       ["Cheese dip on combo burrito", 125],
     ]);
+  });
+
+  it("names the kids' plates Kids Plate #1 to #10, with the plate as the description", () => {
+    const kids = menu.categories.find((c) => c.code === "childs-plates")!.items;
+    expect(kids.map((i) => i.name)).toEqual(Array.from({ length: 10 }, (_, n) => `Kids Plate #${n + 1}`));
+    expect(item("Kids Plate #1").description).toBe("Enchilada, rice and beans");
+    expect(searchMenu(menu.categories, "kids plate").length).toBe(10);
+  });
+
+  it("lists every soft drink at $2.99 and every extra at $1.50, each searchable", () => {
+    const drinks = menu.categories.find((c) => c.code === "soft-drinks")!.items;
+    expect(drinks.map((i) => i.name)).toEqual([
+      "Coke", "Coke Zero", "Diet Coke", "Pibb", "Fanta (Orange)", "Sprite", "Root Beer", "Cream Soda", "Minute Maid Lemonade", "Raspberry Tea",
+    ]);
+    expect(new Set(drinks.map((i) => [i.priceCents, i.taxCategory].join()))).toEqual(new Set(["299,nonalcoholic"]));
+    const extras = menu.categories.find((c) => c.code === "extras")!.items;
+    expect(extras.map((i) => i.name)).toEqual(["Sour cream", "Grated cheese", "Tortillas", "Jalapeños", "Pico de gallo", "Hot sauce"]);
+    expect(new Set(extras.map((i) => i.priceCents))).toEqual(new Set([150]));
+    expect(searchMenu(menu.categories, "coke zero")[0]?.item.name).toBe("Coke Zero");
+    expect(searchMenu(menu.categories, "sour cream")[0]?.item.name).toBe("Sour cream");
+    expect(allItems.some((i) => i.name === "Soft drink" || i.name === "Extras (each)")).toBe(false); // retired
+  });
+
+  it("adds Mango (No Refills) to the aguas frescas at $3.25", () => {
+    expect(item("Mango (No Refills)")).toMatchObject({ priceCents: 325, taxCategory: "nonalcoholic" });
+  });
+
+  it("puts Beef and Chicken under the items that come with either, not on the menu by themselves", () => {
+    const withChoices = allItems.filter((i) => i.choices.length > 0).map((i) => i.name);
+    expect(withChoices.sort()).toEqual([
+      "Beef or chicken fajitas", "Chimichanga", "Chimichanga (Side order)", "Monterrey", "Quesadilla Grande",
+      "Steak quesadilla (chicken or beef)", "Taco salad (chicken or beef)", "Taquitos Mexicanos",
+    ]);
+    expect(item("Monterrey").choices.map((c) => [c.name, c.choiceLabel, c.priceCents])).toEqual([
+      ["Monterrey (Beef)", "Beef", 1099],
+      ["Monterrey (Chicken)", "Chicken", 1099],
+    ]);
+    expect(item("Beef or chicken fajitas").choices.map((c) => c.name)).toEqual(["Beef or chicken fajitas (Beef)", "Beef or chicken fajitas (Chicken)"]);
+    expect(item("Chimichanga (Side order)").choices.map((c) => c.name)).toEqual(["Chimichanga (Side order) (Beef)", "Chimichanga (Side order) (Chicken)"]);
+    expect(allItems.some((i) => i.name === "Monterrey (Beef)")).toBe(false);
+    expect(categoryOf("Chimichanga (Side order)").code).toBe("side-orders");
   });
 
   it("keeps the menu's order inside a category", () => {

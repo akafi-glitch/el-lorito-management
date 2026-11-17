@@ -137,6 +137,20 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   $1.50, combo enchilada $1.00, combo burrito $1.25). They have no 3:00 PM extra.
 - **Tax categories:** food and nonalcoholic drinks → food tax (8.5%); beer and cocktails → liquor
   tax (10.5%). Wine is on the cocktail page, so it is taxed as liquor.
+- **Menu changes (owner decisions, Nov 16, 2026):**
+  - Child's plates are named Kids Plate #1 to #10, with what is on the plate as the description, so "kids plate"
+    finds them.
+  - Beef or chicken: tapping Beef or chicken fajitas, Monterrey, Chimichanga (main course and side order), Quesadilla
+    Grande, Taquitos Mexicanos, Taco salad, or Steak quesadilla asks "1. Beef  2. Chicken". The order, the kitchen,
+    and the bill then name the choice, such as "Monterrey (Beef)". One table can have both. Each choice is its own
+    menu item under the item tapped, with that item's price, tax, and on/off; a manager changes them on the item.
+  - Soft drinks are a list, each $2.99: Coke, Coke Zero, Diet Coke, Pibb, Fanta (Orange), Sprite, Root Beer, Cream
+    Soda, Minute Maid Lemonade, Raspberry Tea.
+  - Extras are a list, each $1.50: Sour cream, Grated cheese, Tortillas, Jalapeños, Pico de gallo, Hot sauce.
+  - The old single "Soft drink" and "Extras (each)" items are retired: off the menu for good, kept only because
+    saved tickets point to them.
+  - Aguas frescas add Mango (No Refills) at $3.25.
+  - The side-order chimichanga is "Chimichanga (Side order)", apart from the main course.
 - **Search** matches the start of words in an item's name, description, or category, ignoring case,
   accents, and punctuation: "combo 5" finds Combo #5, not Combo #15. Name matches come first.
 - **Order on screen:** tap to add; quantities 1 to 99; remove a line with Remove.
@@ -187,9 +201,9 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 - **Groups (owner decision, Nov 10, 2026):** food first; then **DRINKS** (soft drinks, other beverages, aguas frescas,
   Jarritos and bottled drinks, beer, cocktails); then **APPETIZERS**, each title in red (a black-only printer prints it
   black). A custom item taxed as liquor is a drink. Within a group, items stay in the order they were added.
-- **Spanish (owner decisions, Nov 4 and 7, 2026):** each item prints with its Spanish name only, such as
-  • 2 × COMBINACIÓN #5, with a bullet in front of each item. A custom item keeps the name the waiter typed. Only on kitchen receipts:
-  customer receipts and the waiter's menu stay in English. The names are in `MENU_SPANISH.md`.
+- **English again (owner decision, Nov 16, 2026):** each item prints with the name saved on the ticket, in capitals,
+  such as • 2 × COMBO #5 or • 1 × MONTERREY (BEEF), with a bullet in front of each item. The Spanish names stay in
+  the database (`menu_items.name_es`) but no receipt prints them. (Nov 4 to 16, 2026, the kitchen read Spanish.)
 - **Shows:** EL LORITO — KITCHEN, ticket, table, waiter number (of that order), order number, date and time,
   quantities and item names in large bold capitals, each item's note under it, and the order's note. **Never any price, subtotal, tax, or total:**
   the receipt's data has no place for them.

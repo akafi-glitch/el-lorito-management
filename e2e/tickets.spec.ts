@@ -227,16 +227,16 @@ test.describe.serial("orders on a phone", () => {
       const batches = await batchesOf(ticket.id);
       expect(batches).toHaveLength(before); // added to the order the kitchen hasn't got yet, not a new one
       const receipt = await lastReceipt(page);
-      for (const part of ["EL LORITO — KITCHEN", `TICKET #${number}`, `TABLE: ${table}`, "WAITER: 01", "TIME: ", "1 × ALMUERZO #3", "NOTE: EXTRA SPICY / NO ONIONS"]) { // the order's note, then this save's, on one order
+      for (const part of ["EL LORITO — KITCHEN", `TICKET #${number}`, `TABLE: ${table}`, "WAITER: 01", "TIME: ", "1 × LUNCH #3", "NOTE: EXTRA SPICY / NO ONIONS"]) { // the order's note, then this save's, on one order
         expect(receipt).toContain(part);
       }
-      expect(receipt).toContain("•2 × COMBINACIÓN #5> EXTRA RICE"); // Spanish only, a bullet for each item, its note under it
-      expect(receipt).toContain("•1 × CERVEZA NACIONAL> COLD GLASS");
-      expect(receipt).not.toMatch(/COMBO #5|DOMESTIC BEER|LUNCH #3/); // no English names for the kitchen
+      expect(receipt).toContain("•2 × COMBO #5> EXTRA RICE"); // English, a bullet for each item, its note under it
+      expect(receipt).toContain("•1 × DOMESTIC BEER> COLD GLASS");
+      expect(receipt).not.toMatch(/COMBINACI|CERVEZA|ALMUERZO/); // no Spanish since Nov 16, 2026
       // Food first, then the drinks under their own title, even though Lunch #3 was added last.
-      expect(receipt.indexOf("ALMUERZO #3")).toBeGreaterThan(receipt.indexOf("COMBINACIÓN #5"));
-      expect(receipt.indexOf("DRINKS")).toBeGreaterThan(receipt.indexOf("ALMUERZO #3"));
-      expect(receipt.indexOf("CERVEZA NACIONAL")).toBeGreaterThan(receipt.indexOf("DRINKS"));
+      expect(receipt.indexOf("LUNCH #3")).toBeGreaterThan(receipt.indexOf("COMBO #5"));
+      expect(receipt.indexOf("DRINKS")).toBeGreaterThan(receipt.indexOf("LUNCH #3"));
+      expect(receipt.indexOf("DOMESTIC BEER")).toBeGreaterThan(receipt.indexOf("DRINKS"));
       // Nothing about money anywhere.
       expect(receipt).not.toMatch(/\$|\d+\.\d\d|TAX|TOTAL|SUBTOTAL|PRICE/i);
 
@@ -302,10 +302,10 @@ test.describe.serial("orders on a phone", () => {
       await kitchenButton(page).tap();
       await waitForPrint(page, 1);
       const receipt = await lastReceipt(page);
-      expect(receipt).toContain("1 × ALMUERZO #1");
+      expect(receipt).toContain("1 × LUNCH #1");
       expect(receipt).toContain(`TICKET #${number}`);
-      expect(receipt).not.toContain("COMBINACI");
-      expect(receipt).not.toContain("ALMUERZO #3");
+      expect(receipt).not.toContain("COMBO");
+      expect(receipt).not.toContain("LUNCH #3");
       await answerYes(page);
       await expect(page.getByText("Sent to the kitchen. The order stays on the ticket.")).toBeVisible();
       expect(await openTicketsAt(table)).toHaveLength(1);

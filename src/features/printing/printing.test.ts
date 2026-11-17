@@ -47,8 +47,8 @@ const kitchenRow: KitchenBatchRow = {
     visit: { visit_tables: [{ restaurant_tables: { label: "X8" } }, { restaurant_tables: { label: "X6" } }, { restaurant_tables: { label: "X7" } }] },
   },
   ticket_lines: [
-    { line_no: 2, item_name: "Beef tacos", quantity: 3, notes: "Extra salsa", tax_group_code: "food", menu_item: { name_es: "Tacos de res", category: { code: "a-la-carte" } } },
-    { line_no: 1, item_name: "Chicken fajitas", quantity: 2, notes: null, tax_group_code: "food", menu_item: { name_es: "Fajitas de pollo", category: { code: "fajitas" } } },
+    { line_no: 2, item_name: "Beef tacos", quantity: 3, notes: "Extra salsa", tax_group_code: "food", menu_item: { category: { code: "a-la-carte" } } },
+    { line_no: 1, item_name: "Chicken fajitas", quantity: 2, notes: null, tax_group_code: "food", menu_item: { category: { code: "fajitas" } } },
   ],
 };
 
@@ -125,17 +125,10 @@ describe("the kitchen receipt's groups", () => {
   });
 });
 
-describe("Spanish names on the kitchen receipt", () => {
-  it("are the only name, in capitals, with their accents", () => {
-    expect(kitchenItemName("Combo #5", "Combinación #5")).toBe("COMBINACIÓN #5");
-    expect(kitchenItemName("Jarritos pineapple", "Jarritos de piña")).toBe("JARRITOS DE PIÑA");
-    expect(kitchenItemName("Taco", "Taco")).toBe("TACO");
-  });
-
-  it("fall back to the item's own name for a custom item, which has none", () => {
-    expect(kitchenItemName("Birthday flan", null)).toBe("BIRTHDAY FLAN");
-    expect(kitchenItemName("Birthday flan", undefined)).toBe("BIRTHDAY FLAN");
-    expect(kitchenItemName("Birthday flan", "  ")).toBe("BIRTHDAY FLAN");
+describe("names on the kitchen receipt", () => {
+  it("are in English again, in capitals, as saved on the ticket (owner decision, Nov 16, 2026)", () => {
+    expect(kitchenItemName("Combo #5")).toBe("COMBO #5");
+    expect(kitchenItemName("Monterrey (Beef)")).toBe("MONTERREY (BEEF)");
     expect(kitchenReceiptFromRow({ ...kitchenRow, ticket_lines: [{ line_no: 1, item_name: "Birthday flan", quantity: 1, notes: null, tax_group_code: "food", menu_item: null }] }, false, "x").lines[0]?.name).toBe("BIRTHDAY FLAN");
   });
 
@@ -157,8 +150,8 @@ describe("the kitchen receipt", () => {
       time: "11/02/2026 7:35 PM",
       isReprint: false,
       lines: [
-        { name: "FAJITAS DE POLLO", quantity: 2, note: null, group: "food" },
-        { name: "TACOS DE RES", quantity: 3, note: "EXTRA SALSA", group: "food" },
+        { name: "CHICKEN FAJITAS", quantity: 2, note: null, group: "food" },
+        { name: "BEEF TACOS", quantity: 3, note: "EXTRA SALSA", group: "food" },
       ],
       notes: "NO ONIONS",
     });
