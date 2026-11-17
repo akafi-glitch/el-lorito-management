@@ -29,13 +29,13 @@ select public.start_shift(null);
 insert into ids select 'ticket', ticket_id from pg_temp.save('C1', jsonb_build_array(
   jsonb_build_object('item_id', pg_temp.item('Taco'), 'quantity', 2, 'notes', '  No onions  '),
   jsonb_build_object('item_id', pg_temp.item('Horchata'), 'quantity', 1, 'notes', 'Extra ice'),
-  jsonb_build_object('item_id', pg_temp.item('Domestic beer'), 'quantity', 1, 'notes', null),
+  jsonb_build_object('item_id', pg_temp.item('Bud Light'), 'quantity', 1, 'notes', null),
   jsonb_build_object('name', 'Birthday flan', 'price_cents', 450, 'tax_category', 'food', 'quantity', 1, 'notes', 'Add a candle'),
   jsonb_build_object('item_id', pg_temp.item('Lunch #3'), 'quantity', 1, 'notes', '   ')));
 
 select is(pg_temp.note(pg_temp.id('ticket'), 'Taco'), 'No onions', 'an item keeps its own note, without spare spaces');
 select is(pg_temp.note(pg_temp.id('ticket'), 'Horchata'), 'Extra ice', 'the next item keeps its own');
-select is(pg_temp.note(pg_temp.id('ticket'), 'Domestic beer'), null, 'an item can have no note');
+select is(pg_temp.note(pg_temp.id('ticket'), 'Bud Light'), null, 'an item can have no note');
 select is(pg_temp.note(pg_temp.id('ticket'), 'Birthday flan'), 'Add a candle', 'a custom item can have a note');
 select is(pg_temp.note(pg_temp.id('ticket'), 'Lunch #3'), null, 'a blank note counts as no note');
 select ok((select details -> 'lines' -> 0 ->> 'notes' = 'No onions' from public.audit_events where event_type = 'order_saved' order by id desc limit 1),

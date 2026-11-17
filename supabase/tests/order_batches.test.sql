@@ -44,7 +44,7 @@ begin
 end $$;
 create function pg_temp.ticket() returns public.tickets language sql as $$ select * from public.tickets where visit_id = pg_temp.id('visit') and not legacy_single_order $$;
 
-create temp table saved as select * from pg_temp.save(1, 'kafi', jsonb_build_array(pg_temp.line('Combo #5', 2), pg_temp.line('Domestic beer', 1)), '  No onions  ');
+create temp table saved as select * from pg_temp.save(1, 'kafi', jsonb_build_array(pg_temp.line('Combo #5', 2), pg_temp.line('Bud Light', 1)), '  No onions  ');
 
 -- A first order starts the ticket ---------------------------------------------------------------------
 select has_table('public', 'ticket_batches', 'ticket_batches exists');
@@ -55,7 +55,7 @@ select results_eq($$ select employee_id, shift_id, status::text from public.tick
 select is((select notes from public.ticket_batches where ticket_id = (pg_temp.ticket()).id), 'No onions', 'the order note is saved, trimmed');
 select results_eq($$ select item_name, quantity::integer, unit_price_cents, tax_group_code, is_custom from public.ticket_lines
                     where ticket_id = (pg_temp.ticket()).id order by line_no $$,
-  $$ values ('Combo #5'::text, 2, 940, 'food'::text, false), ('Domestic beer', 1, 499, 'liquor', false) $$,
+  $$ values ('Combo #5'::text, 2, 940, 'food'::text, false), ('Bud Light', 1, 499, 'liquor', false) $$,
   'menu items and quantities save, with copied names, prices, and tax groups');
 
 -- Repeated presses save once --------------------------------------------------------------------------------
@@ -177,7 +177,7 @@ select throws_ok($$ select * from public.request_kitchen_print((pg_temp.ticket()
 
 -- The customer receipt ---------------------------------------------------------------------------------------------------
 -- 3 x Combo #5 $28.20, 3 x Taco $7.05, 2 x flan $9.00, Horchata $3.25, On the house $0, Flan $3.75 = food $51.25
--- Domestic beer $4.99 + tequila shot $7.00 = liquor $11.99. Food tax $4.36, liquor tax $1.26. Total $68.86
+-- Bud Light $4.99 + tequila shot $7.00 = liquor $11.99. Food tax $4.36, liquor tax $1.26. Total $68.86
 create temp table first_try as select * from public.request_customer_receipt((pg_temp.ticket()).id, (pg_temp.ticket()).version, pg_temp.id('musfika'), pg_temp.key(200), pg_temp.actor());
 select is((select receipt -> 'totals' from first_try),
   jsonb_build_object('food_subtotal_cents', 5125, 'liquor_subtotal_cents', 1199, 'food_rate_bp', 850, 'liquor_rate_bp', 1050,

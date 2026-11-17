@@ -20,16 +20,16 @@ test.describe.serial("management: order history", () => {
     const hist1 = await employee("61", "History One", "waiter");
     const hist2 = await employee("62", "History Two", "waiter");
     await setItem("Taco", 235, true);
-    await setItem("Domestic beer", 499, true);
+    await setItem("Bud Light", 499, true);
 
     await cancelOpenOrders(["P1", "P2", "P3"]);
     firstShift = await startShift();
-    first = (await saveOrder("P1", hist1, [["Taco", 2], ["Domestic beer", 1]])).ticket_number;
+    first = (await saveOrder("P1", hist1, [["Taco", 2], ["Bud Light", 1]])).ticket_number;
     await new Promise((resolve) => setTimeout(resolve, 20));
     second = (await saveOrder("P2", hist2, [["Taco", 1]])).ticket_number;
 
     secondShift = await startShift();
-    third = (await saveOrder("P3", hist1, [["Domestic beer", 2]])).ticket_number;
+    third = (await saveOrder("P3", hist1, [["Bud Light", 2]])).ticket_number;
   });
 
   test.afterAll(async () => {
@@ -52,7 +52,7 @@ test.describe.serial("management: order history", () => {
     await expect(row).toContainText("P1");
     await expect(row).toContainText("$10.61");
     await expect(page.locator("table")).not.toContainText("Taco");
-    await expect(page.locator("table")).not.toContainText("Domestic beer");
+    await expect(page.locator("table")).not.toContainText("Bud Light");
   });
 
   test("filters by shift and by waiter, and sorts", async ({ page }) => {

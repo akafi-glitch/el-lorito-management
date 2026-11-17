@@ -27,6 +27,7 @@ export const menuItemRowSchema = z.object({
   sort_order: z.number().int(),
   parent_item_id: z.number().int().positive().nullable(),
   is_retired: z.boolean(),
+  choice_label: z.string().nullable(),
 });
 
 export type MenuCategoryRow = z.infer<typeof menuCategoryRowSchema>;
@@ -49,6 +50,50 @@ export const updateMenuItemSchema = z.object({
 });
 
 export type UpdateMenuItemInput = z.input<typeof updateMenuItemSchema>;
+
+const priceField = z.string().transform((value, ctx) => {
+  const cents = parseDollars(value);
+  if (cents === null) {
+    ctx.addIssue({ code: "custom", message: "Enter a price like 8.25 (up to $10,000)." });
+    return z.NEVER;
+  }
+  return cents;
+});
+const nameField = z.string().trim().min(1, "Enter the item's name.").max(80, "Keep the name to 80 characters.");
+const descriptionField = z.string().trim().max(400, "Keep the description to 400 characters.");
+
+/** Management: a new item on a menu page. */
+export const addMenuItemSchema = z.object({
+  categoryId: z.number().int().positive(),
+  name: nameField,
+  description: descriptionField,
+  price: priceField,
+  taxCategory: z.enum(TAX_CATEGORIES, { message: "Choose the tax type." }),
+});
+export type AddMenuItemInput = z.input<typeof addMenuItemSchema>;
+
+/** Management: everything about an item that a manager changes. Its options follow it. */
+export const editMenuItemSchema = z.object({
+  id: z.number().int().positive(),
+  name: nameField,
+  description: descriptionField,
+  price: priceField,
+  taxCategory: z.enum(TAX_CATEGORIES, { message: "Choose the tax type." }),
+  isAvailable: z.boolean(),
+});
+export type EditMenuItemInput = z.input<typeof editMenuItemSchema>;
+
+/** Management: an option waiters choose from when they tap the item, such as "Shrimp". */
+export const addMenuOptionSchema = z.object({
+  itemId: z.number().int().positive(),
+  label: z
+    .string()
+    .trim()
+    .min(1, "Enter the option, such as Shrimp.")
+    .max(40, "Keep the option to 40 characters.")
+    .refine((value) => !/[()]/.test(value), "Leave out brackets: they are added for you."),
+});
+export type AddMenuOptionInput = z.input<typeof addMenuOptionSchema>;
 
 /** What a waiter chooses for a custom item. Beer and cocktails are taxed as liquor. */
 export const TAX_CATEGORY_LABEL: Record<(typeof TAX_CATEGORIES)[number], string> = {

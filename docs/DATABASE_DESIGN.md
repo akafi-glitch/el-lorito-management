@@ -237,6 +237,16 @@ Adds floor area and section `TOGO` with 30 `restaurant_tables` (`TOGO-1` to `TOG
 and the staff board. `save_to_go_order(employee, key, lines, notes, time zone, actor)` takes the first spot with no open
 ticket, one caller at a time, and calls `save_table_order`. It refuses with `to_go_full` when all are taken.
 
+### The manager's menu editor (`20261117010000_menu_editor`, Nov 17, 2026)
+
+`menu_items.choice_label` is an option's own label ("Beef"), so renaming the item renames its options
+(`menu_option_base` drops a trailing "(chicken or beef)"). Server-role functions, each recorded in `audit_events`:
+`add_menu_item` (`menu_item_added`), `update_menu_item_details` (name, description, price, tax, on/off; options follow;
+`menu_item_changed`), `add_menu_option` (`menu_option_added`), and `remove_menu_item` (retires the item and its options
+and renames them, `menu_item_removed`). Errors: `category_not_found`, `menu_item_not_found`, `invalid_name`,
+`invalid_description`, `invalid_tax_category`, `invalid_option`, `name_taken`, `option_taken`. The migration also adds
+Taco salad fajita's choices and the beer list, and retires "Domestic beer" and "Import beer".
+
 ### Menu choices and lists (`20261116010000_menu_choices`, Nov 16, 2026)
 
 `menu_items.parent_item_id` puts an item's choices under it: "Monterrey (Beef)" and "Monterrey (Chicken)" are items

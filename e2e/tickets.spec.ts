@@ -40,7 +40,7 @@ test.describe.serial("orders on a phone", () => {
     kafi = await employee("01", "Kafi", "waiter");
     await employee("02", "Musfika", "waiter");
     await setItem("Combo #5", 940, true);
-    await setItem("Domestic beer", 499, true);
+    await setItem("Bud Light", 499, true);
     await setItem("Taco", 235, true);
     await freeTables([table]); // nobody is seated: ordering doesn't need the Floor
     await cancelOpenOrders([table]);
@@ -64,8 +64,8 @@ test.describe.serial("orders on a phone", () => {
     await category(page, "Combination Dinners");
     await item(page, "Combo #5").tap();
     await item(page, "Combo #5").tap();
-    await page.fill("#menu-search", "domestic");
-    await item(page, "Domestic beer").tap();
+    await page.fill("#menu-search", "bud light");
+    await item(page, "Bud Light").tap();
     await page.fill("#menu-search", "chile con queso");
     await item(page, "Chile con queso").tap();
     await page.tap("button[aria-label='Remove Chile con queso']");
@@ -78,7 +78,7 @@ test.describe.serial("orders on a phone", () => {
 
     // Each item has its own note, not only the last one.
     await order(page).getByLabel("Note for Combo #5").fill("Extra rice");
-    await order(page).getByLabel("Note for Domestic beer").fill("No glass");
+    await order(page).getByLabel("Note for Bud Light").fill("No glass");
     await page.fill("#order-notes", "No onions");
     await saveOrderButton(page).tap();
     await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();
@@ -96,7 +96,7 @@ test.describe.serial("orders on a phone", () => {
     expect(batch?.employee_id).toBe(kafi);
     expect(batch?.ticket_lines.map((l) => [l.item_name, l.quantity, l.unit_price_cents])).toEqual([
       ["Combo #5", 2, 940],
-      ["Domestic beer", 1, 499],
+      ["Bud Light", 1, 499],
     ]);
     expect(batch?.ticket_lines.map((l) => l.notes)).toEqual(["Extra rice", "No glass"]);
     expect(await printAttempts(ticket.id, "kitchen")).toEqual([]); // saving doesn't print
@@ -106,7 +106,7 @@ test.describe.serial("orders on a phone", () => {
     await page.goto(`/waiter/02/tables/${table}`); // any waiter can pick it up
     const panel = saved(page);
     await expect(panel).toContainText("2 × Combo #5");
-    await expect(panel).toContainText("1 × Domestic beer");
+    await expect(panel).toContainText("1 × Bud Light");
     await expect(panel).toContainText("Note: No onions");
     await expect(panel.getByText("Note: Extra rice")).toBeVisible();
     await expect(panel.getByText("Note: No glass")).toBeVisible();
@@ -176,8 +176,8 @@ test.describe.serial("orders on a phone", () => {
     await expect.poll(async () => (await batchesOf((await ticketByNumber(number)).id))[0]?.notes).toBe("Extra spicy");
 
     // An item's note can be changed after saving, leaving the other item's alone.
-    await page.tap("button[aria-label='Edit the note on saved Domestic beer']");
-    await expect(page.locator("dialog[open] h2")).toHaveText("Note for Domestic beer");
+    await page.tap("button[aria-label='Edit the note on saved Bud Light']");
+    await expect(page.locator("dialog[open] h2")).toHaveText("Note for Bud Light");
     await page.fill("#edit-note", "Cold glass");
     await page.tap("dialog[open] button:has-text('Save note')");
     await expect(saved(page).getByText("Note: Cold glass")).toBeVisible();
@@ -231,12 +231,12 @@ test.describe.serial("orders on a phone", () => {
         expect(receipt).toContain(part);
       }
       expect(receipt).toContain("•2 × COMBO #5> EXTRA RICE"); // English, a bullet for each item, its note under it
-      expect(receipt).toContain("•1 × DOMESTIC BEER> COLD GLASS");
+      expect(receipt).toContain("•1 × BUD LIGHT> COLD GLASS");
       expect(receipt).not.toMatch(/COMBINACI|CERVEZA|ALMUERZO/); // no Spanish since Nov 16, 2026
       // Food first, then the drinks under their own title, even though Lunch #3 was added last.
       expect(receipt.indexOf("LUNCH #3")).toBeGreaterThan(receipt.indexOf("COMBO #5"));
       expect(receipt.indexOf("DRINKS")).toBeGreaterThan(receipt.indexOf("LUNCH #3"));
-      expect(receipt.indexOf("DOMESTIC BEER")).toBeGreaterThan(receipt.indexOf("DRINKS"));
+      expect(receipt.indexOf("BUD LIGHT")).toBeGreaterThan(receipt.indexOf("DRINKS"));
       // Nothing about money anywhere.
       expect(receipt).not.toMatch(/\$|\d+\.\d\d|TAX|TOTAL|SUBTOTAL|PRICE/i);
 

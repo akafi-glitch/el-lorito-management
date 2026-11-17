@@ -107,19 +107,19 @@ test.describe.serial("a manager's PIN to take anything off an order the kitchen 
 
   test("a waiter adds food and liquor alone after printing, and the new order changes freely", async ({ page }) => {
     await orderAndPrint(page, waiter);
-    await page.fill("#menu-search", "domestic");
-    await page.locator("button[aria-label^='Add Domestic beer,']").first().click();
+    await page.fill("#menu-search", "bud light");
+    await page.locator("button[aria-label^='Add Bud Light,']").first().click();
     await page.getByRole("button", { name: "Save Order", exact: true }).click();
-    await expect(saved(page).getByTestId("order-2")).toContainText("Domestic beer");
+    await expect(saved(page).getByTestId("order-2")).toContainText("Bud Light");
     await expect(approval(page)).toHaveCount(0);
 
-    await page.click("button[aria-label='One more saved Domestic beer']");
-    await expect(saved(page).getByTestId("order-2")).toContainText("2 × Domestic beer");
-    await page.click("button[aria-label='Remove saved Domestic beer']");
-    await expect(page.locator("dialog[open] h2")).toHaveText("Remove Domestic beer?");
+    await page.click("button[aria-label='One more saved Bud Light']");
+    await expect(saved(page).getByTestId("order-2")).toContainText("2 × Bud Light");
+    await page.click("button[aria-label='Remove saved Bud Light']");
+    await expect(page.locator("dialog[open] h2")).toHaveText("Remove Bud Light?");
     await expect(approval(page)).toHaveCount(0); // not sent to the kitchen yet
     await page.locator("dialog[open]").getByRole("button", { name: "Remove", exact: true }).click();
-    await expect(saved(page)).not.toContainText("Domestic beer");
+    await expect(saved(page)).not.toContainText("Bud Light");
   });
 
   test("cancelling a ticket the kitchen has needs it too", async ({ page }) => {

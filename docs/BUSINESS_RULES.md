@@ -151,6 +151,17 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
     saved tickets point to them.
   - Aguas frescas add Mango (No Refills) at $3.25.
   - The side-order chimichanga is "Chimichanga (Side order)", apart from the main course.
+- **Menu changes (owner decisions, Nov 17, 2026):**
+  - Taco salad fajita asks beef or chicken too.
+  - Each bottled beer is its own item: Bud Light, Budweiser, Miller Light, Coors Light, and Michelob Ultra at $4.99;
+    Blue Moon, Corona, Modelo Especial, Negra Modelo, Sol, Pacifico, XX Lager, Tecate, XX Amber, and Carta Blanca at
+    $5.25. Each draft (12 oz and 32 oz, domestic and import) asks which beer. "Domestic beer" and "Import beer" are
+    retired.
+- **The manager edits the menu (Nov 17, 2026):** on Manage > Menu a manager adds an item to a page (name, optional
+  description, price, tax type), changes any of those, turns it on or off, gives it options that waiters choose from
+  when they tap it (such as Beef, Chicken, or Shrimp; every option has the item's price), removes an option, or takes
+  the item off the menu. Waiters see each change at once. Tickets already made keep their names and prices. An item
+  taken off the menu is retired, never deleted, and its name can be used again. Every change is in the history.
 - **Search** matches the start of words in an item's name, description, or category, ignoring case,
   accents, and punctuation: "combo 5" finds Combo #5, not Combo #15. Name matches come first.
 - **Order on screen:** tap to add; quantities 1 to 99; remove a line with Remove.
