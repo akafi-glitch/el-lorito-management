@@ -34,6 +34,8 @@ export function ticketErrorMessage(error: DbError): string {
       return `${ticket} is finalized: the customer receipt was printed, so nothing more can be added or changed.`;
     case "order_full":
       return "This order can't take that much more before the kitchen gets it. Print the kitchen receipt first, then add the rest.";
+    case "choice_needed":
+      return `Choose beef or chicken for ${detail ?? "that item"}. The page has been refreshed.`;
     case "invalid_custom_item":
       return "Check the custom item: it needs a name, a price of $0.00 or more, and a tax type.";
     case "invalid_notes":

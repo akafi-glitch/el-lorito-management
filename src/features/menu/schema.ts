@@ -25,6 +25,8 @@ export const menuItemRowSchema = z.object({
   tax_category_code: z.enum(TAX_CATEGORIES),
   is_available: z.boolean(),
   sort_order: z.number().int(),
+  parent_item_id: z.number().int().positive().nullable(),
+  is_retired: z.boolean(),
 });
 
 export type MenuCategoryRow = z.infer<typeof menuCategoryRowSchema>;

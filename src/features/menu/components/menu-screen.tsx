@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 
+import { Modal } from "@/components/ui/modal";
+
 import { TotalsBlock } from "@/features/billing/components/totals-block";
 import type { TaxSetup } from "@/features/billing/setup";
 import { computeTotals, type TaxGroup } from "@/features/billing/tax";
@@ -45,6 +47,8 @@ export function MenuScreen({
   const [categoryId, setCategoryId] = useState<number | null>(menu.categories[0]?.id ?? null);
   const [query, setQuery] = useState("");
   const [addingCustom, setAddingCustom] = useState(false);
+  /** The item whose question (Beef or Chicken?) is open. */
+  const [choosing, setChoosing] = useState<{ item: MenuItem; category: MenuCategory } | null>(null);
 
   // Re-check the clock every 30 seconds so lunch prices change at 3:00 PM without a reload.
   useEffect(() => {
@@ -54,7 +58,12 @@ export function MenuScreen({
 
   const lookup = useMemo(() => {
     const byId = new Map<number, { item: MenuItem; category: MenuCategory }>();
-    for (const category of menu.categories) for (const item of category.items) byId.set(item.id, { item, category });
+    for (const category of menu.categories) {
+      for (const item of category.items) {
+        byId.set(item.id, { item, category });
+        for (const choice of item.choices) byId.set(choice.id, { item: choice, category });
+      }
+    }
     return byId;
   }, [menu]);
 
@@ -164,8 +173,10 @@ export function MenuScreen({
                 categoryName={searching ? itemCategory.name : null}
                 priceCents={priceOf(item, itemCategory)}
                 lateLabel={itemCategory.late && isLate(itemCategory.late, now, timeZone) ? `After ${formatTimeOfDay(itemCategory.late.fromMinutes)} price` : null}
-                inOrder={quantityOf(draft, item.id)}
-                onAdd={() => setDraft((current) => addItem(current, item.id))}
+                inOrder={item.choices.reduce((sum, choice) => sum + quantityOf(draft, choice.id), quantityOf(draft, item.id))}
+                onAdd={() =>
+                  item.choices.length > 0 ? setChoosing({ item, category: itemCategory }) : setDraft((current) => addItem(current, item.id))
+                }
               />
             </li>
           ))}
@@ -254,6 +265,39 @@ export function MenuScreen({
           onAdd={(item, quantity) => setDraft((current) => addCustomItem(current, item, quantity))}
           onClose={() => setAddingCustom(false)}
         />
+      ) : null}
+
+      {choosing ? (
+        <Modal title={choosing.item.name} onClose={() => setChoosing(null)}>
+          <p className="text-base text-muted">Which one?</p>
+          <ul className="mt-3 flex flex-col gap-3">
+            {choosing.item.choices.map((choice, index) => (
+              <li key={choice.id}>
+                <button
+                  type="button"
+                  disabled={!choice.isAvailable}
+                  onClick={() => {
+                    setDraft((current) => addItem(current, choice.id));
+                    setChoosing(null);
+                  }}
+                  className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border-2 border-glaze bg-paper px-4 text-left text-lg font-bold text-ink hover:border-leaf active:scale-[0.98] disabled:opacity-50"
+                >
+                  <span>
+                    {index + 1}. {choice.choiceLabel}
+                  </span>
+                  <span className="tabular-nums">{formatCents(priceOf(choice, choosing.category))}</span>
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            onClick={() => setChoosing(null)}
+            className="mt-4 min-h-12 w-full rounded-lg px-4 font-semibold text-leaf hover:bg-tile"
+          >
+            Cancel
+          </button>
+        </Modal>
       ) : null}
 
       {order.itemCount > 0 ? (

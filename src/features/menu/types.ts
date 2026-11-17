@@ -10,6 +10,10 @@ export type MenuItem = {
   priceCents: number;
   taxCategory: TaxCategory;
   isAvailable: boolean;
+  /** Beef or Chicken: what the waiter picks from when they tap this item. Each is its own item, ordered instead. */
+  choices: MenuItem[];
+  /** For a choice, what it is called in the question: "Beef". */
+  choiceLabel: string | null;
 };
 
 export type MenuCategory = {

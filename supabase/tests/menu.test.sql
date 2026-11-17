@@ -28,7 +28,8 @@ select results_eq($$ select code, tax_group_code from public.tax_categories orde
 -- The owner's menu ----------------------------------------------------------------------------
 select is((select count(*)::int from public.menu_categories), 26, '26 categories');
 select is((select count(*)::int from public.menu_items i join public.menu_categories c on c.id = i.category_id
-           where c.code <> 'cheese-dip-add-ons'), 206, 'all 206 items from the menu file');
+           where c.code <> 'cheese-dip-add-ons' and i.parent_item_id is null), 223,
+  'the 206 items from the menu file, and the Nov 16, 2026 lists: 10 soft drinks, 6 extras, Mango (the old single items stay, retired)');
 select results_eq($$ select price_cents from public.menu_items i join public.menu_categories c on c.id = i.category_id
                     where c.code = 'cheese-dip-add-ons' order by i.sort_order $$,
   array[125, 150, 100, 125], 'cheese dip add-ons at the menu''s prices');
@@ -37,7 +38,7 @@ select is(pg_temp.price('Lunch #1'), 825, 'Lunch #1 is $8.25');
 select is(pg_temp.price('Molcajete'), 2499, 'Molcajete is $24.99');
 select is(pg_temp.price('Draft beer - 32 oz'), 575, 'Draft beer 32 oz is $5.75');
 select is((select count(*)::int from public.menu_items where price_cents <= 0), 0, 'every item has a price');
-select is((select count(*)::int from public.menu_items where not is_available), 0, 'every item starts available');
+select is((select count(*)::int from public.menu_items where not is_available and not is_retired), 0, 'every item on the menu starts available');
 
 select results_eq($$ select late_from, late_surcharge_cents from public.menu_categories where late_from is not null $$,
   $$ values ('15:00'::time, 100) $$, 'only one category has late pricing: from 3:00 PM, $1.00 more');
@@ -46,8 +47,8 @@ select is((select count(*)::int from public.menu_items i join public.menu_catego
   14, '14 lunch items');
 
 select results_eq($$ select i.tax_category_code, count(*)::int from public.menu_items i group by 1 order by 1 $$,
-  $$ values ('beer'::text, 7), ('cocktail', 22), ('food', 160), ('nonalcoholic', 21) $$,
-  'tax categories: 7 beers, 22 cocktails, 21 nonalcoholic drinks, the rest food');
+  $$ values ('beer'::text, 7), ('cocktail', 22), ('food', 182), ('nonalcoholic', 32) $$,
+  'tax categories: 7 beers, 22 cocktails, 32 nonalcoholic drinks, the rest food (beef and chicken choices included)');
 
 -- Rules ---------------------------------------------------------------------------------------
 select throws_ok($$ insert into public.menu_categories (code, name, sort_order, late_from) values ('x', 'X', 99, '15:00') $$,

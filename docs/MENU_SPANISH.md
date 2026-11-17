@@ -1,6 +1,8 @@
 # Menu names in Spanish
 
-What kitchen receipts print, instead of the English name. Customer receipts and the waiter's menu stay in English.
+Kept in the database (`menu_items.name_es`). Since Nov 16, 2026 no receipt prints them: kitchen receipts are in
+English again. Items added on Nov 16, 2026 (Kids Plates, the soft drink and extras lists, Mango, and the beef or
+chicken choices) have Spanish names too.
 To correct a name, tell whoever maintains the app, or change `menu_items.name_es`.
 
 ## Lunch

@@ -86,9 +86,9 @@ export function receiptFromSnapshot(snapshot: CustomerSnapshot, formatTime: (iso
   };
 }
 
-/** The kitchen reads Spanish only (owner decision, Nov 7, 2026): "COMBINACIÓN #5". A custom item has none, so it keeps its name. */
-export function kitchenItemName(name: string, nameEs: string | null | undefined): string {
-  return (nameEs?.trim() || name).toUpperCase();
+/** The kitchen reads English again (owner decision, Nov 16, 2026): the name saved on the ticket, in capitals. */
+export function kitchenItemName(name: string): string {
+  return name.toUpperCase();
 }
 
 /** One order -> one kitchen receipt: only this order's items, capitals for reading across a kitchen. */
@@ -108,7 +108,7 @@ export function kitchenReceiptFromRow(row: KitchenBatchRow, isReprint: boolean, 
     lines: [...row.ticket_lines]
       .sort((a, b) => a.line_no - b.line_no)
       .map((line) => ({
-        name: kitchenItemName(line.item_name, line.menu_item?.name_es),
+        name: kitchenItemName(line.item_name),
         quantity: line.quantity,
         note: line.notes?.toUpperCase() ?? null,
         group: kitchenGroup(line.menu_item?.category?.code, line.tax_group_code),

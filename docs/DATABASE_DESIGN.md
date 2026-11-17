@@ -237,6 +237,15 @@ Adds floor area and section `TOGO` with 30 `restaurant_tables` (`TOGO-1` to `TOG
 and the staff board. `save_to_go_order(employee, key, lines, notes, time zone, actor)` takes the first spot with no open
 ticket, one caller at a time, and calls `save_table_order`. It refuses with `to_go_full` when all are taken.
 
+### Menu choices and lists (`20261116010000_menu_choices`, Nov 16, 2026)
+
+`menu_items.parent_item_id` puts an item's choices under it: "Monterrey (Beef)" and "Monterrey (Chicken)" are items
+of their own, so a line names its choice and the one-line-per-item rule still holds. A trigger copies the item's price,
+availability, and tax to its choices. `save_table_order` refuses the item itself with `choice_needed`.
+`menu_items.is_retired` takes an item off the menu for good while saved tickets still point to it; a retired item is
+always off (`menu_items_retired_is_off`). The migration also renames the kids' plates and the side-order chimichanga
+and adds the soft drink and extras lists and Mango. Kitchen receipts no longer read `name_es`.
+
 ### Spanish names (`20261108010000_menu_spanish`, Nov 4, 2026)
 
 Adds `menu_items.name_es`, filled for every item. Kitchen receipts read it through the line's `menu_item_id`; saved tickets
