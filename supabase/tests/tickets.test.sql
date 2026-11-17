@@ -35,13 +35,13 @@ select has_table('public', 'ticket_lines', 'ticket_lines exists');
 
 -- A new ticket --------------------------------------------------------------------------------
 insert into saved select 't1', * from public.save_ticket(pg_temp.id('visit'), null, null, pg_temp.id('kafi'),
-  pg_temp.lines('Combo #5', '2', 'Domestic beer', '1', 'Lunch #2', '1'), 'America/Chicago', pg_temp.actor(), pg_temp.at('14:59'));
+  pg_temp.lines('Combo #5', '2', 'Bud Light', '1', 'Lunch #2', '1'), 'America/Chicago', pg_temp.actor(), pg_temp.at('14:59'));
 
 select is((select ticket_number from saved where name = 't1'), 1001::bigint, 'ticket numbers start at 1001');
 select is((select version from saved where name = 't1'), 1, 'a new ticket is version 1');
 select results_eq($$ select item_name, quantity::integer, unit_price_cents, tax_group_code from public.ticket_lines
                     where ticket_id = (select ticket_id from saved where name = 't1') order by line_no $$,
-  $$ values ('Combo #5'::text, 2, 940, 'food'::text), ('Domestic beer', 1, 499, 'liquor'), ('Lunch #2', 1, 799, 'food') $$,
+  $$ values ('Combo #5'::text, 2, 940, 'food'::text), ('Bud Light', 1, 499, 'liquor'), ('Lunch #2', 1, 799, 'food') $$,
   'lines keep the order shown, with copied names, prices, and tax groups');
 select results_eq($$ select visit_id, employee_id, status::text from public.tickets where ticket_number = 1001 $$,
   $$ select pg_temp.id('visit'), pg_temp.id('kafi'), 'open'::text $$, 'the ticket belongs to the visit and to Kafi, open');
@@ -75,7 +75,7 @@ select throws_ok($$ select * from public.save_ticket(pg_temp.id('visit'), (selec
 
 select is((select details -> 'before' -> 1 ->> 'item' from public.audit_events
             where event_type = 'ticket_saved' and details ->> 'ticket' = '1001' and details ->> 'created' = 'false'),
-  'Domestic beer', 'the audit history keeps the lines before the change');
+  'Bud Light', 'the audit history keeps the lines before the change');
 select is((select count(*)::int from public.audit_events where event_type = 'ticket_saved'), 3, 'every save is recorded');
 
 -- Refusals: the lines --------------------------------------------------------------------------

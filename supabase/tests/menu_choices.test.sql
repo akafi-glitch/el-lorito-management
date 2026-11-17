@@ -23,7 +23,8 @@ select public.start_shift(null);
 -- Beef or chicken --------------------------------------------------------------------------------------
 select results_eq($$ select c.name from public.menu_items c where c.parent_item_id = pg_temp.item('Monterrey') order by c.sort_order $$,
   array['Monterrey (Beef)', 'Monterrey (Chicken)'], 'Monterrey asks: beef or chicken');
-select is((select count(distinct parent_item_id)::int from public.menu_items where parent_item_id is not null), 8, 'eight items ask');
+select is((select count(distinct parent_item_id)::int from public.menu_items where parent_item_id is not null), 13,
+  'thirteen items ask: the eight of Nov 16, Taco salad fajita, and the four draft beers (Nov 17)');
 select is((select count(*)::int from public.menu_items c join public.menu_items p on p.id = c.parent_item_id
             where (c.price_cents, c.tax_category_code, c.category_id, c.is_available)
                   is distinct from (p.price_cents, p.tax_category_code, p.category_id, p.is_available)), 0,

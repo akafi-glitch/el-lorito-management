@@ -25,14 +25,14 @@ test.describe.serial("management: shift report", () => {
   test.beforeAll(async () => {
     waiter = await employee("63", "Report Waiter", "waiter");
     await setItem("Taco", 235, true);
-    await setItem("Domestic beer", 499, true);
+    await setItem("Bud Light", 499, true);
     await cancelOpenOrders(TABLES);
 
     firstShift = await startShift();
-    const a = await saveOrder("P1", waiter, [["Taco", 2], ["Domestic beer", 1]]);
+    const a = await saveOrder("P1", waiter, [["Taco", 2], ["Bud Light", 1]]);
     const b = await saveOrder("P2", waiter, [["Taco", 1]]);
     const c = await saveOrder("P3", waiter, [["Taco", 3]]);
-    const d = await saveOrder("P4", waiter, [["Domestic beer", 2]]);
+    const d = await saveOrder("P4", waiter, [["Bud Light", 2]]);
     sold1 = a.ticket_number;
     sold2 = b.ticket_number;
     stillOpen = c.ticket_number;

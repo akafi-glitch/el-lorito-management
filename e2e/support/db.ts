@@ -147,6 +147,13 @@ export async function setItem(name: string, priceCents: number, available: boole
   await rpc("update_menu_item", { p_item_id: await itemId(name), p_price_cents: priceCents, p_is_available: available, p_actor: null });
 }
 
+/** Takes every menu item whose name starts with this off the menu, as a manager would (for a clean rerun). */
+export async function removeMenuItemsNamed(prefix: string): Promise<void> {
+  const { data, error } = await db().from("menu_items").select("id").like("name", `${prefix}%`).eq("is_retired", false).is("parent_item_id", null);
+  if (error) throw error;
+  for (const row of data ?? []) await rpc("remove_menu_item", { p_item_id: row.id, p_actor: null });
+}
+
 export async function menuItem(name: string): Promise<{ price_cents: number; is_available: boolean }> {
   const { data, error } = await db().from("menu_items").select("price_cents, is_available").eq("name", name).order("id").limit(1).single();
   if (error) throw error;

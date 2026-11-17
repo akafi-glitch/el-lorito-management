@@ -14,7 +14,7 @@ const SIZES = [
 test.beforeAll(async () => {
   const kafi = await employee("01", "Kafi", "waiter");
   await cancelOpenOrders(["P5"]);
-  await saveOrder("P5", kafi, [["Taco", 2], ["Domestic beer", 1]], "No onions");
+  await saveOrder("P5", kafi, [["Taco", 2], ["Bud Light", 1]], "No onions");
 });
 
 for (const size of SIZES) {

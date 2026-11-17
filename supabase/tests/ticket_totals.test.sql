@@ -31,7 +31,7 @@ create function pg_temp.save(p_lines jsonb) returns bigint language sql as $$
 -- 2 x Combo #5 ($9.40) + 1 domestic beer ($4.99) + 1 margarita ($6.99)
 insert into ids select 'mixed', pg_temp.save(jsonb_build_array(
   jsonb_build_object('item_id', pg_temp.item('Combo #5'), 'quantity', 2),
-  jsonb_build_object('item_id', pg_temp.item('Domestic beer'), 'quantity', 1),
+  jsonb_build_object('item_id', pg_temp.item('Bud Light'), 'quantity', 1),
   jsonb_build_object('item_id', pg_temp.item('Lime margarita (large)'), 'quantity', 1),
   jsonb_build_object('item_id', pg_temp.item('Horchata'), 'quantity', 1)));
 

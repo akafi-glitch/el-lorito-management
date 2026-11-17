@@ -65,6 +65,7 @@ database and runs every database test against it.
 | Manager PIN to remove, lower, or cancel what the kitchen has; adding needs none | `tickets.test.ts` | `manager_approval.test.sql` | `manager-approval.spec.ts` |
 | Spanish names: every item has one; no receipt prints them since Nov 16, 2026 | `printing.test.ts` | `menu_spanish.test.sql` | `tickets.spec.ts` |
 | Menu of Nov 16, 2026: beef or chicken question, soft drink and extras lists, Kids Plates, Mango | `menu.test.ts` | `menu_choices.test.sql` | `menu-choices.spec.ts` |
+| The manager edits the menu: add, change, options, take off; the beer list (Nov 17, 2026) | `menu.test.ts` | `menu_editor.test.sql` | `menu-editor.spec.ts` |
 | To-go orders: straight to the menu, own spot, not on the Floor, then like any table | `waiter.test.ts`, `tickets.test.ts` | `to_go_orders.test.sql`, race test 13 | `to-go.spec.ts` |
 | One order until the kitchen prints; kitchen receipt grouped food, drinks, appetizers | `printing.test.ts` | `one_order_until_kitchen.test.sql` | `tickets.spec.ts` |
 | PIN gate: both areas and a ticket by address, generic error, lockout, 15 minutes and 12 hours, Lock, cookie flags, audit, the rest needs no PIN | `pin.test.ts` | `pin_gate.test.sql`, `hardening.test.sql`, race test 12 | `pin-gate.spec.ts` |

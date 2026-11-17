@@ -17,7 +17,7 @@ function toItem(item: MenuItemRow, choices: MenuItem[]): MenuItem {
     taxCategory: item.tax_category_code,
     isAvailable: item.is_available,
     choices,
-    choiceLabel: item.parent_item_id === null ? null : choiceLabel(item.name),
+    choiceLabel: item.parent_item_id === null ? null : (item.choice_label ?? choiceLabel(item.name)),
   };
 }
 

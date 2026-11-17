@@ -20,7 +20,7 @@ create function pg_temp.ticket(p bigint) returns public.tickets language sql as 
 -- Ticket 1001: 2 x Combo #5 + domestic beer = food $18.80, liquor $4.99 -> taxes $1.60 + $0.52 -> $25.91
 insert into ids select 't1', ticket_id from public.save_ticket(pg_temp.id('visit'), null, null, pg_temp.id('kafi'),
   jsonb_build_array(jsonb_build_object('item_id', pg_temp.item('Combo #5'), 'quantity', 2),
-                    jsonb_build_object('item_id', pg_temp.item('Domestic beer'), 'quantity', 1)),
+                    jsonb_build_object('item_id', pg_temp.item('Bud Light'), 'quantity', 1)),
   'America/Chicago', pg_temp.actor());
 
 select has_table('public', 'print_attempts', 'print_attempts exists');

@@ -9,7 +9,7 @@ import { formatCents, lineTotalCents, parseDollars } from "./money";
 import { parseCustomItem } from "./custom-item";
 import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setItemNote, setQuantity, type Draft } from "./order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate, parseTimeOfDay, restaurantMinutes } from "./pricing";
-import { menuCategoryRowSchema, menuItemRowSchema, updateMenuItemSchema } from "./schema";
+import { addMenuItemSchema, addMenuOptionSchema, editMenuItemSchema, menuCategoryRowSchema, menuItemRowSchema, updateMenuItemSchema } from "./schema";
 import { normalizeText, searchMenu } from "./search";
 import type { Menu } from "./types";
 
@@ -37,9 +37,10 @@ describe("menu from the database", () => {
     expect(menu.categories.at(-1)?.name).toBe("Cocktails");
   });
 
-  it("has the menu file's items, the 4 cheese-dip add-ons, and the Nov 16, 2026 lists", () => {
-    // 206 + 4, minus "Soft drink" and "Extras (each)" (retired), plus 10 soft drinks, 6 extras, and Mango.
-    expect(allItems).toHaveLength(225);
+  it("has the menu file's items, the 4 cheese-dip add-ons, and the Nov 16 and 17, 2026 lists", () => {
+    // 206 + 4, minus "Soft drink", "Extras (each)", "Domestic beer", and "Import beer" (retired),
+    // plus 10 soft drinks, 6 extras, Mango, and 15 bottled beers.
+    expect(allItems).toHaveLength(238);
     expect(menu.categories.find((c) => c.code === "cheese-dip-add-ons")?.items.map((i) => [i.name, i.priceCents])).toEqual([
       ["Cheese dip on lunch enchilada", 125],
       ["Cheese dip on lunch burrito", 150],
@@ -69,6 +70,20 @@ describe("menu from the database", () => {
     expect(allItems.some((i) => i.name === "Soft drink" || i.name === "Extras (each)")).toBe(false); // retired
   });
 
+  it("lists every bottled beer with its price, and each draft asks which beer (Nov 17, 2026)", () => {
+    const beer = menu.categories.find((c) => c.code === "beer")!.items;
+    expect(beer.slice(0, 15).map((i) => [i.name, i.priceCents])).toEqual([
+      ["Bud Light", 499], ["Budweiser", 499], ["Miller Light", 499], ["Coors Light", 499], ["Michelob Ultra", 499],
+      ["Blue Moon", 525], ["Corona", 525], ["Modelo Especial", 525], ["Negra Modelo", 525], ["Sol", 525],
+      ["Pacifico", 525], ["XX Lager", 525], ["Tecate", 525], ["XX Amber", 525], ["Carta Blanca", 525],
+    ]);
+    expect(new Set(beer.map((i) => i.taxCategory))).toEqual(new Set(["beer"]));
+    expect(item("Draft beer - 12 oz").choices.map((c) => c.choiceLabel)).toEqual(["Bud Light", "Budweiser", "Michelob Ultra", "Coors Light", "Miller Light"]);
+    expect(item("Import draft beer - 32 oz").choices.map((c) => [c.name, c.priceCents])[0]).toEqual(["Import draft beer - 32 oz (XX Amber)", 799]);
+    expect(searchMenu(menu.categories, "corona")[0]?.item.name).toBe("Corona");
+    expect(allItems.some((i) => i.name === "Domestic beer" || i.name === "Import beer")).toBe(false); // retired
+  });
+
   it("adds Mango (No Refills) to the aguas frescas at $3.25", () => {
     expect(item("Mango (No Refills)")).toMatchObject({ priceCents: 325, taxCategory: "nonalcoholic" });
   });
@@ -76,8 +91,13 @@ describe("menu from the database", () => {
   it("puts Beef and Chicken under the items that come with either, not on the menu by themselves", () => {
     const withChoices = allItems.filter((i) => i.choices.length > 0).map((i) => i.name);
     expect(withChoices.sort()).toEqual([
-      "Beef or chicken fajitas", "Chimichanga", "Chimichanga (Side order)", "Monterrey", "Quesadilla Grande",
-      "Steak quesadilla (chicken or beef)", "Taco salad (chicken or beef)", "Taquitos Mexicanos",
+      "Beef or chicken fajitas", "Chimichanga", "Chimichanga (Side order)", "Draft beer - 12 oz", "Draft beer - 32 oz",
+      "Import draft beer - 12 oz", "Import draft beer - 32 oz", "Monterrey", "Quesadilla Grande",
+      "Steak quesadilla (chicken or beef)", "Taco salad (chicken or beef)", "Taco salad fajita (beef or chicken)", "Taquitos Mexicanos",
+    ]);
+    expect(item("Taco salad fajita (beef or chicken)").choices.map((c) => [c.name, c.choiceLabel])).toEqual([
+      ["Taco salad fajita (Beef)", "Beef"],
+      ["Taco salad fajita (Chicken)", "Chicken"],
     ]);
     expect(item("Monterrey").choices.map((c) => [c.name, c.choiceLabel, c.priceCents])).toEqual([
       ["Monterrey (Beef)", "Beef", 1099],
@@ -99,7 +119,7 @@ describe("menu from the database", () => {
   });
 
   it("gives every item a tax category: beer and cocktails are liquor, soft drinks are not", () => {
-    expect(item("Domestic beer").taxCategory).toBe("beer");
+    expect(item("Bud Light").taxCategory).toBe("beer");
     expect(item("Paloma").taxCategory).toBe("cocktail");
     expect(item("Horchata").taxCategory).toBe("nonalcoholic");
     expect(item("Molcajete").taxCategory).toBe("food");
@@ -339,5 +359,35 @@ describe("custom items", () => {
     const shot = draft[2]!;
     expect(removeItem(draft, shot.itemId)).toHaveLength(2);
     expect(setQuantity(draft, shot.itemId, 3)[2]!.quantity).toBe(3);
+  });
+});
+
+describe("the manager's menu forms", () => {
+  it("a new item needs a name, a price in dollars, and a tax type; the description is optional", () => {
+    expect(addMenuItemSchema.safeParse({ categoryId: 1, name: "  Birria tacos ", description: "", price: "12.50", taxCategory: "food" }).data).toEqual({
+      categoryId: 1, name: "Birria tacos", description: "", price: 1250, taxCategory: "food",
+    });
+    expect(addMenuItemSchema.safeParse({ categoryId: 1, name: " ", description: "", price: "1", taxCategory: "food" }).error?.issues[0]?.message).toBe("Enter the item's name.");
+    expect(addMenuItemSchema.safeParse({ categoryId: 1, name: "X", description: "", price: "1.234", taxCategory: "food" }).success).toBe(false);
+    expect(addMenuItemSchema.safeParse({ categoryId: 1, name: "X", description: "", price: "1", taxCategory: "" }).error?.issues[0]?.message).toBe("Choose the tax type.");
+    expect(addMenuItemSchema.safeParse({ categoryId: 1, name: "X", description: "d".repeat(401), price: "1", taxCategory: "food" }).success).toBe(false);
+  });
+
+  it("an edit carries everything the manager can change", () => {
+    expect(editMenuItemSchema.safeParse({ id: 5, name: "Monterrey", description: "New", price: "11.50", taxCategory: "food", isAvailable: false }).data).toEqual({
+      id: 5, name: "Monterrey", description: "New", price: 1150, taxCategory: "food", isAvailable: false,
+    });
+  });
+
+  it("an option is a short label without brackets", () => {
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: " Shrimp " }).data).toEqual({ itemId: 5, label: "Shrimp" });
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "" }).success).toBe(false);
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "(Shrimp)" }).error?.issues[0]?.message).toBe("Leave out brackets: they are added for you.");
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "x".repeat(41) }).success).toBe(false);
+  });
+
+  it("explains each refusal in plain words", () => {
+    expect(menuErrorMessage({ message: "name_taken" })).toContain("already has an item with that name");
+    expect(menuErrorMessage({ message: "option_taken" })).toContain("already has that option");
   });
 });
