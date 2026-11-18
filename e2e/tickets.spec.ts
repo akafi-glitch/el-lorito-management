@@ -345,7 +345,7 @@ test.describe.serial("orders on a phone", () => {
       expect((await ticketByNumber(number)).status).toBe("open"); // opening the dialog changed nothing
       const printed = await lastReceipt(page);
       const receipt = printed;
-      for (const part of ["EL LORITO", `TICKET #${number}`, "WAITER: 01", `TABLE: ${table}`, "TIME: ", "2 × Combo #5", "$18.80", "@ 9.40 each", "2 × House tequila shot", "1 × Horchata", "Food Subtotal", "Liquor Subtotal", "Food Tax (8.5%)", "Liquor Tax (10.5%)", "TOTAL", "THANK YOU!"]) {
+      for (const part of ["EL LORITO", `TICKET #${number}`, "WAITER: 01", `TABLE: ${table}`, "TIME: ", "2 × Combo #5\u00a0T1", "$18.80", "@ 9.40 each", "2 × House tequila shot\u00a0T2", "1 × Horchata\u00a0T1", "Food Subtotal T1", "Liquor Subtotal T2", "Food Tax T1 (8.5%)", "Liquor Tax T2 (10.5%)", "TOTAL", "THANK YOU!"]) { // T1 food tax, T2 liquor tax
         expect(receipt).toContain(part);
       }
       expect(receipt).not.toContain("Kafi");

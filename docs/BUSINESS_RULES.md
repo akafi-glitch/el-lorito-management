@@ -237,6 +237,9 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 
 ## Customer receipts and finalizing (Built Nov 2, 2026)
 
+- **Tax marks (owner decision, Nov 18, 2026):** each item has T1 (food tax) or T2 (liquor tax) beside its name, and
+  the subtotal and tax lines say which is which: "Food Subtotal T1", "Liquor Tax T2 (10.5%)". Reprints of older
+  receipts show the marks too; the amounts are the ones saved.
 - **Easy to read (owner decision, Nov 11, 2026):** the customer receipt prints all bold, 3px bigger than before:
   15px text, 19px restaurant name, 18px total. The shift report keeps its smaller size.
 - **Shows:** EL LORITO, ticket number (the same as the kitchen's), waiter number only, table (joined tables as
