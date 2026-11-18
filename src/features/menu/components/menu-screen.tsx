@@ -284,6 +284,7 @@ export function MenuScreen({
                 >
                   <span>
                     {index + 1}. {choice.choiceLabel}
+                    {choice.extraCents > 0 ? <span className="font-semibold text-muted"> (+{formatCents(choice.extraCents)})</span> : null}
                   </span>
                   <span className="tabular-nums">{formatCents(priceOf(choice, choosing.category))}</span>
                 </button>

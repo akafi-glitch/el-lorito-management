@@ -9,7 +9,7 @@ import { formatCents, lineTotalCents, parseDollars } from "./money";
 import { parseCustomItem } from "./custom-item";
 import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setItemNote, setQuantity, type Draft } from "./order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate, parseTimeOfDay, restaurantMinutes } from "./pricing";
-import { addMenuItemSchema, addMenuOptionSchema, editMenuItemSchema, menuCategoryRowSchema, menuItemRowSchema, updateMenuItemSchema } from "./schema";
+import { addMenuItemSchema, addMenuOptionSchema, editMenuItemSchema, extraCents, menuCategoryRowSchema, menuItemRowSchema, setMenuOptionExtraSchema, updateMenuItemSchema } from "./schema";
 import { normalizeText, searchMenu } from "./search";
 import type { Menu } from "./types";
 
@@ -380,14 +380,31 @@ describe("the manager's menu forms", () => {
   });
 
   it("an option is a short label without brackets", () => {
-    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: " Shrimp " }).data).toEqual({ itemId: 5, label: "Shrimp" });
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: " Shrimp " }).data).toEqual({ itemId: 5, label: "Shrimp", extra: 0 });
     expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "" }).success).toBe(false);
     expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "(Shrimp)" }).error?.issues[0]?.message).toBe("Leave out brackets: they are added for you.");
     expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "x".repeat(41) }).success).toBe(false);
   });
 
+  it("an option may cost extra: dollars typed, cents saved, nothing for no extra charge (Nov 18, 2026)", () => {
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "Shrimp", extra: "3" }).data).toEqual({ itemId: 5, label: "Shrimp", extra: 300 });
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "Shrimp", extra: "$2.50" }).data?.extra).toBe(250);
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "Shrimp", extra: "3.005" }).error?.issues[0]?.message).toContain("Enter the extra charge like 3.00");
+    expect(addMenuOptionSchema.safeParse({ itemId: 5, label: "Shrimp", extra: "1000.01" }).success).toBe(false);
+    expect(setMenuOptionExtraSchema.safeParse({ optionId: 9, extra: "" }).data).toEqual({ optionId: 9, extra: 0 });
+    expect(setMenuOptionExtraSchema.safeParse({ optionId: 9, extra: "4.50" }).data).toEqual({ optionId: 9, extra: 450 });
+    expect([extraCents(""), extraCents("0"), extraCents("1000"), extraCents("abc")]).toEqual([0, 0, 100000, null]);
+  });
+
+  it("every option on the menu starts at no extra charge, at its item's price", () => {
+    for (const parent of allItems) {
+      for (const choice of parent.choices) expect([choice.extraCents, choice.priceCents]).toEqual([0, parent.priceCents]);
+    }
+  });
+
   it("explains each refusal in plain words", () => {
     expect(menuErrorMessage({ message: "name_taken" })).toContain("already has an item with that name");
     expect(menuErrorMessage({ message: "option_taken" })).toContain("already has that option");
+    expect(menuErrorMessage({ message: "invalid_extra" })).toContain("extra charge from $0.00 to $1,000.00");
   });
 });

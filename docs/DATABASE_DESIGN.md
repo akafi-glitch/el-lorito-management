@@ -237,6 +237,13 @@ Adds floor area and section `TOGO` with 30 `restaurant_tables` (`TOGO-1` to `TOG
 and the staff board. `save_to_go_order(employee, key, lines, notes, time zone, actor)` takes the first spot with no open
 ticket, one caller at a time, and calls `save_table_order`. It refuses with `to_go_full` when all are taken.
 
+### Options that cost extra (`20261118010000_option_prices`, Nov 18, 2026)
+
+`menu_items.extra_cents` (0 to 100000, only on options) is what an option costs on top of its item; its `price_cents`
+is always the item's price plus it (the `sync_menu_choices` trigger keeps it so). `add_menu_option` takes
+`p_extra_cents` (default 0, so the previous build's call still works), and `set_menu_option_extra` changes it.
+New error: `invalid_extra`.
+
 ### The manager's menu editor (`20261117010000_menu_editor`, Nov 17, 2026)
 
 `menu_items.choice_label` is an option's own label ("Beef"), so renaming the item renames its options

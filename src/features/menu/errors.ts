@@ -9,6 +9,7 @@ export function menuErrorMessage(error: DbError): string {
   if (error.message === "invalid_description") return "Keep the description to 400 characters.";
   if (error.message === "invalid_option") return "Enter an option of 1 to 40 characters, without brackets.";
   if (error.message === "invalid_tax_category") return "Choose the tax type.";
+  if (error.message === "invalid_extra") return "Enter an extra charge from $0.00 to $1,000.00 (with the item, $10,000 at most).";
   if (error.code === "23514") return "That price isn't allowed. Enter a price from $0.00 to $10,000.";
   return "The change couldn't be saved. Check the connection and try again.";
 }

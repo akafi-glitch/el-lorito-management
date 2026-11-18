@@ -16,7 +16,7 @@ export async function loadMenu(): Promise<Menu> {
   const db = createAdminClient();
   const [categories, items] = await Promise.all([
     db.from("menu_categories").select("id, code, name, note, sort_order, is_active, late_from, late_surcharge_cents"),
-    db.from("menu_items").select("id, category_id, name, description, price_cents, tax_category_code, is_available, sort_order, parent_item_id, is_retired, choice_label"),
+    db.from("menu_items").select("id, category_id, name, description, price_cents, tax_category_code, is_available, sort_order, parent_item_id, is_retired, choice_label, extra_cents"),
   ]);
   if (categories.error) throw new Error(`Could not load the menu categories: ${categories.error.message}`);
   if (items.error) throw new Error(`Could not load the menu: ${items.error.message}`);

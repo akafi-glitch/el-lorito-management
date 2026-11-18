@@ -10,10 +10,12 @@ import {
   addMenuItemSchema,
   addMenuOptionSchema,
   editMenuItemSchema,
+  setMenuOptionExtraSchema,
   updateMenuItemSchema,
   type AddMenuItemInput,
   type AddMenuOptionInput,
   type EditMenuItemInput,
+  type SetMenuOptionExtraInput,
   type UpdateMenuItemInput,
 } from "./schema";
 
@@ -84,10 +86,33 @@ export async function addMenuOptionAction(input: AddMenuOptionInput): Promise<Ac
   const parsed = addMenuOptionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, message: firstIssue(parsed.error.issues, "Check the option.") };
 
-  const { itemId, label } = parsed.data;
-  const { error } = await createAdminClient().rpc("add_menu_option", { p_item_id: itemId, p_label: label, p_actor: user.userId });
+  const { itemId, label, extra } = parsed.data;
+  const { error } = await createAdminClient().rpc("add_menu_option", {
+    p_item_id: itemId,
+    p_label: label,
+    p_actor: user.userId,
+    p_extra_cents: extra,
+  });
   if (error) return { ok: false, message: menuErrorMessage(error) };
-  return { ok: true, message: `Option ${label} added. Waiters now choose when they tap the item.` };
+  const charge = extra > 0 ? ` at ${formatCents(extra)} extra` : "";
+  return { ok: true, message: `Option ${label} added${charge}. Waiters now choose when they tap the item.` };
+}
+
+/** Management: what an option costs on top of its item (0 for nothing extra). */
+export async function setMenuOptionExtraAction(input: SetMenuOptionExtraInput): Promise<ActionResult> {
+  const user = await requireActiveUser();
+  const parsed = setMenuOptionExtraSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, message: firstIssue(parsed.error.issues, "Check the extra charge.") };
+
+  const { optionId, extra } = parsed.data;
+  const { data, error } = await createAdminClient().rpc("set_menu_option_extra", {
+    p_option_id: optionId,
+    p_extra_cents: extra,
+    p_actor: user.userId,
+  });
+  if (error) return { ok: false, message: menuErrorMessage(error) };
+  const name = typeof data === "string" ? data : "The option";
+  return { ok: true, message: extra > 0 ? `${name}: ${formatCents(extra)} extra.` : `${name}: no extra charge.` };
 }
 
 /** Management: an item (with its options) or one option off the menu for good. Saved tickets keep it. */

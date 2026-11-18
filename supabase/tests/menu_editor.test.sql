@@ -83,7 +83,7 @@ select lives_ok($$ select public.add_menu_item(pg_temp.category('favorites'), 'B
 -- Security ------------------------------------------------------------------------------------------------
 select ok(not has_function_privilege('anon', 'public.add_menu_item(bigint, text, text, integer, text, uuid)', 'execute')
           and not has_function_privilege('authenticated', 'public.update_menu_item_details(bigint, text, text, integer, text, boolean, uuid)', 'execute')
-          and not has_function_privilege('anon', 'public.add_menu_option(bigint, text, uuid)', 'execute')
+          and not has_function_privilege('anon', 'public.add_menu_option(bigint, text, uuid, integer)', 'execute')
           and not has_function_privilege('authenticated', 'public.remove_menu_item(bigint, uuid)', 'execute'), 'browsers can''t edit the menu');
 
 select * from finish();
