@@ -162,6 +162,12 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   when they tap it (such as Beef, Chicken, or Shrimp; every option has the item's price), removes an option, or takes
   the item off the menu. Waiters see each change at once. Tickets already made keep their names and prices. An item
   taken off the menu is retired, never deleted, and its name can be used again. Every change is in the history.
+- **Options can cost extra (owner decision, Nov 18, 2026):** when adding an option, the manager chooses "No extra
+  charge" or "Yes, extra charge" and types the extra, such as Shrimp +$3.00 (up to $1,000). The option then costs the
+  item's price plus the extra: the waiter's question shows "3. Shrimp (+$3.00) $16.99", and the order, the bill, and
+  its tax use $16.99. When the item's price changes, the extra stays on top. A manager changes or removes the extra
+  under Extra charge. Lunch's 3:00 PM extra still applies on top. Existing options start at no extra charge, and saved
+  tickets keep their prices.
 - **Search** matches the start of words in an item's name, description, or category, ignoring case,
   accents, and punctuation: "combo 5" finds Combo #5, not Combo #15. Name matches come first.
 - **Order on screen:** tap to add; quantities 1 to 99; remove a line with Remove.

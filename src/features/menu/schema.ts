@@ -28,6 +28,7 @@ export const menuItemRowSchema = z.object({
   parent_item_id: z.number().int().positive().nullable(),
   is_retired: z.boolean(),
   choice_label: z.string().nullable(),
+  extra_cents: z.number().int().nonnegative(),
 });
 
 export type MenuCategoryRow = z.infer<typeof menuCategoryRowSchema>;
@@ -50,6 +51,17 @@ export const updateMenuItemSchema = z.object({
 });
 
 export type UpdateMenuItemInput = z.input<typeof updateMenuItemSchema>;
+
+/** Highest extra charge on an option: $1,000.00. */
+export const MAX_EXTRA_CENTS = 100_000;
+const EXTRA_MESSAGE = "Enter the extra charge like 3.00 (up to $1,000), or choose No extra charge.";
+
+/** "" -> 0 (no extra charge); "3", "$3.00" -> 300; null when it can't be read or is over $1,000. */
+export function extraCents(raw: string): number | null {
+  if (raw.trim() === "") return 0;
+  const cents = parseDollars(raw);
+  return cents !== null && cents <= MAX_EXTRA_CENTS ? cents : null;
+}
 
 const priceField = z.string().transform((value, ctx) => {
   const cents = parseDollars(value);
@@ -92,8 +104,27 @@ export const addMenuOptionSchema = z.object({
     .min(1, "Enter the option, such as Shrimp.")
     .max(40, "Keep the option to 40 characters.")
     .refine((value) => !/[()]/.test(value), "Leave out brackets: they are added for you."),
+  extra: z.string().default(""),
+}).transform((value, ctx) => {
+  const extra = extraCents(value.extra);
+  if (extra === null) {
+    ctx.addIssue({ code: "custom", message: EXTRA_MESSAGE });
+    return z.NEVER;
+  }
+  return { itemId: value.itemId, label: value.label, extra };
 });
 export type AddMenuOptionInput = z.input<typeof addMenuOptionSchema>;
+
+/** Management: an option's extra charge; "" or "0" for none. */
+export const setMenuOptionExtraSchema = z.object({ optionId: z.number().int().positive(), extra: z.string() }).transform((value, ctx) => {
+  const extra = extraCents(value.extra);
+  if (extra === null) {
+    ctx.addIssue({ code: "custom", message: EXTRA_MESSAGE });
+    return z.NEVER;
+  }
+  return { optionId: value.optionId, extra };
+});
+export type SetMenuOptionExtraInput = z.input<typeof setMenuOptionExtraSchema>;
 
 /** What a waiter chooses for a custom item. Beer and cocktails are taxed as liquor. */
 export const TAX_CATEGORY_LABEL: Record<(typeof TAX_CATEGORIES)[number], string> = {

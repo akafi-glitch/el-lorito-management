@@ -6,7 +6,14 @@ import { buttonClasses } from "@/components/ui/button";
 import { NoticeBanner, useActionRunner } from "@/components/use-action-runner";
 import type { ActionResult } from "@/lib/action-result";
 
-import { addMenuItemAction, addMenuOptionAction, editMenuItemAction, removeMenuItemAction, updateMenuItemAction } from "../actions";
+import {
+  addMenuItemAction,
+  addMenuOptionAction,
+  editMenuItemAction,
+  removeMenuItemAction,
+  setMenuOptionExtraAction,
+  updateMenuItemAction,
+} from "../actions";
 import { formatCents, parseDollars } from "../money";
 import { formatTimeOfDay } from "../pricing";
 import { TAX_CATEGORIES, TAX_CATEGORY_LABEL } from "../schema";
@@ -252,6 +259,8 @@ function ItemRow({ item, categoryName, busy, run }: { item: MenuItem; categoryNa
   const [price, setPrice] = useState((item.priceCents / 100).toFixed(2));
   const [taxCategory, setTaxCategory] = useState<TaxCategory | "">(item.taxCategory);
   const [option, setOption] = useState("");
+  const [charges, setCharges] = useState(false);
+  const [extra, setExtra] = useState("");
   const [confirming, setConfirming] = useState<{ id: number; name: string } | null>(null);
   const idPrefix = `item-${item.id}`;
 
@@ -273,7 +282,9 @@ function ItemRow({ item, categoryName, busy, run }: { item: MenuItem; categoryNa
           </p>
           {item.description ? <p className="text-sm text-muted">{item.description}</p> : null}
           {item.choices.length > 0 ? (
-            <p className="text-sm font-semibold text-ink">Options: {item.choices.map((choice) => choice.choiceLabel).join(" · ")}</p>
+            <p className="text-sm font-semibold text-ink">
+              Options: {item.choices.map((choice) => choice.choiceLabel + (choice.extraCents > 0 ? ` (+${formatCents(choice.extraCents)})` : "")).join(" · ")}
+            </p>
           ) : null}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -330,19 +341,14 @@ function ItemRow({ item, categoryName, busy, run }: { item: MenuItem; categoryNa
             ) : (
               <ul className="flex flex-col gap-2">
                 {item.choices.map((choice, index) => (
-                  <li key={choice.id} className="flex items-center justify-between gap-3 rounded-lg border border-glaze px-3 py-2">
-                    <span className="font-semibold text-ink">
-                      {index + 1}. {choice.choiceLabel}
-                    </span>
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={() => setConfirming({ id: choice.id, name: `the option ${choice.choiceLabel}` })}
-                      className="min-h-11 rounded-lg px-3 font-semibold text-danger hover:bg-danger/10"
-                    >
-                      Remove<span className="sr-only"> option {choice.choiceLabel}</span>
-                    </button>
-                  </li>
+                  <OptionRow
+                    key={`${choice.id}-${choice.extraCents}`}
+                    option={choice}
+                    position={index + 1}
+                    busy={busy}
+                    run={run}
+                    onRemove={() => setConfirming({ id: choice.id, name: `the option ${choice.choiceLabel}` })}
+                  />
                 ))}
               </ul>
             )}
@@ -350,7 +356,14 @@ function ItemRow({ item, categoryName, busy, run }: { item: MenuItem; categoryNa
               className="flex flex-wrap items-end gap-2"
               onSubmit={(event) => {
                 event.preventDefault();
-                run(() => addMenuOptionAction({ itemId: item.id, label: option }), () => setOption(""));
+                run(
+                  () => addMenuOptionAction({ itemId: item.id, label: option, extra: charges ? extra : "" }),
+                  () => {
+                    setOption("");
+                    setCharges(false);
+                    setExtra("");
+                  },
+                );
               }}
             >
               <div className="flex min-w-48 flex-1 flex-col gap-1.5">
@@ -367,7 +380,40 @@ function ItemRow({ item, categoryName, busy, run }: { item: MenuItem; categoryNa
                   className={FIELD}
                 />
               </div>
-              <button type="submit" disabled={busy || option.trim() === ""} className={buttonClasses("primary")}>
+              <fieldset className="flex w-full flex-col gap-2">
+                <legend className={LABEL}>Does this option cost extra?</legend>
+                <div className="flex flex-wrap gap-x-6 gap-y-2">
+                  <label className="flex min-h-11 items-center gap-2 text-base text-ink">
+                    <input type="radio" name={`${idPrefix}-charges`} checked={!charges} onChange={() => setCharges(false)} className="size-5" />
+                    No extra charge
+                  </label>
+                  <label className="flex min-h-11 items-center gap-2 text-base text-ink">
+                    <input type="radio" name={`${idPrefix}-charges`} checked={charges} onChange={() => setCharges(true)} className="size-5" />
+                    Yes, extra charge
+                  </label>
+                </div>
+                {charges ? (
+                  <div className="flex max-w-60 flex-col gap-1.5">
+                    <label htmlFor={`${idPrefix}-new-extra`} className={LABEL}>
+                      Extra price in dollars
+                    </label>
+                    <input
+                      id={`${idPrefix}-new-extra`}
+                      inputMode="decimal"
+                      autoComplete="off"
+                      placeholder="3.00"
+                      value={extra}
+                      onChange={(event) => setExtra(event.target.value)}
+                      className={`${FIELD} tabular-nums`}
+                    />
+                    <p className="text-sm text-muted">
+                      Added to {formatCents(item.priceCents)}
+                      {parseDollars(extra) !== null ? `: the option costs ${formatCents(item.priceCents + (parseDollars(extra) ?? 0))}.` : "."}
+                    </p>
+                  </div>
+                ) : null}
+              </fieldset>
+              <button type="submit" disabled={busy || option.trim() === "" || (charges && extra.trim() === "")} className={buttonClasses("primary")}>
                 Add option
               </button>
             </form>
@@ -408,6 +454,78 @@ function ItemRow({ item, categoryName, busy, run }: { item: MenuItem; categoryNa
             </button>
           </div>
         </div>
+      ) : null}
+    </li>
+  );
+}
+
+/** One option in the editor: its extra charge (changeable) and Remove. */
+function OptionRow({
+  option,
+  position,
+  busy,
+  run,
+  onRemove,
+}: {
+  option: MenuItem;
+  position: number;
+  busy: boolean;
+  run: Run;
+  onRemove: () => void;
+}) {
+  const [changing, setChanging] = useState(false);
+  const [extra, setExtra] = useState(option.extraCents > 0 ? (option.extraCents / 100).toFixed(2) : "");
+  const inputId = `option-${option.id}-extra`;
+
+  return (
+    <li className="flex flex-col gap-2 rounded-lg border border-glaze px-3 py-2">
+      <div className="flex flex-wrap items-center justify-between gap-2">
+        <span className="font-semibold text-ink">
+          {position}. {option.choiceLabel}{" "}
+          <span className="font-normal text-muted">
+            {option.extraCents > 0 ? `+${formatCents(option.extraCents)} extra · ${formatCents(option.priceCents)}` : "No extra charge"}
+          </span>
+        </span>
+        <span className="flex flex-wrap gap-1">
+          <button
+            type="button"
+            aria-expanded={changing}
+            onClick={() => setChanging(!changing)}
+            className="min-h-11 rounded-lg px-3 font-semibold text-leaf hover:bg-leaf/10"
+          >
+            Extra charge<span className="sr-only"> for {option.choiceLabel}</span>
+          </button>
+          <button type="button" disabled={busy} onClick={onRemove} className="min-h-11 rounded-lg px-3 font-semibold text-danger hover:bg-danger/10">
+            Remove<span className="sr-only"> option {option.choiceLabel}</span>
+          </button>
+        </span>
+      </div>
+      {changing ? (
+        <form
+          className="flex flex-wrap items-end gap-2"
+          onSubmit={(event) => {
+            event.preventDefault();
+            run(() => setMenuOptionExtraAction({ optionId: option.id, extra }), () => setChanging(false));
+          }}
+        >
+          <div className="flex max-w-60 flex-col gap-1.5">
+            <label htmlFor={inputId} className={LABEL}>
+              Extra price for {option.choiceLabel} (leave empty for none)
+            </label>
+            <input
+              id={inputId}
+              inputMode="decimal"
+              autoComplete="off"
+              placeholder="0.00"
+              value={extra}
+              onChange={(event) => setExtra(event.target.value)}
+              className={`${FIELD} tabular-nums`}
+            />
+          </div>
+          <button type="submit" disabled={busy} className={buttonClasses("primary")}>
+            Save extra charge
+          </button>
+        </form>
       ) : null}
     </li>
   );

@@ -18,6 +18,7 @@ function toItem(item: MenuItemRow, choices: MenuItem[]): MenuItem {
     isAvailable: item.is_available,
     choices,
     choiceLabel: item.parent_item_id === null ? null : (item.choice_label ?? choiceLabel(item.name)),
+    extraCents: item.extra_cents,
   };
 }
 

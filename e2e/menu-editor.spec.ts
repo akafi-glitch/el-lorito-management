@@ -50,12 +50,27 @@ test.describe.serial("the manager's menu", () => {
     await expect(row(page, ITEM)).toContainText("Options: Beef · Chicken");
     await expect(row(page, ITEM).getByLabel("New option")).toBeVisible(); // the editor stays open for the next one
 
+    // An option that costs extra (Nov 18, 2026): the extra goes on top of the item's price.
+    await row(page, ITEM).getByLabel("New option").fill("Shrimp");
+    await row(page, ITEM).getByLabel("Yes, extra charge").check();
+    await row(page, ITEM).getByLabel("Extra price in dollars").fill("3");
+    await expect(row(page, ITEM)).toContainText("Added to $9.75: the option costs $12.75.");
+    await row(page, ITEM).getByRole("button", { name: "Add option" }).click();
+    await expect(notice(page)).toContainText("Option Shrimp added at $3.00 extra.");
+    await expect(row(page, ITEM)).toContainText("Options: Beef · Chicken · Shrimp (+$3.00)");
+    await expect(row(page, ITEM).getByLabel("No extra charge")).toBeChecked(); // ready for the next option
+
     await waiterSees(page, "e2e torta");
     await page.locator(`button[aria-label^='Add ${ITEM},']`).click();
     await expect(page.locator("dialog[open] h2")).toHaveText(ITEM);
-    await expect(page.locator("dialog[open]").getByRole("button")).toHaveText(["1. Beef$9.75", "2. Chicken$9.75", "Cancel"]);
+    await expect(page.locator("dialog[open]").getByRole("button")).toHaveText(["1. Beef$9.75", "2. Chicken$9.75", "3. Shrimp (+$3.00)$12.75", "Cancel"]);
     await page.locator("dialog[open]").getByRole("button", { name: /Chicken/ }).click();
     await expect(page.locator("#current-order")).toContainText(`${ITEM} (Chicken)`);
+    await page.locator(`button[aria-label^='Add ${ITEM},']`).click();
+    await page.locator("dialog[open]").getByRole("button", { name: /Shrimp/ }).click();
+    const shrimp = page.locator("#current-order li").filter({ hasText: `${ITEM} (Shrimp)` });
+    await expect(shrimp).toContainText("$12.75");
+    await expect(page.locator("#current-order")).toContainText("$22.50"); // $9.75 + $12.75 before tax
   });
 
   test("a change reaches the item and its options; an option or the item comes off", async ({ page }) => {
@@ -69,6 +84,20 @@ test.describe.serial("the manager's menu", () => {
     await waiterSees(page, "e2e torta");
     await page.locator(`button[aria-label^='Add ${ITEM},']`).click();
     await expect(page.locator("dialog[open]").getByRole("button", { name: /Beef/ })).toHaveText("1. Beef$10.25");
+    await expect(page.locator("dialog[open]").getByRole("button", { name: /Shrimp/ })).toHaveText("3. Shrimp (+$3.00)$13.25"); // the extra stays on top
+
+    // The extra charge can change.
+    await page.goto("/manage/menu");
+    await page.fill("#menu-manage-search", "e2e torta");
+    await row(page, ITEM).getByRole("button", { name: `Edit ${ITEM}` }).click();
+    await row(page, ITEM).getByRole("button", { name: "Extra charge for Shrimp" }).click();
+    await row(page, ITEM).getByLabel("Extra price for Shrimp").fill("4.50");
+    await row(page, ITEM).getByRole("button", { name: "Save extra charge" }).click();
+    await expect(notice(page)).toHaveText(`${ITEM} (Shrimp): $4.50 extra.`);
+    await expect(row(page, ITEM)).toContainText("Shrimp (+$4.50)");
+    await waiterSees(page, "e2e torta");
+    await page.locator(`button[aria-label^='Add ${ITEM},']`).click();
+    await expect(page.locator("dialog[open]").getByRole("button", { name: /Shrimp/ })).toHaveText("3. Shrimp (+$4.50)$14.75");
 
     await page.goto("/manage/menu");
     await page.fill("#menu-manage-search", "e2e torta");

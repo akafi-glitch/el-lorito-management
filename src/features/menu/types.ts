@@ -14,6 +14,8 @@ export type MenuItem = {
   choices: MenuItem[];
   /** For a choice, what it is called in the question: "Beef". */
   choiceLabel: string | null;
+  /** For a choice, what it costs on top of its item (owner decision, Nov 18, 2026); already in priceCents. */
+  extraCents: number;
 };
 
 export type MenuCategory = {
