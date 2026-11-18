@@ -5,7 +5,7 @@ import { createPortal } from "react-dom";
 import { formatRate } from "@/features/billing/tax";
 import { formatCents } from "@/features/menu/money";
 
-import { groupKitchenLines, printableWidthMm, receiptAmount, type KitchenReceiptData, type ReceiptData } from "../receipt";
+import { groupKitchenLines, printableWidthMm, receiptAmount, TAX_MARK, type KitchenReceiptData, type ReceiptData } from "../receipt";
 
 export function paperStyle(paperWidthMm: 58 | 80) {
   const width = printableWidthMm(paperWidthMm);
@@ -37,15 +37,17 @@ export function Receipt({ receipt, paperWidthMm, isCopy }: { receipt: ReceiptDat
       <hr />
       {receipt.lines.map((line, index) => (
         <div key={index} className="receipt-line">
-          <ReceiptRow left={`${line.quantity} × ${line.name}`} right={formatCents(line.totalCents)} />
+          {/* A no-break space keeps T1/T2 with the name's last word when a long name wraps. */}
+          <ReceiptRow left={`${line.quantity} × ${line.name}\u00a0${line.taxMark}`} right={formatCents(line.totalCents)} />
           <div className="receipt-each">@ {receiptAmount(line.unitCents)} each</div>
         </div>
       ))}
       <hr />
-      <ReceiptRow left="Food Subtotal" right={formatCents(receipt.totals.foodSubtotalCents)} />
-      <ReceiptRow left="Liquor Subtotal" right={formatCents(receipt.totals.liquorSubtotalCents)} />
-      <ReceiptRow left={`Food Tax (${formatRate(receipt.totals.rates.food)})`} right={formatCents(receipt.totals.foodTaxCents)} />
-      <ReceiptRow left={`Liquor Tax (${formatRate(receipt.totals.rates.liquor)})`} right={formatCents(receipt.totals.liquorTaxCents)} />
+      {/* T1 and T2 here say what the marks beside the items mean. */}
+      <ReceiptRow left={`Food Subtotal ${TAX_MARK.food}`} right={formatCents(receipt.totals.foodSubtotalCents)} />
+      <ReceiptRow left={`Liquor Subtotal ${TAX_MARK.liquor}`} right={formatCents(receipt.totals.liquorSubtotalCents)} />
+      <ReceiptRow left={`Food Tax ${TAX_MARK.food} (${formatRate(receipt.totals.rates.food)})`} right={formatCents(receipt.totals.foodTaxCents)} />
+      <ReceiptRow left={`Liquor Tax ${TAX_MARK.liquor} (${formatRate(receipt.totals.rates.liquor)})`} right={formatCents(receipt.totals.liquorTaxCents)} />
       <hr />
       <div className="receipt-total">
         <ReceiptRow left="TOTAL" right={formatCents(receipt.totals.totalCents)} />

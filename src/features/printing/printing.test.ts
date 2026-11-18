@@ -63,8 +63,8 @@ describe("the customer receipt", () => {
       waiterNumber: "01",
       printedAt: "11/02/2026 2:15 PM",
       lines: [
-        { name: "Combo #5", quantity: 2, unitCents: 940, totalCents: 1880 },
-        { name: "Domestic beer", quantity: 1, unitCents: 499, totalCents: 499 },
+        { name: "Combo #5", quantity: 2, unitCents: 940, totalCents: 1880, taxMark: "T1" }, // food tax
+        { name: "Domestic beer", quantity: 1, unitCents: 499, totalCents: 499, taxMark: "T2" }, // liquor tax
       ],
       totals: {
         foodSubtotalCents: 1880,

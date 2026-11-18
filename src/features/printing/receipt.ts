@@ -13,9 +13,13 @@ export type ReceiptData = {
   waiterNumber: string;
   /** In the restaurant's time zone. */
   printedAt: string;
-  lines: { name: string; quantity: number; unitCents: number; totalCents: number }[];
+  lines: { name: string; quantity: number; unitCents: number; totalCents: number; taxMark: TaxMark }[];
   totals: Totals;
 };
+
+/** Which tax an item is under, printed beside it (owner decision, Nov 18, 2026): T1 food tax, T2 liquor tax. */
+export type TaxMark = "T1" | "T2";
+export const TAX_MARK: Record<"food" | "liquor", TaxMark> = { food: "T1", liquor: "T2" };
 
 /** Everything printed for the kitchen. Deliberately has no place for a price. */
 export type KitchenReceiptData = {
@@ -74,6 +78,7 @@ export function receiptFromSnapshot(snapshot: CustomerSnapshot, formatTime: (iso
       quantity: line.quantity,
       unitCents: line.unit_cents,
       totalCents: line.total_cents,
+      taxMark: TAX_MARK[line.tax_group],
     })),
     totals: {
       foodSubtotalCents: snapshot.totals.food_subtotal_cents,
