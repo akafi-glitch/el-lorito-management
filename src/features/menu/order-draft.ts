@@ -3,7 +3,10 @@ import type { TaxCategory } from "./types";
 
 /**
  * The order a waiter is building on screen. Pure functions, so the screen and the tests share them.
- * Saving it adds one order to the table's ticket.
+ * Saving it adds its lines to the table's order.
+ *
+ * Every tap on a menu item adds a line of its own (owner decision, Nov 18, 2026), so two chicken fajitas can carry
+ * different notes ("no tomato", "no avocado"). The + on a line raises that line's quantity instead.
  */
 
 export const MAX_QUANTITY = 99;
@@ -12,40 +15,43 @@ export const ITEM_NOTE_MAX = 200;
 /** An item typed by the waiter: saved only on this order, never added to the menu. */
 export type CustomItem = { name: string; priceCents: number; taxCategory: TaxCategory };
 
-/** itemId is the menu item, or a negative number that only identifies a custom line on this screen. */
-export type DraftLine = { itemId: number; quantity: number; custom?: CustomItem; note?: string };
+/**
+ * key identifies the line on this screen (the same item can be on several lines). itemId is the menu item, or 0
+ * for a custom item, which carries what the waiter typed.
+ */
+export type DraftLine = { key: number; itemId: number; quantity: number; custom?: CustomItem; note?: string };
 export type Draft = readonly DraftLine[];
 
-/** Adds one; a new item goes to the end of the order. */
+const nextKey = (draft: Draft) => Math.max(0, ...draft.map((line) => line.key)) + 1;
+const clampQuantity = (quantity: number) => Math.min(MAX_QUANTITY, Math.max(1, Math.trunc(quantity)));
+
+/** One tap: a new line of one, at the end of the order, even when the item is already on it. */
 export function addItem(draft: Draft, itemId: number): Draft {
-  const existing = draft.find((line) => line.itemId === itemId);
-  if (!existing) return [...draft, { itemId, quantity: 1 }];
-  return setQuantity(draft, itemId, existing.quantity + 1);
+  return [...draft, { key: nextKey(draft), itemId, quantity: 1 }];
 }
 
 /** Adds a custom item as its own line. */
 export function addCustomItem(draft: Draft, custom: CustomItem, quantity: number): Draft {
-  const itemId = Math.min(0, ...draft.map((line) => line.itemId)) - 1;
-  return [...draft, { itemId, quantity: Math.min(MAX_QUANTITY, Math.max(1, Math.trunc(quantity))), custom }];
+  return [...draft, { key: nextKey(draft), itemId: 0, quantity: clampQuantity(quantity), custom }];
 }
 
-/** Sets a quantity between 1 and 99 (use removeItem to take a line off). */
-export function setQuantity(draft: Draft, itemId: number, quantity: number): Draft {
-  const clamped = Math.min(MAX_QUANTITY, Math.max(1, Math.trunc(quantity)));
-  return draft.map((line) => (line.itemId === itemId ? { ...line, quantity: clamped } : line));
+/** Sets one line's quantity between 1 and 99 (use removeLine to take it off). */
+export function setQuantity(draft: Draft, key: number, quantity: number): Draft {
+  return draft.map((line) => (line.key === key ? { ...line, quantity: clampQuantity(quantity) } : line));
 }
 
-/** The note under one item, for the kitchen. */
-export function setItemNote(draft: Draft, itemId: number, note: string): Draft {
-  return draft.map((line) => (line.itemId === itemId ? { ...line, note } : line));
+/** The note under one line, for the kitchen. */
+export function setItemNote(draft: Draft, key: number, note: string): Draft {
+  return draft.map((line) => (line.key === key ? { ...line, note } : line));
 }
 
-export function removeItem(draft: Draft, itemId: number): Draft {
-  return draft.filter((line) => line.itemId !== itemId);
+export function removeLine(draft: Draft, key: number): Draft {
+  return draft.filter((line) => line.key !== key);
 }
 
+/** How many of a menu item the order has, over all its lines. */
 export function quantityOf(draft: Draft, itemId: number): number {
-  return draft.find((line) => line.itemId === itemId)?.quantity ?? 0;
+  return draft.reduce((sum, line) => sum + (line.itemId === itemId && !line.custom ? line.quantity : 0), 0);
 }
 
 export type PricedLine<T extends { name: string; unitCents: number } = { name: string; unitCents: number }> = DraftLine &

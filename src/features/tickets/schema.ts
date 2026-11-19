@@ -99,11 +99,8 @@ export const saveOrderSchema = z.object({
   lines: z
     .array(orderLine)
     .min(1, "Add at least one item before saving.")
-    .max(100, "An order can have up to 100 different items.")
-    .refine((list) => {
-      const ids = list.flatMap((line) => ("itemId" in line ? [line.itemId] : []));
-      return new Set(ids).size === ids.length;
-    }, "Each menu item can appear once."),
+    // The same item may be on several lines, each with its own note (owner decision, Nov 18, 2026).
+    .max(100, "An order can have up to 100 lines."),
   notes,
 });
 

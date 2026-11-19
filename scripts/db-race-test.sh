@@ -148,6 +148,7 @@ else
 fi
 
 echo "Race 6: the same order is pressed twice at the same moment"
+# Race 5 saved one taco; the double press adds one more line, not two (each save's items are lines of their own).
 K3=$("${PSQL[@]}" -c "select gen_random_uuid()")
 ( "${PSQL[@]}" -c "begin; $(SAVE "$VISIT" "$K3" Taco); select pg_sleep(1); commit;" >"$work/d1.out" 2>&1; echo $? >"$work/d1.code" ) &
 sleep 0.3
@@ -155,7 +156,7 @@ sleep 0.3
 wait
 if [ "$(cat "$work/d1.code")" = 0 ] && [ "$(cat "$work/d2.code")" = 0 ] \
    && [ "$("${PSQL[@]}" -c "select count(*) from public.order_save_keys where client_key = '$K3'")" = 1 ] \
-   && [ "$("${PSQL[@]}" -c "select l.quantity from public.ticket_lines l join public.tickets t on t.id = l.ticket_id where t.visit_id = $VISIT and l.item_name = 'Taco'")" = 2 ] \
+   && [ "$("${PSQL[@]}" -c "select count(*) || ':' || sum(l.quantity) from public.ticket_lines l join public.tickets t on t.id = l.ticket_id where t.visit_id = $VISIT and l.item_name = 'Taco'")" = "2:2" ] \
    && [ "$("${PSQL[@]}" -c "select count(*) from public.ticket_batches b join public.tickets t on t.id = b.ticket_id where t.visit_id = $VISIT")" = 1 ]; then
   echo "  PASS: saved once; the second press got the same order back"
 else

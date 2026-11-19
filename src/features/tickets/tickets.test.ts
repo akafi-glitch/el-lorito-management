@@ -218,7 +218,19 @@ describe("a note on one item", () => {
   });
 
   it("goes from the screen to the order", () => {
-    expect(orderLinesFromDraft([{ itemId: 12, quantity: 1, note: "Extra rice" }])).toEqual([{ itemId: 12, quantity: 1, notes: "Extra rice" }]);
+    expect(orderLinesFromDraft([{ key: 1, itemId: 12, quantity: 1, note: "Extra rice" }])).toEqual([{ itemId: 12, quantity: 1, notes: "Extra rice" }]);
+  });
+
+  it("sends the same item on two lines, each with its own note (Nov 18, 2026)", () => {
+    const lines = orderLinesFromDraft([
+      { key: 1, itemId: 12, quantity: 1, note: "No tomato" },
+      { key: 2, itemId: 12, quantity: 1, note: "No avocado" },
+    ]);
+    expect(lines).toEqual([
+      { itemId: 12, quantity: 1, notes: "No tomato" },
+      { itemId: 12, quantity: 1, notes: "No avocado" },
+    ]);
+    expect(saveOrderSchema.safeParse({ employeeNumber: "01", tableCode: "X2", clientKey: crypto.randomUUID(), lines, notes: "" }).success).toBe(true);
   });
 });
 
@@ -284,9 +296,10 @@ describe("what the server accepts", () => {
     expect(saveOrderSchema.parse({ ...order, notes: "   " }).notes).toBeNull();
   });
 
-  it("refuses an empty order, repeated items, and quantities outside 1 to 99", () => {
+  it("refuses an empty order and quantities outside 1 to 99; the same item on two lines is fine (Nov 18, 2026)", () => {
     expect(saveOrderSchema.safeParse({ ...order, lines: [] }).success).toBe(false);
-    expect(saveOrderSchema.safeParse({ ...order, lines: [{ itemId: 1, quantity: 1 }, { itemId: 1, quantity: 2 }] }).success).toBe(false);
+    expect(saveOrderSchema.safeParse({ ...order, lines: [{ itemId: 1, quantity: 1 }, { itemId: 1, quantity: 2 }] }).success).toBe(true);
+    expect(saveOrderSchema.safeParse({ ...order, lines: Array.from({ length: 101 }, () => ({ itemId: 1, quantity: 1 })) }).success).toBe(false);
     expect(saveOrderSchema.safeParse({ ...order, lines: [{ itemId: 1, quantity: 0 }] }).success).toBe(false);
     expect(saveOrderSchema.safeParse({ ...order, lines: [{ itemId: 1, quantity: 100 }] }).success).toBe(false);
   });

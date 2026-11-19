@@ -26,10 +26,10 @@ select results_eq($$ select code, tax_group_code from public.tax_categories orde
   'food and nonalcoholic drinks are taxed as food; beer and cocktails as liquor');
 
 -- The owner's menu ----------------------------------------------------------------------------
-select is((select count(*)::int from public.menu_categories), 26, '26 categories');
+select is((select count(*)::int from public.menu_categories), 27, '27 categories: the menu file''s 26 and Misc (Nov 18, 2026)');
 select is((select count(*)::int from public.menu_items i join public.menu_categories c on c.id = i.category_id
-           where c.code <> 'cheese-dip-add-ons' and i.parent_item_id is null), 238,
-  'the 206 items from the menu file, and the Nov 16 and 17, 2026 lists: 10 soft drinks, 6 extras, Mango, 15 beers (the old single items stay, retired)');
+           where c.code <> 'cheese-dip-add-ons' and i.parent_item_id is null), 271,
+  'the 206 items from the menu file, the Nov 16 and 17, 2026 lists (10 soft drinks, 6 extras, Mango, 15 beers; the old single items stay, retired), and 33 Misc items');
 select results_eq($$ select price_cents from public.menu_items i join public.menu_categories c on c.id = i.category_id
                     where c.code = 'cheese-dip-add-ons' order by i.sort_order $$,
   array[125, 150, 100, 125], 'cheese dip add-ons at the menu''s prices');
@@ -47,7 +47,7 @@ select is((select count(*)::int from public.menu_items i join public.menu_catego
   14, '14 lunch items');
 
 select results_eq($$ select i.tax_category_code, count(*)::int from public.menu_items i group by 1 order by 1 $$,
-  $$ values ('beer'::text, 42), ('cocktail', 22), ('food', 184), ('nonalcoholic', 32) $$,
+  $$ values ('beer'::text, 42), ('cocktail', 22), ('food', 216), ('nonalcoholic', 33) $$,
   'tax categories: 42 beer items (each bottle, and each draft''s beers), 22 cocktails, 32 nonalcoholic drinks, the rest food');
 
 -- Rules ---------------------------------------------------------------------------------------

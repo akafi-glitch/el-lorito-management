@@ -7,7 +7,7 @@ import { buildMenu } from "./build";
 import { menuErrorMessage } from "./errors";
 import { formatCents, lineTotalCents, parseDollars } from "./money";
 import { parseCustomItem } from "./custom-item";
-import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setItemNote, setQuantity, type Draft } from "./order-draft";
+import { addCustomItem, addItem, priceDraft, quantityOf, removeLine, setItemNote, setQuantity, type Draft } from "./order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate, parseTimeOfDay, restaurantMinutes } from "./pricing";
 import { addMenuItemSchema, addMenuOptionSchema, editMenuItemSchema, extraCents, menuCategoryRowSchema, menuItemRowSchema, setMenuOptionExtraSchema, updateMenuItemSchema } from "./schema";
 import { normalizeText, searchMenu } from "./search";
@@ -31,16 +31,17 @@ const CHICAGO = "America/Chicago";
 const chicago = (hhmm: string) => new Date(`2026-10-27T${hhmm}:00-05:00`);
 
 describe("menu from the database", () => {
-  it("has 26 categories in menu order, starting with Lunch", () => {
-    expect(menu.categories).toHaveLength(26);
+  it("has 27 categories in menu order, starting with Lunch and ending with Misc (Nov 18, 2026)", () => {
+    expect(menu.categories).toHaveLength(27);
     expect(menu.categories.slice(0, 3).map((c) => c.name)).toEqual(["Lunch", "Appetizers", "Nachos"]);
-    expect(menu.categories.at(-1)?.name).toBe("Cocktails");
+    expect(menu.categories.at(-2)?.name).toBe("Cocktails");
+    expect(menu.categories.at(-1)?.name).toBe("Misc");
   });
 
   it("has the menu file's items, the 4 cheese-dip add-ons, and the Nov 16 and 17, 2026 lists", () => {
     // 206 + 4, minus "Soft drink", "Extras (each)", "Domestic beer", and "Import beer" (retired),
-    // plus 10 soft drinks, 6 extras, Mango, and 15 bottled beers.
-    expect(allItems).toHaveLength(238);
+    // plus 10 soft drinks, 6 extras, Mango, 15 bottled beers, and the 33 Misc items.
+    expect(allItems).toHaveLength(271);
     expect(menu.categories.find((c) => c.code === "cheese-dip-add-ons")?.items.map((i) => [i.name, i.priceCents])).toEqual([
       ["Cheese dip on lunch enchilada", 125],
       ["Cheese dip on lunch burrito", 150],
@@ -82,6 +83,20 @@ describe("menu from the database", () => {
     expect(item("Import draft beer - 32 oz").choices.map((c) => [c.name, c.priceCents])[0]).toEqual(["Import draft beer - 32 oz (XX Amber)", 799]);
     expect(searchMenu(menu.categories, "corona")[0]?.item.name).toBe("Corona");
     expect(allItems.some((i) => i.name === "Domestic beer" || i.name === "Import beer")).toBe(false); // retired
+  });
+
+  it("has the owner's Misc price list: 33 items, each at its price, searchable (Nov 18, 2026)", () => {
+    const misc = menu.categories.find((c) => c.code === "misc")!.items;
+    expect(misc).toHaveLength(33);
+    expect(misc.slice(0, 3).map((i) => [i.name, i.priceCents])).toEqual([
+      ["Quesa Camaron Carta", 699], ["Pieza de CHT Tender", 235], ["CHT Tender Dinner 4 Piezas", 899],
+    ]);
+    expect(item("Camaron Solo").priceCents).toBe(95);
+    expect(item("Cebolla en Taco").priceCents).toBe(25);
+    expect(item("Chile Colorado con Cheese Dip").priceCents).toBe(350);
+    expect(item("Michelada de Agua Mineral").taxCategory).toBe("nonalcoholic");
+    expect(misc.filter((i) => i.taxCategory !== "food").map((i) => i.name)).toEqual(["Michelada de Agua Mineral"]);
+    expect(searchMenu(menu.categories, "camaron solo")[0]?.item.name).toBe("Camaron Solo");
   });
 
   it("adds Mango (No Refills) to the aguas frescas at $3.25", () => {
@@ -133,26 +148,36 @@ describe("menu from the database", () => {
 
   it("leaves out a turned-off category", () => {
     const rows = z.array(menuCategoryRowSchema).parse(fixture.categories).map((row) => (row.code === "beer" ? { ...row, is_active: false } : row));
-    expect(buildMenu(rows, z.array(menuItemRowSchema).parse(fixture.items)).categories).toHaveLength(25);
+    expect(buildMenu(rows, z.array(menuItemRowSchema).parse(fixture.items)).categories).toHaveLength(26);
   });
 });
 
-describe("a note on one item of the order", () => {
+describe("a note on one line of the order", () => {
   const draft: Draft = [
-    { itemId: 1, quantity: 1 },
-    { itemId: 2, quantity: 2 },
+    { key: 1, itemId: 1, quantity: 1 },
+    { key: 2, itemId: 2, quantity: 2 },
   ];
 
-  it("stays on that item only", () => {
+  it("stays on that line only", () => {
     const noted = setItemNote(setItemNote(draft, 1, "No onions"), 2, "Extra rice");
     expect(noted.map((line) => line.note)).toEqual(["No onions", "Extra rice"]);
     expect(setItemNote(draft, 1, "No onions")[1]?.note).toBeUndefined();
   });
 
-  it("survives changing the quantity, or adding one more", () => {
+  it("survives changing the quantity; tapping the item again adds a new line with no note", () => {
     const noted = setItemNote(draft, 1, "No onions");
-    expect(setQuantity(noted, 1, 5)[0]?.note).toBe("No onions");
-    expect(addItem(noted, 1)[0]).toEqual({ itemId: 1, quantity: 2, note: "No onions" });
+    expect(setQuantity(noted, 1, 5)[0]).toEqual({ key: 1, itemId: 1, quantity: 5, note: "No onions" });
+    expect(addItem(noted, 1).slice(-1)[0]).toEqual({ key: 3, itemId: 1, quantity: 1 });
+    expect(addItem(noted, 1)[0]?.note).toBe("No onions");
+  });
+
+  it("lets the same item carry two different notes (Nov 18, 2026)", () => {
+    let fajitas: Draft = addItem(addItem([], 7), 7);
+    fajitas = setItemNote(setItemNote(fajitas, 1, "No tomato"), 2, "No avocado");
+    expect(fajitas.map((line) => [line.itemId, line.note])).toEqual([
+      [7, "No tomato"],
+      [7, "No avocado"],
+    ]);
   });
 });
 
@@ -177,8 +202,8 @@ describe("money in whole cents", () => {
   it("adds prices exactly where floating point would not (0.10 + 0.20)", () => {
     const { subtotalCents } = priceDraft(
       [
-        { itemId: 1, quantity: 1 },
-        { itemId: 2, quantity: 1 },
+        { key: 1, itemId: 1, quantity: 1 },
+        { key: 2, itemId: 2, quantity: 1 },
       ],
       (id) => ({ name: String(id), unitCents: id === 1 ? 10 : 20 }),
     );
@@ -263,33 +288,39 @@ describe("the order on screen", () => {
   const taco = item("Taco").id;
   const combo = item("Combo #5").id;
 
-  it("adds, counts up, and keeps the order items were added in", () => {
+  it("adds a line for every tap, in the order they were added, and counts an item over its lines", () => {
     let draft: Draft = [];
     draft = addItem(draft, taco);
     draft = addItem(draft, combo);
     draft = addItem(draft, taco);
     expect(draft).toEqual([
-      { itemId: taco, quantity: 2 },
-      { itemId: combo, quantity: 1 },
+      { key: 1, itemId: taco, quantity: 1 },
+      { key: 2, itemId: combo, quantity: 1 },
+      { key: 3, itemId: taco, quantity: 1 },
     ]);
     expect(quantityOf(draft, taco)).toBe(2);
+    expect(quantityOf(setQuantity(draft, 1, 4), taco)).toBe(5); // + raises one line
   });
 
   it("keeps quantities between 1 and 99", () => {
-    const draft: Draft = [{ itemId: taco, quantity: 1 }];
-    expect(setQuantity(draft, taco, 0)).toEqual([{ itemId: taco, quantity: 1 }]);
-    expect(setQuantity(draft, taco, 250)).toEqual([{ itemId: taco, quantity: 99 }]);
+    const draft: Draft = [{ key: 1, itemId: taco, quantity: 1 }];
+    expect(setQuantity(draft, 1, 0)).toEqual([{ key: 1, itemId: taco, quantity: 1 }]);
+    expect(setQuantity(draft, 1, 250)).toEqual([{ key: 1, itemId: taco, quantity: 99 }]);
   });
 
-  it("removes a line", () => {
-    expect(removeItem([{ itemId: taco, quantity: 3 }], taco)).toEqual([]);
+  it("removes one line, leaving the same item's other lines", () => {
+    const draft: Draft = [
+      { key: 1, itemId: taco, quantity: 3 },
+      { key: 2, itemId: taco, quantity: 1 },
+    ];
+    expect(removeLine(draft, 1)).toEqual([{ key: 2, itemId: taco, quantity: 1 }]);
   });
 
   it("totals the lines: 2 tacos + 1 Combo #5 = $14.10", () => {
     const priced = priceDraft(
       [
-        { itemId: taco, quantity: 2 },
-        { itemId: combo, quantity: 1 },
+        { key: 1, itemId: taco, quantity: 2 },
+        { key: 2, itemId: combo, quantity: 1 },
       ],
       (id) => {
         const found = allItems.find((i) => i.id === id);
@@ -302,7 +333,7 @@ describe("the order on screen", () => {
   });
 
   it("drops a line whose item disappeared", () => {
-    expect(priceDraft([{ itemId: 999999, quantity: 1 }], () => undefined).lines).toEqual([]);
+    expect(priceDraft([{ key: 1, itemId: 999999, quantity: 1 }], () => undefined).lines).toEqual([]);
   });
 });
 
@@ -352,13 +383,13 @@ describe("custom items", () => {
     let draft: Draft = addItem([], 5);
     draft = addCustomItem(draft, { name: "Flan", priceCents: 450, taxCategory: "food" }, 2);
     draft = addCustomItem(draft, { name: "Shot", priceCents: 700, taxCategory: "cocktail" }, 1);
-    expect(new Set(draft.map((line) => line.itemId)).size).toBe(3);
+    expect(new Set(draft.map((line) => line.key)).size).toBe(3);
     const priced = priceDraft(draft, (itemId, line) => (line.custom ? { name: line.custom.name, unitCents: line.custom.priceCents } : { name: "Menu", unitCents: 100 }));
     expect(priced.subtotalCents).toBe(100 + 900 + 700);
     expect(priced.itemCount).toBe(4);
     const shot = draft[2]!;
-    expect(removeItem(draft, shot.itemId)).toHaveLength(2);
-    expect(setQuantity(draft, shot.itemId, 3)[2]!.quantity).toBe(3);
+    expect(removeLine(draft, shot.key)).toHaveLength(2);
+    expect(setQuantity(draft, shot.key, 3)[2]!.quantity).toBe(3);
   });
 });
 
