@@ -237,6 +237,13 @@ Adds floor area and section `TOGO` with 30 `restaurant_tables` (`TOGO-1` to `TOG
 and the staff board. `save_to_go_order(employee, key, lines, notes, time zone, actor)` takes the first spot with no open
 ticket, one caller at a time, and calls `save_table_order`. It refuses with `to_go_full` when all are taken.
 
+### Misc and separate lines (`20261119010000_misc_and_separate_lines`, Nov 18, 2026)
+
+`ticket_lines_one_line_per_item` is dropped: an order may have the same menu item on several lines, each with its own
+note (indexed by `ticket_lines_batch_item_idx`). `save_table_order` accepts the same item more than once and adds every
+saved item as a new line, never to a line already there; `order_full` now means more than 100 lines or the order note's
+limit. The migration also adds the `misc` category with the owner's 33-item price list.
+
 ### Options that cost extra (`20261118010000_option_prices`, Nov 18, 2026)
 
 `menu_items.extra_cents` (0 to 100000, only on options) is what an option costs on top of its item; its `price_cents`

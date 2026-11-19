@@ -101,7 +101,10 @@ select throws_ok($$ select * from pg_temp.save(6, 'kafi', jsonb_build_array(pg_t
 select throws_ok($$ select * from public.save_order(pg_temp.id('visit'), pg_temp.id('kafi'), null, jsonb_build_array(pg_temp.line('Taco', 1)), null, 'America/Chicago', pg_temp.actor()) $$,
   'P0001', 'missing_client_key', 'an order needs its key');
 select throws_ok($$ select * from pg_temp.save(6, 'kafi', '[]') $$, 'P0001', 'empty_ticket', 'an empty order is refused');
-select throws_ok($$ select * from pg_temp.save(6, 'kafi', jsonb_build_array(pg_temp.line('Taco', 1), pg_temp.line('Taco', 2))) $$, 'P0001', 'invalid_lines', 'the same item twice in one order is refused');
+create temp table twice as select * from public.save_table_order('C6', pg_temp.id('kafi'), pg_temp.key(60),
+  jsonb_build_array(pg_temp.line('Taco', 1), pg_temp.line('Taco', 2)), null, 'America/Chicago', pg_temp.actor());
+select is((select count(*)::int from public.ticket_lines where batch_id = (select batch_id from twice)), 2,
+  'the same item twice in one order is two lines, each for its own note (Nov 18, 2026)');
 select throws_ok($$ select * from pg_temp.save(6, 'kafi', jsonb_build_array(pg_temp.line('Taco', 1)), repeat('x', 501)) $$, 'P0001', 'invalid_notes', 'a very long note is refused');
 select throws_ok($$ select * from pg_temp.save(6, 'luis', jsonb_build_array(pg_temp.line('Taco', 1))) $$, 'P0001', 'employee_inactive', 'a turned-off employee can''t order');
 select public.update_menu_item(pg_temp.item('Taco'), 235, false, pg_temp.actor());

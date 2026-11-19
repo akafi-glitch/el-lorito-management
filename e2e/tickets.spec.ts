@@ -58,12 +58,12 @@ test.describe.serial("orders on a phone", () => {
     await page.getByRole("link", { name: table, exact: true }).tap();
     await expect(page).toHaveURL(new RegExp(`/waiter/01/tables/${table}$`));
 
-    await expect(page.locator("nav[aria-label='Menu categories'] button")).toHaveCount(26);
+    await expect(page.locator("nav[aria-label='Menu categories'] button")).toHaveCount(27); // with Misc (Nov 18, 2026)
     expect(await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)).toBeLessThanOrEqual(0);
 
     await category(page, "Combination Dinners");
     await item(page, "Combo #5").tap();
-    await item(page, "Combo #5").tap();
+    await page.tap("button[aria-label='One more Combo #5']"); // + for two of the same; a second tap would be its own line
     await page.fill("#menu-search", "bud light");
     await item(page, "Bud Light").tap();
     await page.fill("#menu-search", "chile con queso");

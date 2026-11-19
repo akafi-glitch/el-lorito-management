@@ -162,6 +162,10 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   when they tap it (such as Beef, Chicken, or Shrimp; every option has the item's price), removes an option, or takes
   the item off the menu. Waiters see each change at once. Tickets already made keep their names and prices. An item
   taken off the menu is retired, never deleted, and its name can be used again. Every change is in the history.
+- **Misc (owner decision, Nov 18, 2026):** a Misc page at the end of the menu with the 33 items of the owner's price
+  list (PRECIOS), at its prices, such as Quesa Camaron Carta $6.99, Camaron Solo $0.95, Cebolla en Taco $0.25. Three
+  typos are fixed (Cebolla, Vegetales, "Chile Colorado con Cheese Dip"). All are food tax except Michelada de Agua
+  Mineral, a nonalcoholic drink.
 - **Options can cost extra (owner decision, Nov 18, 2026):** when adding an option, the manager chooses "No extra
   charge" or "Yes, extra charge" and types the extra, such as Shrimp +$3.00 (up to $1,000). The option then costs the
   item's price plus the extra: the waiter's question shows "3. Shrimp (+$3.00) $16.99", and the order, the bill, and
@@ -178,6 +182,11 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 
 - **One open ticket per table:** adding items never makes a new ticket: each submitted order is a batch on the
   table's open ticket, with its own ID, waiter, time, and one optional note.
+- **Separate lines (owner decision, Nov 18, 2026):** every tap on a menu item adds a line of its own, even when the
+  item is already on the order, so two chicken fajitas can carry "no tomato" and "no avocado". The + on a line raises
+  that line's quantity, for more of exactly the same. Saving keeps the lines apart, and adds each one as a new line on
+  the order (an item already saved is never added to). The kitchen receipt prints each line with its note; the
+  customer bill still adds up the same item at the same price on one line. An order holds up to 100 lines.
 - **One order until the kitchen prints (owner decision, Nov 10, 2026):** saving again never starts a new order while the
   table's latest order has no kitchen receipt printed or waiting for an answer: everything goes on it, and the waiter can
   add and remove freely. An item already on it gets more quantity at the price it was saved at, and a different note is

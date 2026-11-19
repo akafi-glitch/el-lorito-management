@@ -9,7 +9,7 @@ import type { TaxSetup } from "@/features/billing/setup";
 import { computeTotals, type TaxGroup } from "@/features/billing/tax";
 
 import { formatCents } from "../money";
-import { addCustomItem, addItem, priceDraft, quantityOf, removeItem, setItemNote, setQuantity, ITEM_NOTE_MAX, MAX_QUANTITY, type Draft } from "../order-draft";
+import { addCustomItem, addItem, priceDraft, quantityOf, removeLine, setItemNote, setQuantity, ITEM_NOTE_MAX, MAX_QUANTITY, type Draft } from "../order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate } from "../pricing";
 import { searchMenu } from "../search";
 import type { Menu, MenuCategory, MenuItem } from "../types";
@@ -196,7 +196,7 @@ export function MenuScreen({
         ) : (
           <ul className="mt-3 flex flex-col divide-y divide-glaze">
             {order.lines.map((line) => (
-              <li key={line.itemId} className="flex flex-col gap-2 py-3">
+              <li key={line.key} className="flex flex-col gap-2 py-3">
                 <div className="flex items-start justify-between gap-3">
                   <span className="font-semibold text-ink">
                     {line.name}
@@ -210,7 +210,7 @@ export function MenuScreen({
                       type="button"
                       aria-label={`One fewer ${line.name}`}
                       disabled={line.quantity <= 1}
-                      onClick={() => setDraft((current) => setQuantity(current, line.itemId, line.quantity - 1))}
+                      onClick={() => setDraft((current) => setQuantity(current, line.key, line.quantity - 1))}
                       className="flex size-12 items-center justify-center rounded-lg border border-glaze text-2xl font-bold text-leaf hover:border-leaf disabled:opacity-40"
                     >
                       −
@@ -222,7 +222,7 @@ export function MenuScreen({
                       type="button"
                       aria-label={`One more ${line.name}`}
                       disabled={line.quantity >= MAX_QUANTITY}
-                      onClick={() => setDraft((current) => setQuantity(current, line.itemId, line.quantity + 1))}
+                      onClick={() => setDraft((current) => setQuantity(current, line.key, line.quantity + 1))}
                       className="flex size-12 items-center justify-center rounded-lg border border-glaze text-2xl font-bold text-leaf hover:border-leaf disabled:opacity-40"
                     >
                       +
@@ -232,21 +232,21 @@ export function MenuScreen({
                   <button
                     type="button"
                     aria-label={`Remove ${line.name}`}
-                    onClick={() => setDraft((current) => removeItem(current, line.itemId))}
+                    onClick={() => setDraft((current) => removeLine(current, line.key))}
                     className="min-h-12 rounded-lg px-3 font-semibold text-danger hover:bg-danger/10"
                   >
                     Remove
                   </button>
                 </div>
-                <label htmlFor={`item-note-${line.itemId}`} className="sr-only">
+                <label htmlFor={`item-note-${line.key}`} className="sr-only">
                   Note for {line.name}
                 </label>
                 <input
-                  id={`item-note-${line.itemId}`}
+                  id={`item-note-${line.key}`}
                   type="text"
                   maxLength={ITEM_NOTE_MAX}
                   value={line.note ?? ""}
-                  onChange={(event) => setDraft((current) => setItemNote(current, line.itemId, event.target.value))}
+                  onChange={(event) => setDraft((current) => setItemNote(current, line.key, event.target.value))}
                   placeholder="Note for this item (optional)"
                   className="min-h-11 w-full rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none"
                 />
