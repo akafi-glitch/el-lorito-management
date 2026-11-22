@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionShell } from "@/components/section-shell";
+import { WorkspaceShell } from "@/components/workspace-shell";
 import { TO_GO_SECTION } from "@/features/floor/layout";
 import { buttonClasses } from "@/components/ui/button";
 import { ReprintButton } from "@/features/printing/components/reprint-button";
@@ -74,9 +75,42 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
   // ?ticket=1001 opens an earlier ticket of this table.
   const wanted = query.ticket === undefined ? null : ticketNumberParamSchema.safeParse(query.ticket);
   const selected = wanted?.success ? (others.find((t) => t.number === wanted.data) ?? null) : null;
+  const title = table.section_code === TO_GO_SECTION ? table.label : `Table ${table.label}`;
+  const earlier = others.length > 0 ? <TicketList tickets={others} selected={selected?.number ?? null} tableHref={tableHref} /> : null;
 
+  // Ordering: the full-screen layout of the owner's sketch (Nov 22, 2026).
+  if (!selected) {
+    return (
+      <WorkspaceShell
+        waiter={employeeLabel(me)}
+        title={title}
+        badge={
+          mark ? (
+            <span className={`rounded-lg px-2.5 py-1 text-sm font-bold text-white ${mark === "printed" ? "bg-status-kitchen" : "bg-status-saved"}`}>
+              {KITCHEN_MARK_TEXT[mark]}
+            </span>
+          ) : null
+        }
+        backHref={back}
+        live={{ watch: ["tickets", "menu", "staff"], versions: versions! }}
+      >
+        <TableOrderScreen
+          employeeNumber={me.number}
+          tableCode={table.code}
+          ticket={current}
+          menuVersion={versions!.menu}
+          timeZone={serverEnv().APP_TIME_ZONE}
+          nowIso={new Date().toISOString()}
+          paperWidthMm={paperWidthMm}
+          side={earlier}
+        />
+      </WorkspaceShell>
+    );
+  }
+
+  // An earlier ticket of this table, opened from the list.
   return shell(
-    table.section_code === TO_GO_SECTION ? table.label : `Table ${table.label}`,
+    title,
     <div className="flex flex-col gap-6">
       {mark ? (
         <p className={`self-start rounded-lg px-3 py-1.5 text-base font-bold text-white ${mark === "printed" ? "bg-status-kitchen" : "bg-status-saved"}`}>
@@ -88,36 +122,22 @@ export default async function WaiterTablePage({ params, searchParams }: Props) {
         {employeeLabel(me)}
       </p>
 
-      {others.length > 0 ? <TicketList tickets={others} selected={selected?.number ?? null} tableHref={tableHref} /> : null}
+      {earlier}
 
-      {selected ? (
-        <>
-          {selected.status === "open" ? (
-            <SavedTicketPanelForOldTicket ticket={selected} employeeNumber={me.number} paperWidthMm={paperWidthMm} />
-          ) : (
-            <TicketView
-              ticket={selected}
-              reason={REASON[selected.status]}
-              actions={
-                selected.status === "cancelled" ? null : <ReprintButton employeeNumber={me.number} paperWidthMm={paperWidthMm} ticketId={selected.id} />
-              }
-            />
-          )}
-          <Link href={withTicket(tableHref, null)} className={buttonClasses("secondary", "self-start")}>
-            Back to this table&apos;s order
-          </Link>
-        </>
+      {selected.status === "open" ? (
+        <SavedTicketPanelForOldTicket ticket={selected} employeeNumber={me.number} paperWidthMm={paperWidthMm} />
       ) : (
-        <TableOrderScreen
-          employeeNumber={me.number}
-          tableCode={table.code}
-          ticket={current}
-          menuVersion={versions!.menu}
-          timeZone={serverEnv().APP_TIME_ZONE}
-          nowIso={new Date().toISOString()}
-          paperWidthMm={paperWidthMm}
+        <TicketView
+          ticket={selected}
+          reason={REASON[selected.status]}
+          actions={
+            selected.status === "cancelled" ? null : <ReprintButton employeeNumber={me.number} paperWidthMm={paperWidthMm} ticketId={selected.id} />
+          }
         />
       )}
+      <Link href={withTicket(tableHref, null)} className={buttonClasses("secondary", "self-start")}>
+        Back to this table&apos;s order
+      </Link>
 
       <div className="flex flex-col gap-3 sm:flex-row">
         {backLink}

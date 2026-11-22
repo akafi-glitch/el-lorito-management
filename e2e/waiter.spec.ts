@@ -4,6 +4,7 @@ import { assign, cancelOpenOrders, employee, freeTables, openTicketsAt, seat, se
 
 async function enter(page: Page, number: string) {
   await page.goto("/waiter");
+  await page.getByText("Not on the list? Enter your number").click();
   await page.fill("#employee-number", number);
   await page.click("button:has-text('Show my tables')");
 }
@@ -37,8 +38,20 @@ test.describe.serial("waiter section", () => {
     await expect(page.locator("#employee-number-error")).toContainText("Luis (04) is turned off");
   });
 
+  test("every active waiter is a box to tap; the number pad is still there for anyone not listed (Nov 22, 2026)", async ({ page }) => {
+    await page.goto("/waiter");
+    const who = page.getByTestId("who-are-you");
+    await expect(who.getByRole("heading")).toHaveText("Who are you?");
+    await expect(who.getByRole("link", { name: "Luis (04)" })).toHaveCount(0); // turned off: not on the list
+    await expect(page.locator("#employee-number")).toBeHidden(); // tucked away until asked for
+    await who.getByRole("link", { name: "Kafi (01)" }).click();
+    await expect(page).toHaveURL(/\/waiter\/01$/);
+    await expect(page.getByRole("heading", { level: 1 })).toHaveText("Kafi (01)");
+  });
+
   test("the number pad finds 01 from 1, and shows only the tables a manager gave them, with nothing to choose", async ({ page }) => {
     await page.goto("/waiter");
+    await page.getByText("Not on the list? Enter your number").click();
     await page.click("[aria-label='Number pad'] button:text-is('1')");
     await page.click("button:has-text('Show my tables')");
     await expect(page).toHaveURL(/\/waiter\/01$/);
@@ -103,6 +116,7 @@ test.describe.serial("waiter section", () => {
     await expect(page).toHaveURL(/\/tables\/X3$/);
     await expect(page.locator("#menu-search")).toBeVisible();
     await expect(page.locator("main")).not.toContainText(/guests/i);
+    await page.click("nav[aria-label='Menu categories'] button:text-is('Lunch')"); // the menu opens on its sections
     await page.click("button[aria-label^='Add Lunch #1,']");
     await page.click("button:text-is('Save Order')");
     await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();
@@ -114,6 +128,7 @@ test.describe.serial("waiter section", () => {
   test("a seated table looks the same, and the Floor clearing it leaves the order alone", async ({ page }) => {
     await page.goto("/waiter/01/tables/X2");
     await expect(page.locator("main")).not.toContainText(/guests/i);
+    await page.click("nav[aria-label='Menu categories'] button:text-is('Lunch')"); // the menu opens on its sections
     await page.click("button[aria-label^='Add Lunch #1,']");
     await page.click("button:text-is('Save Order')");
     await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();
@@ -129,6 +144,7 @@ test.describe.serial("waiter section", () => {
     await page.click("button[aria-label='Close section C']");
     await expect(page.locator("main button[aria-label^='C6,']")).toHaveAttribute("aria-label", /Section closed/);
     await page.goto("/waiter/01/tables/C6");
+    await page.click("nav[aria-label='Menu categories'] button:text-is('Lunch')"); // the menu opens on its sections
     await page.click("button[aria-label^='Add Lunch #1,']");
     await page.click("button:text-is('Save Order')");
     await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();
@@ -137,6 +153,7 @@ test.describe.serial("waiter section", () => {
 
   test("the waiter's number stays on what they save, wherever they are assigned", async ({ page }) => {
     await page.goto("/waiter/01/tables/X9");
+    await page.click("nav[aria-label='Menu categories'] button:text-is('Lunch')"); // the menu opens on its sections
     await page.click("button[aria-label^='Add Lunch #1,']");
     await page.click("button:text-is('Save Order')");
     await expect(page.getByText(/Order saved on ticket #\d+\./)).toBeVisible();

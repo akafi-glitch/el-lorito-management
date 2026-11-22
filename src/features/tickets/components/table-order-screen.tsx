@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 
 import { buttonClasses } from "@/components/ui/button";
 import type { Notice } from "@/components/use-action-runner";
@@ -33,6 +33,8 @@ type TableOrderScreenProps = {
   timeZone: string;
   nowIso: string;
   paperWidthMm: 58 | 80;
+  /** More for the right-hand panel, under the ticket: earlier tickets, open to-go orders. */
+  side?: ReactNode;
 };
 
 const OFFLINE = "Couldn't reach the server. Nothing was saved. Check the connection, then try again.";
@@ -41,13 +43,15 @@ const OFFLINE = "Couldn't reach the server. Nothing was saved. Check the connect
  * One table: what is saved on its ticket, and the new order being built. The order stays on the device
  * until Save Order or Print Kitchen Receipt; the database then sets the prices of menu items.
  */
-export function TableOrderScreen({ employeeNumber, tableCode, toGoBasePath, ticket, menuVersion, timeZone, nowIso, paperWidthMm }: TableOrderScreenProps) {
+export function TableOrderScreen({ employeeNumber, tableCode, toGoBasePath, ticket, menuVersion, timeZone, nowIso, paperWidthMm, side }: TableOrderScreenProps) {
   const router = useRouter();
   const { data, failed, retry } = useMenuData(menuVersion);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [draft, setDraftState] = useState<Draft>([]);
   const [notes, setNotesState] = useState("");
   const [saving, setSaving] = useState(false);
+  /** Where the saved ticket's Print Customer Receipt button shows: above Print Kitchen Receipt, under the sections. */
+  const [customerPrintSlot, setCustomerPrintSlot] = useState<HTMLDivElement | null>(null);
   /** One key per order as it stands: pressing Save twice sends the same key, so it saves once. */
   const clientKey = useRef<string | null>(null);
   /** The page a new to-go order moves to, once it is saved and printing is over. */
@@ -142,7 +146,7 @@ export function TableOrderScreen({ employeeNumber, tableCode, toGoBasePath, tick
   }
 
   const banner = (
-    <div aria-live="polite" className="sticky top-2 z-20 empty:hidden">
+    <div aria-live="polite" className="sticky top-0 z-20 empty:hidden">
       {notice ? (
         <p
           role={notice.tone === "error" ? "alert" : "status"}
@@ -156,22 +160,46 @@ export function TableOrderScreen({ employeeNumber, tableCode, toGoBasePath, tick
     </div>
   );
 
+  const savedTicket = ticket ? (
+    <SavedTicketPanel
+      key={ticket.id}
+      ticket={ticket}
+      employeeNumber={employeeNumber}
+      paperWidthMm={paperWidthMm}
+      orderOnScreen={dirty}
+      onNotice={setNotice}
+      onChanged={refresh}
+      customerPrintSlot={customerPrintSlot}
+    />
+  ) : null;
+
+  // The owner's sketch (Nov 22, 2026): Print Customer Receipt, then Print Kitchen Receipt, under the section boxes.
+  const printButtons = (
+    <>
+      <div ref={setCustomerPrintSlot} className="empty:hidden" />
+      {ticket ? null : (
+        <button type="button" disabled className={buttonClasses("primary", "min-h-14 w-full text-lg")}>
+          Print Customer Receipt
+        </button>
+      )}
+      <PrintFlow
+        employeeNumber={employeeNumber}
+        paperWidthMm={paperWidthMm}
+        label="Print Kitchen Receipt"
+        disabled={saving || (!dirty && !hasToSend)}
+        start={startKitchenPrint}
+        onError={showError}
+        onDone={(printed) => {
+          if (printed) setNotice({ tone: "ok", text: "Sent to the kitchen. The order stays on the ticket." });
+          refresh();
+        }}
+      />
+      <p className="text-xs text-muted lg:hidden">Printing for the kitchen saves the order first. Only orders not yet printed go to the kitchen, and that receipt shows no prices.</p>
+    </>
+  );
+
   return (
-    <div className="flex flex-col gap-6">
-      {banner}
-
-      {ticket ? (
-        <SavedTicketPanel
-          key={ticket.id}
-          ticket={ticket}
-          employeeNumber={employeeNumber}
-          paperWidthMm={paperWidthMm}
-          orderOnScreen={dirty}
-          onNotice={setNotice}
-          onChanged={refresh}
-        />
-      ) : null}
-
+    <div className="flex min-h-0 flex-1 flex-col gap-4">
       {data ? (
         <MenuScreen
           menu={data.menu}
@@ -197,23 +225,18 @@ export function TableOrderScreen({ employeeNumber, tableCode, toGoBasePath, tick
                   className="w-full rounded-lg border border-glaze bg-paper px-3 py-2 text-base text-ink focus:border-leaf focus:outline-none"
                 />
               </div>
-              <button type="button" disabled={saving || !dirty} onClick={save} className={buttonClasses("secondary", "min-h-14 w-full text-lg")}>
+              <button type="button" disabled={saving || !dirty} onClick={save} className={buttonClasses("primary", "min-h-14 w-full text-lg")}>
                 {saving ? "Saving…" : "Save Order"}
               </button>
-              <PrintFlow
-                employeeNumber={employeeNumber}
-                paperWidthMm={paperWidthMm}
-                label="Print Kitchen Receipt"
-                disabled={saving || (!dirty && !hasToSend)}
-                start={startKitchenPrint}
-                onError={showError}
-                onDone={(printed) => {
-                  if (printed) setNotice({ tone: "ok", text: "Sent to the kitchen. The order stays on the ticket." });
-                  refresh();
-                }}
-              />
-              <p className="text-xs text-muted">Printing saves the order first. Only orders not yet printed go to the kitchen, and the receipt shows no prices.</p>
             </div>
+          }
+          actions={printButtons}
+          panelTop={banner}
+          panelBottom={
+            <>
+              {savedTicket}
+              {side}
+            </>
           }
         />
       ) : failed ? (

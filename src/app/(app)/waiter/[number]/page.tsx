@@ -40,12 +40,13 @@ export default async function WaiterTablesPage({ params }: Props) {
       title={employeeLabel(me)}
       description={`${ROLE_LABEL[me.role]}. Your tables for this shift.`}
       live={{ watch: ["staff", "tickets"], versions }}
+      wide
     >
       <div className="flex flex-col gap-6">
         <TablePicker mine={mine} others={others} basePath={waiterPath(me)} menuVersion={versions.menu} />
         <div className="flex justify-center">
           <Link href="/waiter" className={buttonClasses("secondary")}>
-            Not you? Change number
+            Not you? Choose again
           </Link>
         </div>
       </div>
