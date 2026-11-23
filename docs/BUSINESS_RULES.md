@@ -87,6 +87,9 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
   and name; the waiter taps theirs. Anyone not on the list (a manager) opens "Not on the list? Enter your number" and
   types it (01 and 1 are the same). Unknown numbers and turned-off employees are refused. The choice says who is
   working; it is not a password (the administrator sign-in protects the app).
+  On a laptop or iPad (sideways or upright) the page is one screen: a slim top line (Waiter Section, the heading,
+  the number entry, Home) and the boxes grow to fill the rest, every waiter visible without scrolling (owner, Nov 22,
+  2026). On a phone the boxes stack and the page scrolls.
 - **The order screen (owner's sketch, Nov 22, 2026):** on a laptop or iPad it fills the screen without scrolling. One
   small line at the top names the waiter and the table. Under a slim search bar ("Search any food or section"), every
   menu section is a big box; tapping one opens that section's food as big boxes, with "Back to sections". The search

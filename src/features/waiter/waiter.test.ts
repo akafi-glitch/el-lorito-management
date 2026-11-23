@@ -8,7 +8,7 @@ import type { EmployeeRef } from "@/features/staff/rules";
 
 import fixture from "../../../tests/fixtures/floor-rows.json";
 
-import { assignedSections, cleanTypedNumber, lookupResult, pickerSections, tablePath, toGoPath, waiterPath, type WaiterBySection } from "./rules";
+import { assignedSections, chooserColumns, cleanTypedNumber, lookupResult, pickerSections, tablePath, toGoPath, UPRIGHT, waiterPath, type WaiterBySection } from "./rules";
 import { employeeNumberSchema, tableCodeSchema } from "./schema";
 
 const rows = {
@@ -129,5 +129,23 @@ describe("links", () => {
 describe("the to-go page", () => {
   it("sits under the waiter's own link", () => {
     expect(toGoPath("/waiter/01")).toBe("/waiter/01/to-go");
+  });
+});
+
+describe("chooserColumns: every waiter on one screen (Nov 22, 2026)", () => {
+  it("lays the boxes out wider than tall, like a sideways laptop or iPad", () => {
+    expect(chooserColumns(0)).toBe(1);
+    expect(chooserColumns(1)).toBe(1);
+    expect(chooserColumns(2)).toBe(2);
+    expect(chooserColumns(8)).toBe(4); // 2 rows
+    expect(chooserColumns(15)).toBe(5); // 3 rows
+    expect(chooserColumns(20)).toBe(6); // 4 rows
+    expect(chooserColumns(30)).toBe(7); // 5 rows
+  });
+
+  it("an iPad held upright gets fewer columns and more rows", () => {
+    expect(chooserColumns(15, UPRIGHT)).toBe(4); // 4 rows
+    expect(chooserColumns(18, UPRIGHT)).toBe(4); // 5 rows
+    expect(chooserColumns(1, UPRIGHT)).toBe(1);
   });
 });
