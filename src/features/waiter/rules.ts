@@ -80,3 +80,16 @@ export function toGoPath(basePath: string): string {
 export function tablePath(basePath: string, tableCode: string): string {
   return `${basePath}/tables/${encodeURIComponent(tableCode)}`;
 }
+
+/** Screen shapes (width / height of the space for the boxes) of a laptop or iPad held sideways, and an iPad upright. */
+export const SIDEWAYS = 1.6;
+export const UPRIGHT = 0.7;
+
+/**
+ * How many columns of waiter boxes, so every waiter fits on one screen with boxes as big as possible: columns and rows in
+ * the shape of the screen (15 waiters sideways: 5 across, 3 down; upright: 4 across, 4 down).
+ */
+export function chooserColumns(count: number, shape: number = SIDEWAYS): number {
+  if (count <= 1) return 1;
+  return Math.min(count, Math.ceil(Math.sqrt(count * shape)));
+}
