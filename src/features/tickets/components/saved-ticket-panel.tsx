@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 
 import { buttonClasses } from "@/components/ui/button";
 import { Modal } from "@/components/ui/modal";
@@ -26,6 +27,8 @@ type SavedTicketPanelProps = {
   orderOnScreen: boolean;
   onNotice: (notice: Notice | null) => void;
   onChanged: () => void;
+  /** Where Print Customer Receipt shows (under the menu's sections); here in the panel when there is none. */
+  customerPrintSlot?: HTMLElement | null;
 };
 
 const OFFLINE = "Couldn't reach the server. Nothing was changed. Check the connection, then try again.";
@@ -46,7 +49,7 @@ const KITCHEN_DOT: Record<SavedBatch["kitchen"], string> = {
  * The customer's ticket: every saved order, what it comes to, and printing the bill. Taps on quantities
  * show at once and are saved in order, each from the version the last one left.
  */
-export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOnScreen, onNotice, onChanged }: SavedTicketPanelProps) {
+export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOnScreen, onNotice, onChanged, customerPrintSlot }: SavedTicketPanelProps) {
   const editable = ticket.status === "open";
   const [removing, setRemoving] = useState<SavedLine | null>(null);
   const [editingNote, setEditingNote] = useState<NoteTarget | null>(null);
@@ -231,6 +234,24 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
     return { job: { attemptIds: result.attemptIds, title: "the kitchen receipt", question: "", content: { kind: "kitchen", receipts: result.receipts } } };
   }
 
+  const customerPrint = (
+    <div className="flex flex-col sm:flex-1">
+      <PrintFlow
+        employeeNumber={employeeNumber}
+        paperWidthMm={paperWidthMm}
+        label={editable ? "Print Customer Receipt" : "Reprint Customer Receipt"}
+        disabled={(editable && orderOnScreen) || empty}
+        start={startCustomerPrint}
+        onError={(text) => onNotice({ tone: "error", text })}
+        onDone={(printed) => {
+          if (printed && editable) onNotice({ tone: "ok", text: `Ticket #${ticket.number} is finalized. The table is ready for a new order. To print it again, open it under Earlier tickets.` });
+          onChanged();
+        }}
+      />
+      {editable && orderOnScreen ? <p className="mt-1 text-sm font-semibold text-ink">Save the new order first: the receipt only shows saved items.</p> : null}
+    </div>
+  );
+
   return (
     <section aria-labelledby="saved-ticket-heading" className="rounded-2xl border border-glaze bg-paper p-4 sm:p-5">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
@@ -351,28 +372,26 @@ export function SavedTicketPanel({ ticket, employeeNumber, paperWidthMm, orderOn
         <TotalsBlock totals={totals} />
       </div>
 
-      <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-        {editable ? (
-          <a href="#menu-heading" className={buttonClasses("secondary", "min-h-14 sm:flex-1")}>
-            Add more items
-          </a>
-        ) : null}
-        <div className="flex flex-col sm:flex-1">
-          <PrintFlow
-            employeeNumber={employeeNumber}
-            paperWidthMm={paperWidthMm}
-            label={editable ? "Print Customer Receipt" : "Reprint Customer Receipt"}
-            disabled={(editable && orderOnScreen) || empty}
-            start={startCustomerPrint}
-            onError={(text) => onNotice({ tone: "error", text })}
-            onDone={(printed) => {
-              if (printed && editable) onNotice({ tone: "ok", text: `Ticket #${ticket.number} is finalized. The table is ready for a new order. To print it again, open it under Earlier tickets.` });
-              onChanged();
-            }}
-          />
-          {editable && orderOnScreen ? <p className="mt-1 text-sm font-semibold text-ink">Save the new order first: the receipt only shows saved items.</p> : null}
+      {customerPrintSlot ? (
+        <>
+          {createPortal(customerPrint, customerPrintSlot)}
+          {/* On a phone the ticket is under the menu: a way back up. Side by side, the menu is already there. */}
+          {editable ? (
+            <a href="#menu-heading" className={buttonClasses("secondary", "mt-4 min-h-14 w-full lg:hidden")}>
+              Add more items
+            </a>
+          ) : null}
+        </>
+      ) : (
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          {editable ? (
+            <a href="#menu-heading" className={buttonClasses("secondary", "min-h-14 sm:flex-1")}>
+              Add more items
+            </a>
+          ) : null}
+          {customerPrint}
         </div>
-      </div>
+      )}
 
       {editable ? (
         <button

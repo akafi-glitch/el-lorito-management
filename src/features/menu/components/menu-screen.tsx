@@ -11,7 +11,7 @@ import { computeTotals, type TaxGroup } from "@/features/billing/tax";
 import { formatCents } from "../money";
 import { addCustomItem, addItem, priceDraft, quantityOf, removeLine, setItemNote, setQuantity, ITEM_NOTE_MAX, MAX_QUANTITY, type Draft } from "../order-draft";
 import { currentPriceCents, formatTimeOfDay, isLate } from "../pricing";
-import { searchMenu } from "../search";
+import { searchMenu, searchSections } from "../search";
 import type { Menu, MenuCategory, MenuItem } from "../types";
 
 import { CustomItemDialog } from "./custom-item-dialog";
@@ -30,6 +30,12 @@ type MenuScreenProps = {
   orderTitle: string;
   /** Buttons and status under the order total (save, cancel...). */
   orderFooter: ReactNode;
+  /** Under the section boxes (and search results), not inside a section: the print buttons (owner's sketch, Nov 22, 2026). */
+  actions?: ReactNode;
+  /** In the right-hand panel, above the order being built: notices. */
+  panelTop?: ReactNode;
+  /** In the right-hand panel, under the order being built: the saved ticket, earlier tickets. */
+  panelBottom?: ReactNode;
 };
 
 /** Pick a category or search, tap items to add them, adjust quantities in the order panel. */
@@ -42,9 +48,13 @@ export function MenuScreen({
   tax,
   orderTitle,
   orderFooter,
+  actions,
+  panelTop,
+  panelBottom,
 }: MenuScreenProps) {
   const [now, setNow] = useState(() => new Date(nowIso));
-  const [categoryId, setCategoryId] = useState<number | null>(menu.categories[0]?.id ?? null);
+  /** The section open on screen; null shows every section as a box. */
+  const [categoryId, setCategoryId] = useState<number | null>(null);
   const [query, setQuery] = useState("");
   const [addingCustom, setAddingCustom] = useState(false);
   /** The item whose question (Beef or Chicken?) is open. */
@@ -81,112 +91,146 @@ export function MenuScreen({
   const hits = searching ? searchMenu(menu.categories, query) : [];
   const category = menu.categories.find((c) => c.id === categoryId) ?? null;
   const shown = searching ? hits : (category?.items.map((item) => ({ item, category })) ?? []);
+  const sectionHits = searching ? searchSections(menu.categories, query) : [];
+  const view = searching ? "search" : category ? "section" : "sections";
+  const openSection = (id: number) => {
+    setCategoryId(id);
+    setQuery("");
+  };
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_24rem] lg:items-start">
-      <section aria-labelledby="menu-heading" className="flex min-w-0 flex-col gap-4">
+    <div className="flex min-h-0 flex-1 flex-col gap-4 lg:grid lg:grid-cols-[minmax(0,1fr)_minmax(22rem,27rem)]">
+      <section aria-labelledby="menu-heading" className="flex min-h-0 min-w-0 flex-col gap-3">
         <h2 id="menu-heading" className="sr-only">
           Menu
         </h2>
-        <div className="flex flex-col gap-1.5">
-          <label htmlFor="menu-search" className="text-sm font-semibold text-ink">
+        <div className="flex gap-2">
+          <label htmlFor="menu-search" className="sr-only">
             Search the menu
           </label>
-          <div className="flex gap-2">
-            <input
-              id="menu-search"
-              type="search"
-              autoComplete="off"
-              placeholder="For example: combo 5, fajitas, margarita"
-              value={query}
-              onChange={(event) => setQuery(event.target.value)}
-              className="min-h-12 min-w-0 flex-1 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none"
-            />
-            {searching ? (
-              <button
-                type="button"
-                onClick={() => setQuery("")}
-                className="min-h-12 rounded-lg border border-glaze bg-paper px-4 font-semibold text-leaf hover:border-leaf"
-              >
-                Clear
-              </button>
-            ) : null}
-          </div>
+          <input
+            id="menu-search"
+            type="search"
+            autoComplete="off"
+            placeholder="Search any food or section"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            className="min-h-12 min-w-0 flex-1 rounded-lg border border-glaze bg-paper px-3 text-base text-ink focus:border-leaf focus:outline-none"
+          />
+          {searching ? (
+            <button
+              type="button"
+              onClick={() => setQuery("")}
+              className="min-h-12 rounded-lg border border-glaze bg-paper px-4 font-semibold text-leaf hover:border-leaf"
+            >
+              Clear
+            </button>
+          ) : null}
+          <button
+            type="button"
+            onClick={() => setAddingCustom(true)}
+            className="min-h-12 shrink-0 rounded-lg border-2 border-dashed border-leaf bg-paper px-3 font-semibold text-leaf hover:bg-tile active:scale-95"
+          >
+            Add Custom Item
+          </button>
         </div>
 
-        <button
-          type="button"
-          onClick={() => setAddingCustom(true)}
-          className="min-h-12 self-start rounded-lg border-2 border-dashed border-leaf bg-paper px-4 font-semibold text-leaf hover:bg-tile active:scale-95"
-        >
-          Add Custom Item
-        </button>
-
-        <nav aria-label="Menu categories" className="-mx-1 overflow-x-auto px-1 pb-1">
-          <ul className="flex w-max gap-2 lg:w-auto lg:flex-wrap">
-            {menu.categories.map((c) => {
-              const current = !searching && c.id === categoryId;
-              return (
+        {view === "sections" ? (
+          <nav aria-label="Menu categories" className="min-h-0 flex-1 lg:overflow-y-auto">
+            <ul className="grid grid-cols-[repeat(auto-fill,minmax(8.25rem,1fr))] gap-3 lg:h-full lg:auto-rows-[minmax(3.25rem,1fr)] lg:gap-2.5">
+              {menu.categories.map((c) => (
                 <li key={c.id}>
                   <button
                     type="button"
-                    aria-pressed={current}
-                    onClick={() => {
-                      setCategoryId(c.id);
-                      setQuery("");
-                    }}
-                    className={`min-h-12 whitespace-nowrap rounded-full px-4 text-base font-semibold ${
-                      current ? "bg-leaf text-white" : "border border-glaze bg-paper text-leaf hover:border-leaf"
-                    }`}
+                    onClick={() => openSection(c.id)}
+                    className="flex h-full min-h-20 w-full items-center justify-center rounded-2xl border-2 border-glaze bg-paper px-2 text-center text-lg font-bold leading-tight text-ink shadow-sm hover:border-leaf active:scale-[0.98] lg:min-h-0 xl:text-xl"
                   >
                     {c.name}
                   </button>
                 </li>
-              );
-            })}
-          </ul>
-        </nav>
-
-        <div>
-          {searching ? (
-            <p className="text-base font-semibold text-ink" aria-live="polite">
-              {hits.length === 0 ? `Nothing matches “${query.trim()}”.` : `${hits.length} ${hits.length === 1 ? "item matches" : "items match"}`}
-            </p>
-          ) : category ? (
-            <div>
-              <h3 className="text-xl font-bold text-ink">{category.name}</h3>
-              {category.note ? <p className="text-sm text-muted">{category.note}</p> : null}
-              {category.late && isLate(category.late, now, timeZone) ? (
-                <p className="mt-1 text-sm font-semibold text-ink">
-                  After {formatTimeOfDay(category.late.fromMinutes)}: prices include {formatCents(category.late.surchargeCents)} extra.
+              ))}
+            </ul>
+          </nav>
+        ) : (
+          <div className="flex min-h-0 flex-1 flex-col gap-3">
+            {view === "section" && category ? (
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                <button
+                  type="button"
+                  onClick={() => setCategoryId(null)}
+                  className="min-h-12 rounded-lg border-2 border-leaf bg-paper px-4 font-bold text-leaf hover:bg-tile active:scale-95"
+                >
+                  ← Back to sections
+                </button>
+                <div className="min-w-0">
+                  <h3 className="text-2xl font-bold text-ink">{category.name}</h3>
+                  {category.note ? <p className="text-sm text-muted">{category.note}</p> : null}
+                  {category.late && isLate(category.late, now, timeZone) ? (
+                    <p className="text-sm font-semibold text-ink">
+                      After {formatTimeOfDay(category.late.fromMinutes)}: prices include {formatCents(category.late.surchargeCents)} extra.
+                    </p>
+                  ) : null}
+                </div>
+              </div>
+            ) : (
+              <div className="flex flex-col gap-2">
+                <p className="text-base font-semibold text-ink" aria-live="polite">
+                  {hits.length === 0 && sectionHits.length === 0
+                    ? `Nothing matches “${query.trim()}”.`
+                    : `${hits.length} ${hits.length === 1 ? "item matches" : "items match"}`}
                 </p>
-              ) : null}
-            </div>
-          ) : null}
-        </div>
+                {sectionHits.length > 0 ? (
+                  <ul className="flex flex-wrap gap-2" aria-label="Matching sections">
+                    {sectionHits.map((c) => (
+                      <li key={c.id}>
+                        <button
+                          type="button"
+                          onClick={() => openSection(c.id)}
+                          className="min-h-12 rounded-xl border-2 border-leaf bg-paper px-4 font-bold text-leaf hover:bg-tile"
+                        >
+                          Section: {c.name}
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                ) : null}
+              </div>
+            )}
 
-        <ul className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {shown.map(({ item, category: itemCategory }) => (
-            <li key={item.id}>
-              <ItemButton
-                item={item}
-                categoryName={searching ? itemCategory.name : null}
-                priceCents={priceOf(item, itemCategory)}
-                lateLabel={itemCategory.late && isLate(itemCategory.late, now, timeZone) ? `After ${formatTimeOfDay(itemCategory.late.fromMinutes)} price` : null}
-                inOrder={item.choices.reduce((sum, choice) => sum + quantityOf(draft, choice.id), quantityOf(draft, item.id))}
-                onAdd={() =>
-                  item.choices.length > 0 ? setChoosing({ item, category: itemCategory }) : setDraft((current) => addItem(current, item.id))
-                }
-              />
-            </li>
-          ))}
-        </ul>
+            <ul className="grid min-h-0 flex-1 auto-rows-min grid-cols-[repeat(auto-fill,minmax(11.5rem,1fr))] gap-3 lg:overflow-y-auto lg:pb-2">
+              {shown.map(({ item, category: itemCategory }) => (
+                <li key={item.id}>
+                  <ItemButton
+                    item={item}
+                    categoryName={searching ? itemCategory.name : null}
+                    priceCents={priceOf(item, itemCategory)}
+                    lateLabel={itemCategory.late && isLate(itemCategory.late, now, timeZone) ? `After ${formatTimeOfDay(itemCategory.late.fromMinutes)} price` : null}
+                    inOrder={item.choices.reduce((sum, choice) => sum + quantityOf(draft, choice.id), quantityOf(draft, item.id))}
+                    onAdd={() =>
+                      item.choices.length > 0 ? setChoosing({ item, category: itemCategory }) : setDraft((current) => addItem(current, item.id))
+                    }
+                  />
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* On the sections page, where the search sits too; hidden inside a section. Kept on the page while hidden,
+            so a print that is under way keeps its place. */}
+        {actions ? (
+          <div className={view === "section" ? "hidden" : "flex flex-col gap-2"} data-testid="print-actions">
+            {actions}
+          </div>
+        ) : null}
       </section>
 
+      <aside aria-label="Ordered foods" className="flex flex-col gap-4 lg:min-h-0 lg:overflow-y-auto lg:overscroll-contain lg:pr-1">
+        {panelTop}
       <section
         id="current-order"
         aria-labelledby="order-heading"
-        className="rounded-2xl border border-glaze bg-paper p-4 sm:p-5 lg:sticky lg:top-4"
+        className="rounded-2xl border border-glaze bg-paper p-4 sm:p-5"
       >
         <h2 id="order-heading" className="text-xl font-bold text-ink">
           {orderTitle} {order.itemCount > 0 ? `(${order.itemCount})` : ""}
@@ -259,6 +303,9 @@ export function MenuScreen({
         </div>
         <div className="mt-4">{orderFooter}</div>
       </section>
+
+      {panelBottom}
+      </aside>
 
       {addingCustom ? (
         <CustomItemDialog
@@ -335,13 +382,13 @@ function ItemButton({
       disabled={!item.isAvailable}
       onClick={onAdd}
       aria-label={`Add ${item.name}, ${formatCents(priceCents)}${inOrder > 0 ? `, ${inOrder} in order` : ""}${item.isAvailable ? "" : ", not available"}`}
-      className={`flex h-full min-h-20 w-full flex-col gap-1 rounded-xl border-2 p-3 text-left transition-transform active:scale-[0.98] ${
+      className={`flex h-full min-h-28 w-full flex-col gap-1 rounded-2xl border-2 p-4 text-left shadow-sm transition-transform active:scale-[0.98] ${
         inOrder > 0 ? "border-leaf bg-leaf/5" : "border-glaze bg-paper hover:border-leaf"
       } disabled:cursor-not-allowed disabled:border-dashed disabled:opacity-60`}
     >
       <span className="flex items-start justify-between gap-2">
-        <span className="font-bold text-ink">{item.name}</span>
-        <span className="shrink-0 font-bold tabular-nums text-ink">{formatCents(priceCents)}</span>
+        <span className="text-lg font-bold leading-snug text-ink">{item.name}</span>
+        <span className="shrink-0 text-lg font-bold tabular-nums text-ink">{formatCents(priceCents)}</span>
       </span>
       {categoryName ? <span className="text-xs font-semibold text-muted">{categoryName}</span> : null}
       {item.description ? <span className="line-clamp-2 text-sm text-muted">{item.description}</span> : null}

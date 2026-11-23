@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SectionShell } from "@/components/section-shell";
-import { buttonClasses } from "@/components/ui/button";
+import { WorkspaceShell } from "@/components/workspace-shell";
+import { employeeLabel } from "@/features/staff/rules";
 import { loadVersions } from "@/features/sync/queries";
 import { TableOrderScreen } from "@/features/tickets/components/table-order-screen";
 import { KITCHEN_MARK_TEXT } from "@/features/tickets/rules";
@@ -33,9 +34,18 @@ export default async function ToGoOrderPage({ params }: Props) {
   const open = await loadOpenToGoOrders();
 
   return (
-    <SectionShell title="To-Go Order" description="Waiter Section" live={{ watch: ["tickets", "menu", "staff"], versions }}>
-      <div className="flex flex-col gap-6">
-        {open.length > 0 ? (
+    <WorkspaceShell waiter={employeeLabel(me)} title="To-Go Order" backHref={back} live={{ watch: ["tickets", "menu", "staff"], versions }}>
+      <TableOrderScreen
+        employeeNumber={me.number}
+        tableCode={null}
+        toGoBasePath={back}
+        ticket={null}
+        menuVersion={versions.menu}
+        timeZone={serverEnv().APP_TIME_ZONE}
+        nowIso={new Date().toISOString()}
+        paperWidthMm={serverEnv().RECEIPT_PAPER_WIDTH_MM}
+        side={
+          open.length > 0 ? (
           <nav aria-labelledby="open-to-go-heading" className="rounded-2xl border border-glaze bg-paper p-4">
             <h2 id="open-to-go-heading" className="text-lg font-bold text-ink">
               Open to-go orders
@@ -62,23 +72,9 @@ export default async function ToGoOrderPage({ params }: Props) {
               ))}
             </ul>
           </nav>
-        ) : null}
-
-        <TableOrderScreen
-          employeeNumber={me.number}
-          tableCode={null}
-          toGoBasePath={back}
-          ticket={null}
-          menuVersion={versions.menu}
-          timeZone={serverEnv().APP_TIME_ZONE}
-          nowIso={new Date().toISOString()}
-          paperWidthMm={serverEnv().RECEIPT_PAPER_WIDTH_MM}
-        />
-
-        <Link href={back} className={buttonClasses("secondary", "self-start")}>
-          Choose another table
-        </Link>
-      </div>
-    </SectionShell>
+          ) : null
+        }
+      />
+    </WorkspaceShell>
   );
 }

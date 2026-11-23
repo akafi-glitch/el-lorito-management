@@ -24,12 +24,12 @@ type TablePickerProps = {
 
 function TableGrid({ tables, basePath }: { tables: PickerSection["tables"]; basePath: string }) {
   return (
-    <ul className="grid grid-cols-3 gap-3">
+    <ul className="grid grid-cols-[repeat(auto-fill,minmax(8.5rem,1fr))] gap-4 lg:grid-cols-[repeat(auto-fill,minmax(10rem,1fr))]">
       {tables.map((table) => (
         <li key={table.code}>
           <Link
             href={tablePath(basePath, table.code)}
-            className={`flex h-full min-h-16 flex-col items-center justify-center rounded-xl border-2 px-2 py-1 text-center text-xl font-bold active:scale-95 ${
+            className={`flex h-full min-h-28 flex-col items-center justify-center gap-1 rounded-2xl border-2 px-2 py-2 text-center text-3xl font-bold shadow-sm active:scale-95 lg:min-h-36 lg:text-4xl ${
               table.kitchen === "printed"
                 ? "border-status-kitchen bg-status-kitchen text-white"
                 : table.kitchen === "saved"
@@ -38,7 +38,7 @@ function TableGrid({ tables, basePath }: { tables: PickerSection["tables"]; base
             }`}
           >
             {table.label}
-            {table.kitchen ? <span className="text-xs font-semibold">{KITCHEN_MARK_TEXT[table.kitchen]}</span> : null}
+            {table.kitchen ? <span className="text-sm font-semibold">{KITCHEN_MARK_TEXT[table.kitchen]}</span> : null}
           </Link>
         </li>
       ))}
@@ -60,21 +60,21 @@ export function TablePicker({ mine, others, basePath, menuVersion }: TablePicker
   }, [menuVersion]);
 
   return (
-    <div className="mx-auto flex w-full max-w-md flex-col gap-6">
+    <div className="mx-auto flex w-full flex-col gap-8">
       {mine.length > 0 ? (
-        <nav aria-labelledby="my-tables-heading" className="flex flex-col gap-3" data-testid="my-tables">
-          <h2 id="my-tables-heading" className="text-lg font-semibold text-ink">
-            Your tables
+        <nav aria-labelledby="my-tables-heading" className="flex flex-col gap-4" data-testid="my-tables">
+          <h2 id="my-tables-heading" className="text-3xl font-bold text-ink">
+            Your Section
           </h2>
           {mine.map((own) => (
-            <div key={own.code} className="flex flex-col gap-1.5">
-              <h3 className="text-base font-bold text-muted">Section {own.name}</h3>
+            <div key={own.code} className="flex flex-col gap-2">
+              <h3 className="text-xl font-bold text-muted">Section {own.name}</h3>
               <TableGrid tables={own.tables} basePath={basePath} />
             </div>
           ))}
         </nav>
       ) : (
-        <p className="rounded-xl border-2 border-glaze bg-paper px-4 py-3 text-base font-semibold text-ink">
+        <p className="rounded-xl border-2 border-glaze bg-paper px-4 py-4 text-xl font-semibold text-ink">
           A manager hasn&apos;t given you a section this shift. You can still take orders from any section.
         </p>
       )}
@@ -84,7 +84,7 @@ export function TablePicker({ mine, others, basePath, menuVersion }: TablePicker
           type="button"
           aria-expanded={wantsOther}
           onClick={() => setWantsOther((current) => !current)}
-          className={buttonClasses("secondary", "w-full")}
+          className={buttonClasses("secondary", "mx-auto min-h-16 w-full max-w-xl text-xl")}
         >
           Want to take order from another section?
         </button>
@@ -92,13 +92,13 @@ export function TablePicker({ mine, others, basePath, menuVersion }: TablePicker
 
       {showOthers ? (
         <div className="flex flex-col gap-4">
-          <div className="flex flex-col gap-1.5">
-            <label htmlFor="pick-section" className="text-lg font-semibold text-ink">
+          <div className="mx-auto flex w-full max-w-xl flex-col gap-1.5">
+            <label htmlFor="pick-section" className="text-xl font-semibold text-ink">
               Select Section
             </label>
             <select
               id="pick-section"
-              className="min-h-14 w-full rounded-xl border-2 border-glaze bg-paper px-4 text-lg font-semibold text-ink focus:border-leaf focus:outline-none"
+              className="min-h-16 w-full rounded-xl border-2 border-glaze bg-paper px-4 text-xl font-semibold text-ink focus:border-leaf focus:outline-none"
               value={sectionCode}
               onChange={(event) => {
                 if (event.target.value === TO_GO_OPTION) router.push(toGoPath(basePath));
@@ -117,13 +117,13 @@ export function TablePicker({ mine, others, basePath, menuVersion }: TablePicker
 
           {section ? (
             <nav aria-labelledby="pick-table-heading" className="flex flex-col gap-1.5">
-              <h2 id="pick-table-heading" className="text-lg font-semibold text-ink">
+              <h2 id="pick-table-heading" className="text-2xl font-bold text-ink">
                 Select Table
               </h2>
               <TableGrid tables={section.tables} basePath={basePath} />
             </nav>
           ) : (
-            <p className="text-base text-muted">Choose a section to see its tables.</p>
+            <p className="text-center text-lg text-muted">Choose a section to see its tables.</p>
           )}
         </div>
       ) : null}

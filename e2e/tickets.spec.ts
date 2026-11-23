@@ -5,7 +5,12 @@ import { answerNo, answerYes, lastReceipt, prints, stubPrinting, waitForPrint } 
 import { batchesOf, cancelOpenOrders, employee, freeTables, openTicketsAt, printAttempts, saveOrder, setItem, setTaxRate, startShift, ticketByNumber, ticketTotal } from "./support/db";
 
 const item = (page: Page, name: string) => page.locator(`button[aria-label^='Add ${name},']`).first();
-const category = (page: Page, name: string) => page.click(`nav[aria-label='Menu categories'] button:text-is('${name}')`);
+/** Opens a menu section, going back to the section boxes first when another section is open (Nov 22, 2026 layout). */
+const category = async (page: Page, name: string) => {
+  const back = page.getByRole("button", { name: "← Back to sections" });
+  if (await back.isVisible()) await back.click();
+  await page.click(`nav[aria-label='Menu categories'] button:text-is('${name}')`);
+};
 const order = (page: Page) => page.locator("#current-order");
 const saved = (page: Page) => page.locator("section[aria-labelledby='saved-ticket-heading']");
 const saveOrderButton = (page: Page) => page.getByRole("button", { name: "Save Order", exact: true });
@@ -52,8 +57,7 @@ test.describe.serial("orders on a phone", () => {
 
   test("the whole path from a phone: number, section, table, order, save", async ({ page }) => {
     await page.goto("/waiter");
-    await page.tap("[aria-label='Number pad'] button:text-is('1')");
-    await page.tap("button:has-text('Show my tables')");
+    await page.getByTestId("who-are-you").getByRole("link", { name: "Kafi (01)" }).tap(); // a box for every waiter
     await page.selectOption("#pick-section", { label: "X(1)" });
     await page.getByRole("link", { name: table, exact: true }).tap();
     await expect(page).toHaveURL(new RegExp(`/waiter/01/tables/${table}$`));
@@ -214,8 +218,10 @@ test.describe.serial("orders on a phone", () => {
       const ticket = await ticketByNumber(number);
       const before = (await batchesOf(ticket.id)).length;
 
+      await category(page, "Lunch");
       await item(page, "Lunch #3").tap();
       await page.fill("#order-notes", "No onions");
+      await page.getByRole("button", { name: "← Back to sections" }).click(); // the print buttons are under the section boxes
       // Press repeatedly: only one order may be saved and one receipt printed.
       await kitchenButton(page).tap();
       await kitchenButton(page).tap({ force: true, timeout: 500 }).catch(() => {});
@@ -289,6 +295,7 @@ test.describe.serial("orders on a phone", () => {
       await stubPrinting(page);
       await page.goto(`/waiter/01/tables/${table}`);
       const number = await ticketNumberOnScreen(page);
+      await category(page, "Lunch");
       await item(page, "Lunch #1").tap();
       await saveOrderButton(page).tap();
       await expect(page.getByText(/Order saved on ticket/)).toBeVisible();
@@ -324,7 +331,9 @@ test.describe.serial("orders on a phone", () => {
 
     test("the bill can't be printed over an unsaved order", async ({ page }) => {
       await page.goto(`/waiter/01/tables/${table}`);
+      await category(page, "Lunch");
       await item(page, "Lunch #2").tap();
+      await page.getByRole("button", { name: "← Back to sections" }).click(); // the print buttons are under the section boxes
       await expect(customerButton(page)).toBeDisabled();
       await expect(page.getByText("Save the new order first")).toBeVisible();
       await page.tap("button[aria-label='Remove Lunch #2']");
@@ -419,6 +428,7 @@ test.describe.serial("orders on a phone", () => {
       await page.goto(`/waiter/01/tables/${table}`);
       await expect(page.locator("#saved-ticket-heading")).toHaveCount(0);
       await expect(page.locator("#menu-search")).toBeVisible();
+      await category(page, "Lunch");
       await item(page, "Lunch #2").tap();
       await saveOrderButton(page).tap();
       await expect(page.getByText(/Order saved on ticket/)).toBeVisible();

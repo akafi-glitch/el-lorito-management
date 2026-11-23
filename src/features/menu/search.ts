@@ -40,3 +40,13 @@ export function searchMenu(categories: readonly MenuCategory[], query: string): 
   }
   return scored.sort((a, b) => a.rank - b.rank || a.order - b.order).map((entry) => entry.hit);
 }
+
+/** Sections whose name matches what was typed: every typed word starts a word of the name ("comb din"). */
+export function searchSections(categories: readonly MenuCategory[], query: string): MenuCategory[] {
+  const terms = words(query);
+  if (terms.length === 0) return [];
+  return categories.filter((category) => {
+    const name = words(category.name);
+    return terms.every((term) => name.some((word) => word.startsWith(term)));
+  });
+}

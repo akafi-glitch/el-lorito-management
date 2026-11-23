@@ -50,7 +50,7 @@ test.describe.serial("finishing a shift", () => {
   test("while closed, waiters can't enter, even from a saved link", async ({ page }) => {
     await page.goto("/waiter");
     await expect(page.getByTestId("restaurant-closed")).toContainText("The restaurant is closed.");
-    await expect(page.locator("#employee-number")).toHaveCount(0);
+    await expect(page.getByTestId("who-are-you")).toHaveCount(0);
 
     for (const link of ["/waiter/01", `/waiter/01/tables/${TABLE}`]) {
       await page.goto(link);
@@ -80,7 +80,7 @@ test.describe.serial("finishing a shift", () => {
     await expect(manager.locator(shiftButton("Finish shift"))).toBeVisible();
     await manager.close();
 
-    await expect(page.locator("#employee-number")).toBeVisible({ timeout: env.realtime ? 4_000 : 15_000 });
+    await expect(page.getByTestId("who-are-you")).toBeVisible({ timeout: env.realtime ? 4_000 : 15_000 });
     await page.goto(`/waiter/01/tables/${TABLE}`);
     await expect(page.locator("main")).toContainText("Waiter");
     await expect(page).toHaveURL(new RegExp(`/waiter/01/tables/${TABLE}$`));

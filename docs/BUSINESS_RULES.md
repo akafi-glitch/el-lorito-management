@@ -83,9 +83,16 @@ Suggestions live in `src/features/seating/recommend.ts`; the database re-checks 
 
 ## Waiter section (Rebuilt Nov 2, 2026)
 
-- **Identify:** the waiter types their employee number (01 and 1 are the same). Unknown numbers and
-  turned-off employees are refused. The number says who is working; it is not a password (the
-  administrator sign-in protects the app).
+- **Identify (owner decision, Nov 22, 2026):** "Who are you?" shows every active waiter as a big box with their number
+  and name; the waiter taps theirs. Anyone not on the list (a manager) opens "Not on the list? Enter your number" and
+  types it (01 and 1 are the same). Unknown numbers and turned-off employees are refused. The choice says who is
+  working; it is not a password (the administrator sign-in protects the app).
+- **The order screen (owner's sketch, Nov 22, 2026):** on a laptop or iPad it fills the screen without scrolling. One
+  small line at the top names the waiter and the table. Under a slim search bar ("Search any food or section"), every
+  menu section is a big box; tapping one opens that section's food as big boxes, with "Back to sections". The search
+  finds food anywhere and offers matching sections. On the right, a panel lists the order being built and the saved
+  ticket, and only that panel scrolls. Print Customer Receipt and then Print Kitchen Receipt sit under the section
+  boxes (and under search results), not inside a section. On a phone the same parts stack and the page scrolls.
 - **Their own tables first (owner decision, Nov 4, 2026):** after the number, a waiter sees only the tables of the
   sections a manager gave them this shift, with no section to choose. **Want to take order from another section?**
   opens a dropdown of every other section, and nothing limits a waiter to their own: this is flexibility for everyone.
